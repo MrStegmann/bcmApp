@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import * as SQLite from "expo-sqlite";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { TeamModel } from "../models/Team";
 import { PlayerModel } from "../models/Player";
 import { GameModel } from "../models/Game";
@@ -19,12 +19,12 @@ import { GamePlayerDTO } from "../dtos/GamePlayerDTO";
 import { PlayersStatsDTO } from "../dtos/PlayersStatsDTO";
 import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
 import { PlayerFeeDTO } from "../dtos/PlayerFeeDTO";
-import { createTeam } from "../test/team";
-import { createPlayers } from "../test/player";
+import { useAlertStore } from "../store/AlertStore";
 
 const DBContext = createContext();
 
 const DBProvider = ({ children }) => {
+  const addAlert = useAlertStore((state) => state.addAlert);
   const [models, setModels] = useState(null);
   const [dtos, setDTOs] = useState(null);
 
@@ -40,9 +40,6 @@ const DBProvider = ({ children }) => {
         await FeeModel(dbInstance).createTable();
         await TrainingsModel(dbInstance).createTable();
         await TrainingPlayersModel(dbInstance).createTable();
-
-        await createTeam(TeamModel(dbInstance));
-        await createPlayers(PlayerModel(dbInstance));
 
         setModels({
           TeamModel: TeamModel(dbInstance),
@@ -62,7 +59,7 @@ const DBProvider = ({ children }) => {
           PlayerFeeDTO: PlayerFeeDTO(dbInstance),
         });
       } catch (error) {
-        console.error("Failed to initialize database", error);
+        addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
       }
     };
     initDb();
@@ -290,7 +287,15 @@ const DBProvider = ({ children }) => {
         TraningPlayersController,
       }}
     >
-      {!models || !dtos ? <Text>Cargando base de datos...</Text> : children}
+      {!models || !dtos ? (
+        <View className="w-full h-full flex justify-center items-center bg-gray-900">
+          <Text className="text-danish-white font-bold text-xl">
+            Cargando base de datos...
+          </Text>
+        </View>
+      ) : (
+        children
+      )}
     </DBContext.Provider>
   );
 };

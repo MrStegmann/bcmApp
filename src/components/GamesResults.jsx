@@ -1,0 +1,77 @@
+import React from "react";
+import { View, Text, ScrollView } from "react-native";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
+const CardGamesResults = ({ game }) => {
+  const result =
+    game.result_c1 +
+    game.result_c2 +
+    game.result_c3 +
+    game.result_c4 +
+    game.result_extra;
+  const resultOpponent =
+    game.result_c1_opponent +
+    game.result_c2_opponent +
+    game.result_c3_opponent +
+    game.result_c4_opponent +
+    game.result_extra_opponent;
+  return (
+    <View
+      className={`w-full px-2 py-3 flex flex-row justify-between items-center rounded-lg shadow-inner border-2 bg-danish-dark-gray ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+    >
+      <View className="w-1/3 flex flex-col justify-center items-center">
+        <Text className="text-center text-xs text-danish-white">
+          Jornada {game.round}
+        </Text>
+        <Text className="text-center text-xs text-danish-white">
+          {game.date}
+        </Text>
+      </View>
+      <View className="w-1/3 flex flex-col justify-center items-center">
+        <Text className="text-danish-white">{game.opponent}</Text>
+      </View>
+
+      <View className="w-1/3 flex-row justify-center items-center">
+        <Text className="font-bold text-sm text-danish-white">
+          {`${result}`}
+        </Text>
+        <Text className="mx-2 font-bold text-sm text-danish-white">-</Text>
+        <Text className="font-bold text-sm text-danish-white">
+          {`${resultOpponent}`}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const GamesResults = ({ gamesResults }) => {
+  if (!gamesResults)
+    return (
+      <View className="w-full flex flex-col justify-center items-center mt-20">
+        <MaterialCommunityIcons
+          name="book-open-blank-variant-outline"
+          size={30}
+          color="gray"
+        />
+        <Text className="text-lg font-bold text-danish-light-gray px-16">
+          Parece que no hay registros recientes que mostrar...
+        </Text>
+      </View>
+    );
+  return (
+    <View className="p-4 shadow w-full px-3">
+      <Text className="text-danish-white font-bold text-center mb-1">
+        Resultado Ultimos partidos
+      </Text>
+      <View className="w-full h-96 flex flex-col">
+        <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
+          {gamesResults.map((game) => (
+            <CardGamesResults key={game.id} game={game} />
+          ))}
+        </ScrollView>
+      </View>
+    </View>
+  );
+};
+
+export default GamesResults;

@@ -1,63 +1,97 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, FlatList, TouchableOpacity, Button } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity } from "react-native";
 import { useClubStore } from "../store/ClubStore";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Feather } from "@expo/vector-icons";
-import Table from "../framework/Table";
 import DeleteModal from "../framework/DeleteModal";
 import GameForm from "../components/GameForm";
 import GameDetail from "../components/GameDetail";
-import Game from "../models/Game";
-import PlayerStats from "../models/PlayerStats";
 import useDB from "../hooks/useDB";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import Entypo from "@expo/vector-icons/Entypo";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMenuStore } from "../store/MenuStore";
 
-const TableHeader = () => {
-  return (
-    <>
-      <Text className="font-bold w-18 text-center">J.</Text>
-      <Text className="font-bold w-18 text-center">Fecha</Text>
-      <Text className="font-bold w-28 text-center">Oponente</Text>
-      <Text className="font-bold w-28 text-center">Opciones</Text>
-    </>
-  );
-};
+const GameCards = ({ games, onSelect, onEdit, onDelete }) => {
+  if (games.length === 0)
+    return (
+      <View className="w-full flex flex-col justify-center items-center mt-20">
+        <MaterialCommunityIcons
+          name="book-open-blank-variant-outline"
+          size={30}
+          color="gray"
+        />
+        <Text className="text-lg font-bold text-danish-light-gray px-16">
+          Parece que no aún no has registrado ningún partido
+        </Text>
+      </View>
+    );
 
-const TableBody = ({
-  items,
-  onSelect,
-  handleOpenEditForm,
-  handleOpenDeleteModal,
-}) => {
   return (
-    <>
-      {items.map((item) => (
-        <View
-          key={item.id}
-          className="w-full flex flex-row justify-between items-center border-b py-2 border-gray-300 px-5"
-        >
-          <Text className="text-sm w-18 text-center">{item.round}</Text>
-          <Text className="text-sm w-18 text-center ">{item.date}</Text>
-          <Text className="text-sm w-28 text-center">{item.opponent}</Text>
-          <View className="flex flex-row w-28 justify-between">
-            <TouchableOpacity onPress={() => onSelect(item)}>
-              <Feather name="info" size={24} color="green" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleOpenEditForm(item)}>
-              <Feather name="edit" size={24} color="blue" />
-            </TouchableOpacity>
+    <View className="w-full h-full flex flex-col items-center">
+      <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
+        {games.map((game) => {
+          const result =
+            game.result_c1 +
+            game.result_c2 +
+            game.result_c3 +
+            game.result_c4 +
+            game.result_extra;
+          const resultOpponent =
+            game.result_c1_opponent +
+            game.result_c2_opponent +
+            game.result_c3_opponent +
+            game.result_c4_opponent +
+            game.result_extra_opponent;
+          return (
             <TouchableOpacity
-              color="red"
-              onPress={() => handleOpenDeleteModal(item)}
+              key={game.id}
+              onPress={() => onSelect(game)}
+              className="my-2 active:shadow-inner shadow-danish-red bg-transparent z-10 hover:bg-danish-red active:bg-danish-red"
             >
-              <Feather name="trash" size={24} color="red" />
+              <View
+                className={`w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg  border ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+              >
+                <View className="w-[75%] flex flex-row justify-between items-center">
+                  <View className="flex flex-col">
+                    <Text className="text-xs text-danish-white text-center">
+                      {game.round}
+                    </Text>
+                  </View>
+                  <View className="flex flex-col">
+                    <Text className="text-xs text-danish-white text-center">
+                      {game.date}
+                    </Text>
+                  </View>
+                  <View className="flex flex-col">
+                    <Text className="text-xs text-danish-white text-center">
+                      {game.opponent}
+                    </Text>
+                  </View>
+                  <View className="flex flex-col">
+                    <Text className="text-xs text-danish-white text-center">
+                      {result} - {resultOpponent}
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="w-[25%] flex flex-row justify-end items-center gap-3">
+                  <TouchableOpacity color="blue" onPress={() => onEdit(game)}>
+                    <Feather name="edit" size={18} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    color="white"
+                    onPress={() => onDelete(game)}
+                  >
+                    <Feather name="trash" size={18} color="red" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-    </>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -85,7 +119,7 @@ const GameList = ({ onReturn }) => {
           id: TopMenuEnums.GO_BACK,
           name: "Volver",
           onPress: () => setCreateGame(false),
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -102,7 +136,7 @@ const GameList = ({ onReturn }) => {
             setGameSelected(null);
             setEditGame(false);
           },
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -119,7 +153,7 @@ const GameList = ({ onReturn }) => {
           onPress: () => {
             setGameSelected(null);
           },
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -134,14 +168,14 @@ const GameList = ({ onReturn }) => {
         name: "Añadir Partido",
         onPress: () => setCreateGame(true),
         children: () => (
-          <Ionicons name="basketball-sharp" size={24} color="red" />
+          <Ionicons name="basketball-sharp" size={18} color="white" />
         ),
       },
       {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn,
-        children: () => <Entypo name="back" size={24} color="red" />,
+        children: () => <Entypo name="back" size={18} color="white" />,
       },
     ]);
   };
@@ -187,24 +221,13 @@ const GameList = ({ onReturn }) => {
   };
 
   const handleUpdateResults = async (game) => {
-    // const updatedGame = new Game(game);
-    // const resultGames = await GameService.update(
-    //   updatedGame.toUpdate(),
-    //   club.id
-    // );
-    // setGames(resultGames);
-    // setGameSelected((before) => resultGames.find((g) => g.id === before.id));
-  };
-
-  const handleUpdateStats = async (stats) => {
-    // for (const stat of stats) {
-    //   const playerStat = new PlayerStats(stat);
-    //   await PlayerStatsService.update(playerStat.toUpdate());
-    // }
+    await GameController.edit(game);
+    getData();
+    setGameSelected((before) => games.find((g) => g.id === before.id));
   };
 
   return (
-    <View className="flex-1 w-full h-full justify-start items-center">
+    <View className="w-full h-full justify-start items-center px-2">
       <DeleteModal
         title={`¿Estás seguro de que quieres eliminar el partido contra ${itemToDelete?.opponent}?`}
         visible={modalVisible}
@@ -234,19 +257,13 @@ const GameList = ({ onReturn }) => {
           <GameDetail
             data={gameSelected}
             onUpdateResults={handleUpdateResults}
-            onUpdateStats={handleUpdateStats}
           />
         ) : (
-          <Table
-            header={<TableHeader />}
-            body={
-              <TableBody
-                items={games}
-                onSelect={setGameSelected}
-                handleOpenEditForm={handleOpenEditForm}
-                handleOpenDeleteModal={handleOpenDeleteModal}
-              />
-            }
+          <GameCards
+            games={games}
+            onSelect={setGameSelected}
+            onEdit={handleOpenEditForm}
+            onDelete={handleOpenDeleteModal}
           />
         ))}
     </View>

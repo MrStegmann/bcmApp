@@ -21,7 +21,7 @@ export const GameModel = (dbInstance) => ({
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
       );`);
     } catch (error) {
-      console.log("Error al crear Games: ", error);
+      throw new Error("No se ha podido crear la tabla Games: ", error);
     }
   },
   getAll: async (teamId, callback) => {

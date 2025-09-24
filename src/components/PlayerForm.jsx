@@ -21,8 +21,22 @@ const PlayerForm = ({ onSubmit, onCancel, playerData }) => {
     }
   }, []);
 
+  useEffect(() => {
+    setWrongFirstName("");
+  }, [firstName]);
+  useEffect(() => {
+    setWrongLastName("");
+  }, [lastName]);
+  useEffect(() => {
+    setWrongNumber("");
+  }, [number]);
+
   const handleSubmit = () => {
+    if (firstName === "") setWrongFirstName("Debes introducir un nombre.");
+    if (lastName === "") setWrongLastName("Debes introducir un apellido.");
+    if (number === "") setWrongNumber("Debes introducir un número.");
     if ([firstName, lastName, number].includes("")) return;
+    if (isNaN(number)) return setWrongNumber("Debes introducir un número.");
 
     onSubmit({
       teamId: club.id,
@@ -52,6 +66,7 @@ const PlayerForm = ({ onSubmit, onCancel, playerData }) => {
         value={number}
         onChange={setNumber}
         wrongMsg={wrongNumber}
+        keyboardType="numeric"
       />
       <Button
         title={playerData ? "Guardar" : "Añadir jugador"}

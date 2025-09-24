@@ -1,47 +1,19 @@
-import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Table from "../framework/Table";
 import DeleteModal from "../framework/DeleteModal";
 
-const TableHeader = () => {
+const TeamCard = ({ info, onDelete, onSelect }) => {
   return (
-    <>
-      <Text className="font-bold w-[70%] text-danish-dark-gray">
-        Nombre del Club
-      </Text>
-      <Text className="font-bold w-[30%] text-danish-dark-gray">Opciones</Text>
-    </>
-  );
-};
-const TableBody = ({ items, onSelect, handleOpenDeleteModal }) => {
-  return (
-    <>
-      {items.map((item) => (
-        <View
-          key={item.id}
-          className="w-full flex flex-row items-center border-b border-x px-3 border-danish-light-gray py-2"
-        >
-          <View className="w-[70%]">
-            <Text className="font-semibold text-danish-dark-gray">
-              {item.name}
-            </Text>
-          </View>
-
-          <View className="w-[20%] flex flex-row justify-end items-center gap-3">
-            <TouchableOpacity color="green" onPress={() => onSelect(item)}>
-              <Feather name="info" size={24} color="green" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              color="red"
-              onPress={() => handleOpenDeleteModal(item)}
-            >
-              <Feather name="trash" size={24} color="red" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-    </>
+    <TouchableOpacity onPress={() => onSelect(info)} className="my-2">
+      <View className="w-full h-20 flex flex-row bg-danish-dark-gray rounded-xl justify-between items-center px-5 shadow-xl border-danish-red border-2 shadow-danish-red">
+        <Text className="text-danish-white text-xl font-bold">{info.name}</Text>
+        <TouchableOpacity color="red" onPress={() => onDelete(info)}>
+          <Feather name="trash" size={24} color="red" />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -62,6 +34,7 @@ export default function ClubList({ clubs, onSelect, onDelete }) {
     onDelete(itemToDelete.id);
     setModalVisible(false); // Oculta el modal después de la acción
   };
+
   return (
     <View className="w-full h-full px-5">
       <DeleteModal
@@ -72,22 +45,26 @@ export default function ClubList({ clubs, onSelect, onDelete }) {
         item={itemToDelete}
       />
 
-      {clubs.length ? (
-        <Table
-          header={<TableHeader />}
-          body={
-            <TableBody
-              items={clubs}
+      <ScrollView
+        horizontal={false}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
+      >
+        {clubs.length ? (
+          clubs.map((c) => (
+            <TeamCard
+              key={c.id}
+              info={c}
+              onDelete={handleOpenDeleteModal}
               onSelect={onSelect}
-              handleOpenDeleteModal={handleOpenDeleteModal}
             />
-          }
-        />
-      ) : (
-        <Text className="text-center font-bold text-danish-dark-gray">
-          No hay ningún Equipo registrado
-        </Text>
-      )}
+          ))
+        ) : (
+          <Text className="text-center font-bold text-danish-white">
+            No hay ningún Equipo registrado
+          </Text>
+        )}
+      </ScrollView>
     </View>
   );
 }

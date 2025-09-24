@@ -22,6 +22,7 @@ import TopMenuEnums from "../Enums/TopMenuEnums";
 import useDB from "../hooks/useDB";
 import { Team } from "../models/Team";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAlertStore } from "../store/AlertStore";
 
 const ClubManage = () => {
   const { TeamController } = useDB();
@@ -44,7 +45,7 @@ const ClubManage = () => {
           id: TopMenuEnums.GO_BACK,
           name: "Volver",
           onPress: () => setCreateMode(false),
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -54,7 +55,7 @@ const ClubManage = () => {
           name: "Añadir Equipo",
           onPress: () => setCreateMode(true),
           children: () => (
-            <MaterialIcons name="add-moderator" size={24} color="red" />
+            <MaterialIcons name="add-moderator" size={18} color="white" />
           ),
         },
       ]);
@@ -69,7 +70,7 @@ const ClubManage = () => {
           name: "Añadir Equipo",
           onPress: () => setCreateMode(true),
           children: () => (
-            <MaterialIcons name="add-moderator" size={24} color="red" />
+            <MaterialIcons name="add-moderator" size={18} color="white" />
           ),
         },
       ]);
@@ -111,52 +112,53 @@ const ClubManage = () => {
   };
 
   return (
-    <View className="w-full h-full flex flex-col relative">
+    <View className="w-full h-full flex flex-col relative bg-gray-900">
       <Alerts />
 
       <Header>
         {topMenu.map((menu) => (
           <TouchableOpacity
             key={menu.id}
-            className="w-14 h-14 border-2 border-danish-gold bg-danish-white rounded-full flex items-center justify-center active:bg-danish-light-gray"
+            className="w-12 h-12 border-2 bg-danish-red border-danish-dark-gray shadow shadow-black rounded-full flex items-center justify-center active:bg-danish-light-gray"
             onPress={menu.onPress}
           >
             {menu.children()}
           </TouchableOpacity>
         ))}
       </Header>
-
-      <KeyboardAvoidingView behavior="height" className="w-full flex-1 mt-10">
-        <ScrollView
-          horizontal={false}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={true}
-        >
-          {club && (
-            <ClubProfile
-              handleReturn={handleReturnClubManage}
-              handleUpdate={handleUpdateClub}
-            />
-          )}
-          {!club && (
-            <>
-              {createMode ? (
-                <View className="w-full h-full justify-center items-center flex mt-5">
-                  <ClubForm onSubmit={handleAddClub} />
-                </View>
-              ) : (
-                <View className="w-full h-full justify-center items-center flex mt-5">
-                  <ClubList
-                    clubs={clubs}
-                    onSelect={handleSelectClub}
-                    onDelete={handleDeleteClub}
-                  />
-                </View>
-              )}
-            </>
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+      <View className="w-full h-full mt-10">
+        <KeyboardAvoidingView behavior="height">
+          <ScrollView
+            horizontal={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
+          >
+            {club && (
+              <ClubProfile
+                handleReturn={handleReturnClubManage}
+                handleUpdate={handleUpdateClub}
+              />
+            )}
+            {!club && (
+              <>
+                {createMode ? (
+                  <View className="w-full h-full justify-center items-center flex mt-5">
+                    <ClubForm onSubmit={handleAddClub} />
+                  </View>
+                ) : (
+                  <View className="w-full h-full justify-center items-center flex mt-5">
+                    <ClubList
+                      clubs={clubs}
+                      onSelect={handleSelectClub}
+                      onDelete={handleDeleteClub}
+                    />
+                  </View>
+                )}
+              </>
+            )}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
     </View>
   );
 };

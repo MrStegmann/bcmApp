@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, Switch, Text, View } from "react-native";
+import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useClubStore } from "../store/ClubStore";
 import MonthEnums from "../Enums/MonthEnums";
 import useDB from "../hooks/useDB";
+import Entypo from "@expo/vector-icons/Entypo";
 
 const months = Object.keys(MonthEnums);
 
@@ -38,59 +39,57 @@ const Calendar = () => {
   };
 
   return (
-    <View className="flex-1 w-full h-full justify-start items-center">
-      <Text className="w-full text-center text-2xl font-bold mb-5">Cuotas</Text>
-      <View className="w-1/2 border-2 border-danish-gold rounded-lg mb-5">
-        <Picker
-          selectedValue={selectedMonth}
-          onValueChange={(itemValue) => setSelectedMonth(itemValue)}
-          style={{
-            width: "100%",
-            height: 50,
-            fontWeight: "bold",
-            textAlign: "center",
-            color: "#C60C30",
-          }}
-          itemStyle={{
-            textAlign: "center",
-          }}
-        >
-          {months.map((month) => (
-            <Picker.Item key={month} label={month} value={month} />
-          ))}
-        </Picker>
+    <View className="w-full h-full flex flex-col justify-start items-center px-2">
+      <Text className="w-full text-center text-xl text-danish-white font-bold mb-5">
+        Cuotas
+      </Text>
+      <View className="w-full flex flex-row flex-wrap gap-2 justify-center items-center">
+        {months.map((month) => (
+          <TouchableOpacity
+            key={month}
+            onPress={() => setSelectedMonth(month)}
+            className="hover:bg-danish-red active:bg-danish-red"
+          >
+            <View
+              className={`border border-danish-red rounded-lg w-28 p-2 ${selectedMonth === month && "bg-danish-red"}`}
+            >
+              <Text className="text-xs text-danish-white text-center">
+                {month}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <View className="flex flex-row w-full justify-center items-center">
-        <View className="w-52 border border-danish-gold bg-danish-red px-5 py-3">
-          <Text className="text-center text-danish-white">Jugador</Text>
-        </View>
-        <View className="w-36 border border-danish-gold bg-danish-red px-5 py-3">
-          <Text className="text-center text-danish-white">{selectedMonth}</Text>
-        </View>
-      </View>
-
-      <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
-        <View className="flex flex-col w-full justify-center items-center">
-          {playersFee
-            .filter((fees) => fees.month.includes(selectedMonth))
-            .map((fees) => (
-              <View key={fees.id} className="w-full flex flex-row">
-                <View className="w-52  border border-danish-gold bg-danish-red px-5 py-3 flex justify-center items-center">
-                  <Text className="text-center text-danish-white">
+      <Text className="w-full text-center text-xl text-danish-white font-bold mt-5 mb-2">
+        Jugadores
+      </Text>
+      <View className="w-full flex-1">
+        <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
+          <View className="w-full flex-1 flex flex-row flex-wrap gap-4 mt-5 justify-center items-center">
+            {playersFee
+              .filter((fees) => fees.month.includes(selectedMonth))
+              .map((fees) => (
+                <TouchableOpacity
+                  onPress={() => switchPaidMonth(fees, !fees.paid)}
+                  key={fees.id}
+                  className={`w-28 h-28 flex flex-col bg-danish-dark-gray justify-center border rounded-lg p-2 shadow-lg ${fees.paid ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"} hover:bg-danish-red active:bg-danish-red`}
+                >
+                  <Text className="text-xs text-center text-danish-white">
                     {fees.first_name + " " + fees.last_name}
                   </Text>
-                </View>
-                <View className="w-36 border border-danish-gold bg-danish-red px-5 py-3 flex justify-center items-center">
-                  <Switch
-                    value={Boolean(fees.paid)}
-                    onValueChange={(state) => switchPaidMonth(fees, state)}
-                  />
-                </View>
-              </View>
-            ))}
-        </View>
-      </ScrollView>
+                  <View className="w-full flex-1 flex justify-center items-center">
+                    {fees.paid ? (
+                      <Entypo name="check" size={18} color="gold" />
+                    ) : (
+                      <Entypo name="cross" size={18} color="red" />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
+          </View>
+        </ScrollView>
+      </View>
     </View>
   );
 };

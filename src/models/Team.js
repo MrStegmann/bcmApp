@@ -16,7 +16,7 @@ export function TeamModel(dbInstance) {
             created_at TEXT DEFAULT (datetime('now'))
         );`);
       } catch (error) {
-        console.log("Error al crear Teams: ", error);
+        throw new Error("No se ha podido crear la tabla Teams: ", error);
       }
     },
 

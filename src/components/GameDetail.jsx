@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Text, View, TextInput, ScrollView } from "react-native";
-import Button from "../framework/Button";
 import { useClubStore } from "../store/ClubStore";
-import Game from "../models/Game";
 import useDB from "../hooks/useDB";
 
 const RowData = ({ children }) => {
@@ -78,7 +76,9 @@ const PlayerCard = ({ playerInf }) => {
     (Number(pt.t1i) - Number(pt.t1a));
 
   return (
-    <View className={`w-80 flex flex-col bg-danish-red rounded-xl p-2 mx-2`}>
+    <View
+      className={`w-80 flex flex-col border-2 shadow shadow-danish-red bg-danish-dark-gray border-danish-red rounded-xl p-2 mx-2`}
+    >
       <View className="w-full flex flex-row justify-between items-center mb-1">
         <View className="w-1/2 flex flex-col px-2 items-center justify-center">
           <Text className="w-full text-danish-white text-center text-sm">
@@ -295,28 +295,13 @@ const GameDetail = ({ data, onUpdateResults, onUpdateStats }) => {
     setTotalOpponentResult(result + "");
   }, [opponentResults]);
 
-  const handleSaveResults = async () => {
-    const game = new Game(data);
-    game.setResults(clubResults, opponentResults);
+  const handleSaveResults = async (game) => {
     onUpdateResults(game);
   };
-  const handleUpdateScore = async (item, key, value) => {
-    const updatedItem = { ...item };
-    if (updatedItem[key] !== null) {
-      updatedItem[key] = value;
 
-      setPlayers_Stats((before) => {
-        const bef = [...before];
-        const idx = bef.findIndex((b) => b.id === item.id);
-
-        bef.splice(idx, 1, updatedItem);
-        return bef;
-      });
-    }
-  };
   return (
     <View className="flex-1 px-2 h-full w-full">
-      <View className="mb-2 bg-danish-red rounded-lg p-4 shadow">
+      <View className="mb-2 bg-danish-dark-gray shadow-danish-red border-2 border-danish-red rounded-lg p-4 shadow">
         <Text className="text-center text-xs text-danish-white mb-2">
           Jornada {data.round} - {data.date}
         </Text>
@@ -339,10 +324,30 @@ const GameDetail = ({ data, onUpdateResults, onUpdateStats }) => {
                 className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
                 keyboardType="numeric"
                 value={clubResults[quarter]}
+                selectTextOnFocus={true}
                 onChangeText={(value) =>
                   setClubResults({
                     ...clubResults,
                     [quarter]: value,
+                  })
+                }
+                onEndEditing={() =>
+                  handleSaveResults({
+                    id: data.id,
+                    team_id: club.id,
+                    opponent: data.opponent,
+                    round: data.round,
+                    date: data.date,
+                    result_c1_opponent: opponentResults.c1,
+                    result_c2_opponent: opponentResults.c2,
+                    result_c3_opponent: opponentResults.c3,
+                    result_c4_opponent: opponentResults.c4,
+                    result_extra_opponent: opponentResults.extra,
+                    result_c1: clubResults.c1,
+                    result_c2: clubResults.c2,
+                    result_c3: clubResults.c3,
+                    result_c4: clubResults.c4,
+                    result_extra: clubResults.extra,
                   })
                 }
               />
@@ -356,10 +361,30 @@ const GameDetail = ({ data, onUpdateResults, onUpdateStats }) => {
                 className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
                 keyboardType="numeric"
                 value={opponentResults[quarter]}
+                selectTextOnFocus={true}
                 onChangeText={(value) =>
                   setOpponentResults({
                     ...opponentResults,
                     [quarter]: value,
+                  })
+                }
+                onEndEditing={() =>
+                  handleSaveResults({
+                    id: data.id,
+                    team_id: club.id,
+                    opponent: data.opponent,
+                    round: data.round,
+                    date: data.date,
+                    result_c1_opponent: opponentResults.c1,
+                    result_c2_opponent: opponentResults.c2,
+                    result_c3_opponent: opponentResults.c3,
+                    result_c4_opponent: opponentResults.c4,
+                    result_extra_opponent: opponentResults.extra,
+                    result_c1: clubResults.c1,
+                    result_c2: clubResults.c2,
+                    result_c3: clubResults.c3,
+                    result_c4: clubResults.c4,
+                    result_extra: clubResults.extra,
                   })
                 }
               />
@@ -378,8 +403,6 @@ const GameDetail = ({ data, onUpdateResults, onUpdateStats }) => {
           </Text>
         </View>
       </View>
-
-      <Button title={"Guardar Resultados"} onPress={handleSaveResults} />
 
       {/* Sección de la tabla de estadísticas */}
       <View className="w-full my-5">

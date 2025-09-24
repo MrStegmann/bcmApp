@@ -1,83 +1,14 @@
 import { useEffect, useState } from "react";
-import { Text, View, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import PlayerForm from "../components/PlayerForm";
-import { Feather } from "@expo/vector-icons";
 import PlayerDetail from "../components/PlayerDetail";
-import Player from "../models/Player";
 import DeleteModal from "../framework/DeleteModal";
-import Table from "../framework/Table";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import Entypo from "@expo/vector-icons/Entypo";
 import useDB from "../hooks/useDB";
-
-const TableHeader = () => {
-  return (
-    <>
-      <View className="w-[12%]">
-        <Text className="font-bold text-danish-dark-gray text-center">Nº</Text>
-      </View>
-      <View className="w-[50%]">
-        <Text className="font-bold text-danish-dark-gray text-left">
-          Nombre
-        </Text>
-      </View>
-      <View className="w-[30%]">
-        <Text className="font-bold text-danish-dark-gray text-center">
-          Opciones
-        </Text>
-      </View>
-    </>
-  );
-};
-
-const TableBody = ({
-  items,
-  onSelect,
-  handleOpenEditForm,
-  handleOpenDeleteModal,
-}) => {
-  return (
-    <>
-      {items.map((item) => (
-        <View
-          key={item.id}
-          className="w-full flex flex-row items-center border-b px-3 border-danish-light-gray py-2"
-        >
-          <View className="w-[12%]">
-            <Text className="text-danish-dark-gray text-center">
-              {item.number}
-            </Text>
-          </View>
-          <View className="w-[50%]">
-            <Text className="text-danish-dark-gray text-left">
-              {item.first_name + " " + item.last_name}
-            </Text>
-          </View>
-
-          <View className="w-[30%] flex flex-row justify-center items-center gap-3">
-            <TouchableOpacity onPress={() => onSelect(item)}>
-              <Feather name="info" size={24} color="green" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              color="blue"
-              onPress={() => handleOpenEditForm(item)}
-            >
-              <Feather name="edit" size={24} color="blue" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              color="red"
-              onPress={() => handleOpenDeleteModal(item)}
-            >
-              <Feather name="trash" size={24} color="red" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ))}
-    </>
-  );
-};
+import PlayerCards from "../components/PlayerCards";
 
 const PlayerList = ({ onReturn }) => {
   const { PlayerController } = useDB();
@@ -102,7 +33,7 @@ const PlayerList = ({ onReturn }) => {
           id: TopMenuEnums.GO_BACK,
           name: "Volver",
           onPress: () => setCreatePlayer(false),
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -120,7 +51,7 @@ const PlayerList = ({ onReturn }) => {
             setPlayerSelected(null);
             setEditPlayer(false);
           },
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -138,7 +69,7 @@ const PlayerList = ({ onReturn }) => {
           onPress: () => {
             setPlayerSelected(null);
           },
-          children: () => <Entypo name="back" size={24} color="red" />,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -152,19 +83,19 @@ const PlayerList = ({ onReturn }) => {
         id: TopMenuEnums.ADD_NEW_PLAYER,
         name: "Añadir Jugador",
         onPress: () => setCreatePlayer(true),
-        children: () => <Entypo name="add-user" size={24} color="red" />,
+        children: () => <Entypo name="add-user" size={18} color="white" />,
       },
       {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn,
-        children: () => <Entypo name="back" size={24} color="red" />,
+        children: () => <Entypo name="back" size={18} color="white" />,
       },
     ]);
   };
 
   const getData = async () => {
-    PlayerController.load(club.id, setPlayers);
+    PlayerController.loadStatsByTeam(club.id, setPlayers);
   };
 
   const handleAddPlayer = async (data) => {
@@ -244,19 +175,12 @@ const PlayerList = ({ onReturn }) => {
             onReturn={() => setPlayerSelected(null)}
           />
         ) : (
-          <>
-            <Table
-              header={<TableHeader />}
-              body={
-                <TableBody
-                  items={players}
-                  onSelect={setPlayerSelected}
-                  handleOpenEditForm={handleOpenEditForm}
-                  handleOpenDeleteModal={handleOpenDeleteModal}
-                />
-              }
-            />
-          </>
+          <PlayerCards
+            players={players}
+            onSelect={setPlayerSelected}
+            onEdit={handleOpenEditForm}
+            onDelete={handleOpenDeleteModal}
+          />
         ))}
     </View>
   );

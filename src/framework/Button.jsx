@@ -4,7 +4,7 @@ import { Text, TouchableOpacity } from "react-native";
 const Button = ({ onPress, title }) => {
   return (
     <TouchableOpacity
-      className="w-full bg-danish-red py-2 flex items-center justify-center active:bg-danish-light-gray rounded-xl"
+      className="border-2 py-2 bg-danish-red border-danish-dark-gray shadow shadow-black rounded-xl flex items-center justify-center active:bg-danish-light-gray"
       onPress={onPress}
     >
       <Text className="text-danish-white font-bold">{title}</Text>

@@ -49,6 +49,7 @@ export const PlayersStatsDTO = (dbInstance) => ({
                 p.id,
                 p.first_name,
                 p.last_name,
+                p.number,
                 SUM(ps.minutes) AS total_minutes,
                 SUM(ps.t1a) AS total_t1a,
                 SUM(ps.t1i) AS total_t1i,

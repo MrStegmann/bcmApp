@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import useDB from "../hooks/useDB";
 import TrainingPlayer from "./TrainingPlayer";
+import ModalInfo from "../framework/ModalInfo";
 
 const TrainingDetail = ({ data }) => {
   const { TraningPlayersController, TrainingController } = useDB();
   const [trainingPlayers, setTrainingPlayers] = useState([]);
+  const [exerciseDetails, setExerciseDetails] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
   useEffect(() => {
     getPlayers();
   }, []);
@@ -17,79 +20,140 @@ const TrainingDetail = ({ data }) => {
     await TraningPlayersController.edit(trainingPlayer);
     getPlayers();
   };
-  return (
-    <View className="flex-1 w-full h-full justify-start items-center">
-      <ScrollView className="flex-1 bg-white p-4 my-2 max-h-[49rem]">
-        <View className="mb-5">
-          {trainingPlayers.map((tp) => (
-            <TrainingPlayer
-              key={tp.id}
-              updateTrainingPlayer={updateTrainingPlayer}
-              tp={tp}
-            />
-          ))}
-        </View>
-        {/* Sesión y fecha */}
-        <View className="border border-gray-400 p-2 mb-2 rounded-lg">
-          <Text className="font-bold text-lg">
-            Sesión #{data.training_number} - {data.date}
-          </Text>
-        </View>
 
-        {/* Calentamiento */}
-        <View className="border border-gray-400 p-2 mb-2 rounded-lg">
-          <Text className="font-semibold text-blue-700 text-base mb-1">
+  const handleOpenInfoModal = (item) => {
+    setExerciseDetails(item);
+    setModalVisible(true);
+  };
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setExerciseDetails(null);
+  };
+  return (
+    <View className="w-full h-full flex flex-col justify-center items-center">
+      <ModalInfo
+        title={`${exerciseDetails?.name}`}
+        information={`${exerciseDetails?.explanation}`}
+        visible={modalVisible}
+        onClose={handleCloseModal}
+      />
+      <Text className="font-bold text-danish-white text-lg mb-5">
+        Sesión #{data.training_number} - {data.date}
+      </Text>
+      <Text className="text-left w-full text-danish-white px-5">
+        Asistencias
+      </Text>
+      <View className="w-full max-h-96 border-b border-danish-red mb-2">
+        <ScrollView>
+          <View className="w-full flex flex-row flex-wrap justify-between items-center px-2">
+            {trainingPlayers.map((tp) => (
+              <TrainingPlayer
+                key={tp.id}
+                updateTrainingPlayer={updateTrainingPlayer}
+                tp={tp}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+
+      <View className="w-full my-2 px-2">
+        <View className="p-2 mb-2 rounded-lg border-2 border-danish-red">
+          <Text className="font-semibold text-danish-white text-sm mb-1">
             Calentamiento
           </Text>
-          <Text className="text-sm font-bold">Nombre - Explicación</Text>
-
-          {[1, 2, 3].map((i) => (
-            <View
-              key={i}
-              className="flex-row justify-between border-t border-gray-300 py-1"
-            >
-              <Text className="w-1/2">{data[`warmup${i}`]}</Text>
-              <Text className="w-1/2">{data[`warmup${i}_explanation`]}</Text>
-            </View>
-          ))}
+          <View className="w-full flex flex-row flex-wrap gap-3">
+            {[1, 2, 3].map((i) => {
+              if (
+                data[`warmup${i}`] === "" ||
+                data[`warmup${i}`] === undefined ||
+                data[`warmup${i}`] === null
+              )
+                return;
+              return (
+                <TouchableOpacity
+                  key={i}
+                  className="flex-row justify-between bg-danish-dark-gray rounded-lg shadow-lg shadow-danish-red py-1 px-2 border border-danish-red hover:border-danish-gold active:border-danish-gold hover:bg-danish-red active:bg-danish-red"
+                  onPress={() =>
+                    handleOpenInfoModal({
+                      name: data[`warmup${i}`],
+                      explanation: data[`warmup${i}_explanation`],
+                    })
+                  }
+                >
+                  <Text className=" text-danish-white">
+                    {data[`warmup${i}`]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
-        {/* Ejercicios */}
-        <View className="border border-gray-400 p-2 mb-2 rounded-lg">
-          <Text className="font-semibold text-green-700 text-base mb-1">
+        <View className="p-2 mb-2 rounded-lg border-2 border-danish-red">
+          <Text className="font-semibold text-danish-white text-sm mb-1">
             Ejercicios
           </Text>
-          <Text className="text-sm font-bold">Nombre - Explicación</Text>
-
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <View
-              key={i}
-              className="flex-row justify-between border-t border-gray-300 py-1"
-            >
-              <Text className="w-1/2">{data[`exercise${i}`]}</Text>
-              <Text className="w-1/2">{data[`exercise${i}_explanation`]}</Text>
-            </View>
-          ))}
+          <View className="w-full flex flex-row flex-wrap gap-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => {
+              if (
+                data[`exercise${i}`] === "" ||
+                data[`exercise${i}`] === undefined ||
+                data[`exercise${i}`] === null
+              )
+                return;
+              return (
+                <TouchableOpacity
+                  key={i}
+                  className="flex-row justify-between bg-danish-dark-gray rounded-lg shadow-lg shadow-danish-red py-1 px-2 border border-danish-red hover:bg-danish-red active:bg-danish-red"
+                  onPress={() =>
+                    handleOpenInfoModal({
+                      name: data[`exercise${i}`],
+                      explanation: data[`exercise${i}_explanation`],
+                    })
+                  }
+                >
+                  <Text className=" text-danish-white">
+                    {data[`exercise${i}`]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
-        {/* Vuelta a la calma */}
-        <View className="border border-gray-400 p-2 rounded-lg">
-          <Text className="font-semibold text-purple-700 text-base mb-1">
+        <View className="p-2 mb-2 rounded-lg border-2 border-danish-red">
+          <Text className="font-semibold text-danish-white text-sm mb-1">
             Vuelta a la calma
           </Text>
-          <Text className="text-sm font-bold">Nombre - Explicación</Text>
-
-          {[1, 2].map((i) => (
-            <View
-              key={i}
-              className="flex-row justify-between border-t border-gray-300 py-1"
-            >
-              <Text className="w-1/2">{data[`cooldown${i}`]}</Text>
-              <Text className="w-1/2">{data[`cooldown${i}_explanation`]}</Text>
-            </View>
-          ))}
+          <View className="w-full flex flex-row flex-wrap gap-3">
+            {[1, 2].map((i) => {
+              if (
+                data[`cooldown${i}`] === "" ||
+                data[`cooldown${i}`] === undefined ||
+                data[`cooldown${i}`] === null
+              )
+                return;
+              return (
+                <TouchableOpacity
+                  key={i}
+                  className="flex-row justify-between bg-danish-dark-gray rounded-lg shadow-lg shadow-danish-red py-1 px-2 border border-danish-red hover:bg-danish-red active:bg-danish-red"
+                  onPress={() =>
+                    handleOpenInfoModal({
+                      name: data[`cooldown${i}`],
+                      explanation: data[`cooldown${i}_explanation`],
+                    })
+                  }
+                >
+                  <Text className=" text-danish-white">
+                    {data[`cooldown${i}`]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };

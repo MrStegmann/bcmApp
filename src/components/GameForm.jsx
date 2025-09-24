@@ -1,145 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  ScrollView,
-  Switch,
-  Text,
-  TextInput,
-  View,
-  TouchableOpacity,
-} from "react-native";
-import Table from "../framework/Table";
+import { useEffect, useState } from "react";
+import { ScrollView, Text, View, TouchableOpacity } from "react-native";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useClubStore } from "../store/ClubStore";
 import useDB from "../hooks/useDB";
 import Button from "../framework/Button";
 import Input from "../framework/Input";
 import { useAlertStore } from "../store/AlertStore";
-
-const TableHeader = ({ ref, onScroll }) => {
-  return (
-    <>
-      <Text className="font-bold w-14 text-center">Conv.</Text>
-      <Text className="font-bold w-10 text-center">Nº</Text>
-      <Text className="font-bold w-32 text-left">Nombre</Text>
-      <ScrollView
-        ref={ref}
-        horizontal
-        showsHorizontalScrollIndicator={true}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-      >
-        <Text className="font-bold w-10 text-center border-x">Min</Text>
-        <Text className="font-bold w-12 text-center border-x">Pts</Text>
-        <Text className="font-bold w-12 text-center border-x">T1a</Text>
-        <Text className="font-bold w-12 text-center border-x">T1i</Text>
-        <Text className="font-bold w-12 text-center border-x">T1%</Text>
-        <Text className="font-bold w-12 text-center border-x">T2a</Text>
-        <Text className="font-bold w-12 text-center border-x">T2i</Text>
-        <Text className="font-bold w-12 text-center border-x">T2%</Text>
-        <Text className="font-bold w-12 text-center border-x">T3a</Text>
-        <Text className="font-bold w-12 text-center border-x">T3i</Text>
-        <Text className="font-bold w-12 text-center border-x">T3%</Text>
-        <Text className="font-bold w-14 text-center border-x">D. Reb</Text>
-        <Text className="font-bold w-14 text-center border-x">O. Reb</Text>
-        <Text className="font-bold w-14 text-center border-x">T. Reb</Text>
-        <Text className="font-bold w-14 text-center border-x">Asis</Text>
-        <Text className="font-bold w-14 text-center border-x">Rec</Text>
-        <Text className="font-bold w-14 text-center border-x">Per</Text>
-        <Text className="font-bold w-14 text-center border-x">Falt</Text>
-      </ScrollView>
-    </>
-  );
-};
-
-const TableBody = ({
-  items,
-  onChange,
-  isCalled,
-  syncScroll,
-  scrollRefs,
-  onScroll,
-}) => {
-  return items.map((item, index) => (
-    <View
-      key={item.id}
-      className="w-full flex flex-row justify-between items-center border-b py-2 border-gray-300 px-5"
-    >
-      <View className="font-bold w-14 text-center">
-        <Switch
-          value={isCalled(item.id)}
-          onValueChange={(state) => onChange(state, item.id)}
-        />
-      </View>
-      <Text className="font-bold w-10 text-center">{item.number}</Text>
-      <Text className="font-bold w-32 text-left">
-        {item.first_name + " " + item.last_name}
-      </Text>
-      <ScrollView
-        ref={(el) => (scrollRefs.current[index] = el)}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        onScroll={onScroll} // Agrega onScroll aquí
-        scrollEventThrottle={16}
-      >
-        <Text className="font-bold w-10 text-center border-x">
-          {item.total_minutes || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {(item.total_t1a || 0) +
-            (item.total_t2a * 2 || 0) +
-            (item.total_t3a * 3 || 0)}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t1a || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t1i || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t1a / item.total_t1i || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t2a || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t2i || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t2a / item.total_t2i || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t3a || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t3i || 0}
-        </Text>
-        <Text className="font-bold w-12 text-center border-x">
-          {item.total_t3a / item.total_t3i || 0}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {item.total_dreb || 0}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {item.total_oreb || 0}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {(item.total_dreb || 0) + (item.total_oreb * 2 || 0)}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {item.total_asis || 0}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {item.total_rec || 0}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {item.total_per || 0}
-        </Text>
-        <Text className="font-bold w-14 text-center border-x">
-          {item.total_falt || 0}
-        </Text>
-      </ScrollView>
-    </View>
-  ));
-};
 
 const PlayerCard = ({ playerInf, onCall, isCalled }) => {
   const pts =
@@ -159,8 +25,19 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
   return (
     <TouchableOpacity
       onPress={() => onCall(!isCalled(playerInf.id), playerInf.id)}
-      className={`w-full flex flex-col bg-danish-red rounded-xl my-2 p-2 ${isCalled(playerInf.id) ? "border-4 border-danish-gold" : ""}`}
+      className={`mx-1 my-1 p-2 rounded-lg bg-danish-dark-gray border-2 shadow-lg flex flex-col justify-center items-center relative ${isCalled(playerInf.id) ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
     >
+      <View className="absolute top-2 left-2">
+        {isCalled(playerInf.id) ? (
+          <FontAwesome6 name="person-circle-check" size={18} color="gold" />
+        ) : (
+          <FontAwesome6
+            name="person-circle-exclamation"
+            size={18}
+            color="red"
+          />
+        )}
+      </View>
       <View className="w-full flex flex-row justify-between items-center">
         <View className="w-1/3 flex flex-col px-2">
           <Text className="w-full text-danish-white text-center">
@@ -208,10 +85,6 @@ const GameForm = ({ gameData, onSubmit }) => {
 
   const club = useClubStore((state) => state.club);
 
-  const headerRef = useRef(null);
-  const bodyScrollRefs = useRef([]);
-  const scrolling = useRef(false);
-
   useEffect(() => {
     if (gameData) {
       setOpponent(gameData.opponent);
@@ -223,10 +96,6 @@ const GameForm = ({ gameData, onSubmit }) => {
       );
     }
   }, []);
-
-  // useEffect(() => {
-  //   PlayerController.loadStatsByTeam(club.id, setPlayers);
-  // }, []);
 
   const handleSubmit = () => {
     if ([opponent, date, round].includes("")) return;
@@ -249,36 +118,8 @@ const GameForm = ({ gameData, onSubmit }) => {
     }
   };
 
-  const syncScroll = (currentRef, x) => {
-    if (scrolling.current) {
-      return;
-    }
-    scrolling.current = true;
-
-    // Sincroniza el encabezado
-    if (headerRef.current && headerRef.current !== currentRef) {
-      headerRef.current.scrollTo({ x, animated: false });
-    }
-
-    // Sincroniza todas las filas
-    bodyScrollRefs.current.forEach((ref) => {
-      if (ref && ref !== currentRef) {
-        ref.scrollTo({ x, animated: false });
-      }
-    });
-
-    setTimeout(() => {
-      scrolling.current = false;
-    }, 100);
-  };
-
-  const handleScroll = (e) => {
-    const x = e.nativeEvent.contentOffset.x;
-    syncScroll(e.target, x);
-  };
-
   return (
-    <View className="w-full px-5 flex-1">
+    <View className="w-full px-5 h-full">
       <Input
         label="Equipo Contrario"
         placeholder="Equipo contrario"
@@ -308,11 +149,11 @@ const GameForm = ({ gameData, onSubmit }) => {
 
       {players.length > 0 && (
         <>
-          <Text className="font-bold mt-2 text-center">
+          <Text className="font-bold mt-2 text-center text-danish-white">
             Convocatoria{" "}
             {"( " + calledup.length + " jugadores convocados de 12 )"}
           </Text>
-          <View className="w-full h-96 max-h-96 mb-5">
+          <View className="w-full max-h-[30rem] mb-3">
             <ScrollView
               horizontal={false}
               showsHorizontalScrollIndicator={false}
