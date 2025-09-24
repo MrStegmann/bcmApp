@@ -1,7 +1,6 @@
 export const GameModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS games;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER NOT NULL,
@@ -21,7 +20,8 @@ export const GameModel = (dbInstance) => ({
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
       );`);
     } catch (error) {
-      throw new Error("No se ha podido crear la tabla Games: ", error);
+      console.error(error);
+      throw new Error("No se ha podido crear la tabla de los Partidos");
     }
   },
   getAll: async (teamId, callback) => {
@@ -67,7 +67,10 @@ export const GameModel = (dbInstance) => ({
       );
       if (callback) callback(result);
     } catch (error) {
-      console.error("Error al crear el partido:", error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar guardar el partido contra ${data.opponent}`
+      );
     }
   },
   update: async (data, callback) => {
@@ -98,14 +101,18 @@ export const GameModel = (dbInstance) => ({
       );
       callback(result);
     } catch (error) {
-      console.error(`Error al actualizar el partido ${data.round}:`, error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar actualizar el partido contra ${data.opponent}`
+      );
     }
   },
   delete: async (id) => {
     try {
       await dbInstance.runAsync(`DELETE FROM games WHERE id = ?;`, [id]);
     } catch (error) {
-      console.error(`Error al eliminar el partido con ID ${id}:`, error);
+      console.error(error);
+      throw new Error(`Ha ocurrido un error al intentar eliminar el partido`);
     }
   },
 });

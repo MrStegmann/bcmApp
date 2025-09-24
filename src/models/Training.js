@@ -1,7 +1,6 @@
 export const TrainingsModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS trainings;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS trainings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER NOT NULL,
@@ -33,7 +32,8 @@ export const TrainingsModel = (dbInstance) => ({
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
       );`);
     } catch (error) {
-      console.log("Error al crear Trainings: ", error);
+      console.error(error);
+      throw new Error("No se ha podido crear la tabla de Entrenamientos");
     }
   },
   getAll: async (teamId, callback) => {
@@ -83,7 +83,8 @@ export const TrainingsModel = (dbInstance) => ({
         ]
       );
     } catch (error) {
-      console.error("Error al crear el entrenamiento:", error);
+      console.error(error);
+      throw new Error("No se ha podido guardar el entrenamiento");
     }
   },
   update: async (data) => {
@@ -146,17 +147,16 @@ export const TrainingsModel = (dbInstance) => ({
         ]
       );
     } catch (error) {
-      console.error(
-        `Error al actualizar el entrenamiento ${data.training_number}:`,
-        error
-      );
+      console.error(error);
+      throw new Error("No se ha podido actualizar el entrenamiento");
     }
   },
   delete: async (id) => {
     try {
       await dbInstance.runAsync("DELETE FROM trainings WHERE id = ?;", [id]);
     } catch (error) {
-      console.error(`Error al eliminar el entrenamiento con ID ${id}:`, error);
+      console.error(error);
+      throw new Error("No se ha podido eliminar el entrenamiento");
     }
   },
 });

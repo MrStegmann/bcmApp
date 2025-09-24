@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import Table from "../framework/Table";
 import DeleteModal from "../framework/DeleteModal";
 
 const TeamCard = ({ info, onDelete, onSelect }) => {

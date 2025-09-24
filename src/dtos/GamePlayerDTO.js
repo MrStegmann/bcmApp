@@ -23,7 +23,7 @@ export const GamePlayerDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },

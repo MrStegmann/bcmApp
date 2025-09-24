@@ -21,7 +21,7 @@ export const TrainingPlayerDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },

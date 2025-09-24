@@ -75,10 +75,13 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
 
 const GameForm = ({ gameData, onSubmit }) => {
   const { PlayerController, GameController } = useDB();
-  // const addAlert = useAlertStore((state) => state.addAlert);
-  const [opponent, setOpponent] = useState("Compactaciones");
-  const [round, setRound] = useState("1");
-  const [date, setDate] = useState("22/09/2025");
+  const addAlert = useAlertStore((state) => state.addAlert);
+  const [opponent, setOpponent] = useState("");
+  const [wrongOpponent, setWrongOpponent] = useState("");
+  const [round, setRound] = useState("");
+  const [wrongRound, setWrongRound] = useState("");
+  const [date, setDate] = useState("");
+  const [wrongDate, setWrongDate] = useState("");
   const [calledup, setCalleup] = useState([]);
 
   const [players, setPlayers] = useState([]);
@@ -97,7 +100,17 @@ const GameForm = ({ gameData, onSubmit }) => {
     }
   }, []);
 
+  useEffect(() => {
+    setWrongOpponent("");
+    setWrongDate("");
+    setWrongRound("");
+  }, [opponent, date, round]);
+
   const handleSubmit = () => {
+    if (opponent === "")
+      setWrongOpponent("Debe instroducir el nombre del equipo contrincante");
+    if (date === "") setWrongDate("Debe instroducir la fecha del partido");
+    if (round === "") setWrongRound("Debe instroducir la jornada del partido");
     if ([opponent, date, round].includes("")) return;
     const game = { id: gameData?.id, team_id: club.id, opponent, round, date };
 
@@ -105,7 +118,12 @@ const GameForm = ({ gameData, onSubmit }) => {
   };
 
   const handleSetCalled = async (state, playerId) => {
-    if (calledup.length === 12) return;
+    if (calledup.length === 12)
+      return addAlert({
+        msg: "No puedes convocar a más de 12 jugadores",
+        lifetime: 2500,
+        id: Date.now(),
+      });
     await GameController.editCalledup({
       called: state,
       game_id: gameData.id,
@@ -125,6 +143,7 @@ const GameForm = ({ gameData, onSubmit }) => {
         placeholder="Equipo contrario"
         value={opponent}
         onChange={setOpponent}
+        wrongMsg={wrongOpponent}
       />
       <View className="flex flex-row w-full gap-1 my-2">
         <View className="w-1/2">
@@ -134,6 +153,7 @@ const GameForm = ({ gameData, onSubmit }) => {
             value={round}
             onChange={setRound}
             keyboardType="numeric"
+            wrongMsg={wrongRound}
           />
         </View>
         <View className="w-1/2">
@@ -142,7 +162,9 @@ const GameForm = ({ gameData, onSubmit }) => {
             placeholder="Fecha"
             value={date}
             onChange={setDate}
+            type="date"
             keyboardType="numeric"
+            wrongMsg={wrongDate}
           />
         </View>
       </View>

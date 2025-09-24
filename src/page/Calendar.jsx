@@ -67,26 +67,32 @@ const Calendar = () => {
       <View className="w-full flex-1">
         <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
           <View className="w-full flex-1 flex flex-row flex-wrap gap-4 mt-5 justify-center items-center">
-            {playersFee
-              .filter((fees) => fees.month.includes(selectedMonth))
-              .map((fees) => (
-                <TouchableOpacity
-                  onPress={() => switchPaidMonth(fees, !fees.paid)}
-                  key={fees.id}
-                  className={`w-28 h-28 flex flex-col bg-danish-dark-gray justify-center border rounded-lg p-2 shadow-lg ${fees.paid ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"} hover:bg-danish-red active:bg-danish-red`}
-                >
-                  <Text className="text-xs text-center text-danish-white">
-                    {fees.first_name + " " + fees.last_name}
-                  </Text>
-                  <View className="w-full flex-1 flex justify-center items-center">
-                    {fees.paid ? (
-                      <Entypo name="check" size={18} color="gold" />
-                    ) : (
-                      <Entypo name="cross" size={18} color="red" />
-                    )}
-                  </View>
-                </TouchableOpacity>
-              ))}
+            {playersFee.length ? (
+              playersFee
+                .filter((fees) => fees.month.includes(selectedMonth))
+                .map((fees) => (
+                  <TouchableOpacity
+                    onPress={() => switchPaidMonth(fees, !fees.paid)}
+                    key={fees.id}
+                    className={`w-28 h-28 flex flex-col bg-danish-dark-gray justify-center border rounded-lg p-2 shadow-lg ${fees.paid ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"} hover:bg-danish-red active:bg-danish-red`}
+                  >
+                    <Text className="text-xs text-center text-danish-white">
+                      {fees.first_name + " " + fees.last_name}
+                    </Text>
+                    <View className="w-full flex-1 flex justify-center items-center">
+                      {fees.paid ? (
+                        <Entypo name="check" size={18} color="gold" />
+                      ) : (
+                        <Entypo name="cross" size={18} color="red" />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))
+            ) : (
+              <Text className="text-danish-white font-bold">
+                Aun no tienes ningún jugador registrado
+              </Text>
+            )}
           </View>
         </ScrollView>
       </View>

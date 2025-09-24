@@ -1,30 +1,6 @@
-export default class Fee {
-  constructor(fee) {
-    this.id = fee.id;
-    this.teamId = fee.teamId;
-    this.playerId = fee.playerId;
-    this.season = fee.season;
-    this.month = fee.month;
-    this.paid = fee.paid || 0;
-  }
-
-  toCreate() {}
-  toUpdate() {
-    return [
-      this.teamId,
-      this.playerId,
-      this.season,
-      this.month,
-      this.paid,
-      this.id,
-    ];
-  }
-}
-
 export const FeeModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS fees;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS fees (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER NOT NULL,
@@ -37,7 +13,6 @@ export const FeeModel = (dbInstance) => ({
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
       );`);
 
-      await dbInstance.execAsync("DROP TRIGGER IF EXISTS create_player_fees;");
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_player_fees
         AFTER INSERT ON players
         FOR EACH ROW
@@ -58,7 +33,8 @@ export const FeeModel = (dbInstance) => ({
                 (NEW.team_id, NEW.id, strftime('%Y', 'now'), 'DECEMBER');
         END;`);
     } catch (error) {
-      console.log("Error al crear Fees: ", error);
+      console.error(error);
+      throw new Error("No se ha podido crear la tabla de Cuotas");
     }
   },
   getAll: async (teamId, callback) => {
@@ -81,7 +57,10 @@ export const FeeModel = (dbInstance) => ({
         [data.team_id, data.season, data.month, data.player_id]
       );
     } catch (error) {
-      console.error("Error al crear el jugador:", error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar guardar la cuota del mes de ${data.month}`
+      );
     }
   },
   update: async (data) => {
@@ -98,14 +77,20 @@ export const FeeModel = (dbInstance) => ({
         ]
       );
     } catch (error) {
-      console.error(`Error al actualizar el jugador ${data.name}:`, error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar actualizar la cuota del mes de ${data.month}`
+      );
     }
   },
   delete: async (id) => {
     try {
       await dbInstance.runAsync("DELETE FROM fees WHERE id = ?", [id]);
     } catch (error) {
-      console.error(`Error al eliminar el jugador con ID ${id}:`, error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar actualizar la cuota del mes`
+      );
     }
   },
 });

@@ -18,7 +18,8 @@ export default function ClubForm({ onSubmit, clubData }) {
   }, [name]);
 
   const handleSubmit = () => {
-    if (name.trim() === "") return setWrongName("El campo no debe estar vacío");
+    if (name.trim() === "")
+      return setWrongName("Debes introducir un nombre para el equipo");
     onSubmit({ name: name.trim(), id: clubData?.id });
     setName("");
   };
@@ -32,10 +33,7 @@ export default function ClubForm({ onSubmit, clubData }) {
         wrongMsg={wrongName}
       />
 
-      <Button
-        title={clubData ? "Guardar Club" : "Crear Club"}
-        onPress={handleSubmit}
-      />
+      <Button title={clubData ? "Guardar" : "Crear"} onPress={handleSubmit} />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "bcmApp",
+    "name": "BasketClubManagerApp",
     "slug": "bcmApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -27,10 +27,7 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-sqlite",
-      "expo-font"
-    ],
+    "plugins": ["expo-sqlite", "expo-font"],
     "extra": {
       "eas": {
         "projectId": "da35109f-0a95-49f7-90cb-fab42e991460"

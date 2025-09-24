@@ -74,7 +74,17 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
     }
   }, [trainingData]);
 
+  useEffect(() => {
+    setWrongTrainingNumber("");
+    setWrongDate("");
+  }, [date, trainingNumber]);
+
   const handleSubmit = () => {
+    if (trainingNumber === "")
+      setWrongTrainingNumber("Debes introducir la sesión de entrenamiento");
+    if (date === "") setWrongDate("Debes introducir una fecha para la sesión");
+    if ([date, trainingNumber].includes("")) return;
+
     onSubmit({
       id: trainingData?.id,
       team_id: trainingData?.team_id || club.id,

@@ -24,7 +24,7 @@ export const PlayerFeeDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },
@@ -55,7 +55,7 @@ export const PlayerFeeDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },

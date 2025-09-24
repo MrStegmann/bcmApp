@@ -1,22 +1,15 @@
-export class Team {
-  constructor(data) {
-    this.id = data.id;
-    this.name = data.name;
-  }
-}
-
 export function TeamModel(dbInstance) {
   return {
     createTable: async () => {
       try {
-        await dbInstance.execAsync("DROP TABLE IF EXISTS teams;");
         await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS teams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             created_at TEXT DEFAULT (datetime('now'))
         );`);
       } catch (error) {
-        throw new Error("No se ha podido crear la tabla Teams: ", error);
+        console.error(error);
+        throw new Error("No se ha podido crear la tabla de Equipos");
       }
     },
 
@@ -24,7 +17,7 @@ export function TeamModel(dbInstance) {
       try {
         callback(await dbInstance.getAllAsync(`SELECT * FROM teams;`));
       } catch (error) {
-        console.log("Teams Get All:", error);
+        console.log(error);
         callback([]);
       }
     },
@@ -35,7 +28,10 @@ export function TeamModel(dbInstance) {
           data.name,
         ]);
       } catch (error) {
-        console.error("Error al crear el club:", error);
+        console.error(error);
+        throw new Error(
+          `Ha ocurrido un error al intentar guardar ${data.name}`
+        );
       }
     },
     update: async (data) => {
@@ -45,14 +41,18 @@ export function TeamModel(dbInstance) {
           data.id,
         ]);
       } catch (error) {
-        console.error(`Error al actualizar el equipo ${data.name}:`, error);
+        console.error(error);
+        throw new Error(
+          `Ha ocurrido un error al intentar actualizar ${data.name}`
+        );
       }
     },
     delete: async (id) => {
       try {
         await dbInstance.runAsync("DELETE FROM teams WHERE id = ?;", [id]);
       } catch (error) {
-        console.error(`Error al eliminar el club con ID ${id}:`, error);
+        console.error(error);
+        throw new Error(`Ha ocurrido un error al intentar eliminar el equipo`);
       }
     },
   };

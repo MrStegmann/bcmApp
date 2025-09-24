@@ -1,7 +1,6 @@
 export const PlayerStatsModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS players_stats;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS players_stats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         game_id INTEGER NOT NULL,
@@ -23,7 +22,6 @@ export const PlayerStatsModel = (dbInstance) => ({
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
       );`);
 
-      await dbInstance.execAsync("DROP TRIGGER IF EXISTS create_player_stats;");
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_player_stats
         AFTER INSERT ON game_roster
         FOR EACH ROW
@@ -31,7 +29,8 @@ export const PlayerStatsModel = (dbInstance) => ({
             INSERT INTO players_stats (game_id, player_id) VALUES (NEW.game_id, NEW.player_id);
         END;`);
     } catch (error) {
-      console.log("Error al crear Player Stats: ", error);
+      console.error(error);
+      throw new Error("No se ha podido crear la tabla de Estadísticas");
     }
   },
   getAll: async (gameId, callback) => {
@@ -83,10 +82,8 @@ export const PlayerStatsModel = (dbInstance) => ({
         ]
       );
     } catch (error) {
-      console.error(
-        "Error al crear las estadisticas de jugador jugador:",
-        error
-      );
+      console.error(error);
+      throw new Error("No se ha podido guardar las estadísticas del jugador");
     }
   },
   update: async (data) => {
@@ -113,9 +110,9 @@ export const PlayerStatsModel = (dbInstance) => ({
         ]
       );
     } catch (error) {
-      console.error(
-        `Error al actualizar las estadisticas del jugador ${data.name}:`,
-        error
+      console.error(error);
+      throw new Error(
+        "No se ha podido actualizas las estadísticas del jugador"
       );
     }
   },
@@ -125,10 +122,8 @@ export const PlayerStatsModel = (dbInstance) => ({
         [id],
       ]);
     } catch (error) {
-      console.error(
-        `Error al eliminar las estadísticas del jugador con ID ${id}:`,
-        error
-      );
+      console.error(error);
+      throw new Error("No se ha podido eliminar las estadísticas del jugador");
     }
   },
 });

@@ -36,7 +36,7 @@ export const PlayersStatsDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },
@@ -76,7 +76,7 @@ export const PlayersStatsDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },
@@ -115,7 +115,7 @@ export const PlayersStatsDTO = (dbInstance) => ({
         )
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       callback([]);
     }
   },

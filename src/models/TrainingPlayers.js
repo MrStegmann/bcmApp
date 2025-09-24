@@ -1,7 +1,6 @@
 export const TrainingPlayersModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS trainings_players;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS trainings_players (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         training_id INTEGER NOT NULL,
@@ -13,9 +12,6 @@ export const TrainingPlayersModel = (dbInstance) => ({
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
 
       );`);
-      await dbInstance.execAsync(
-        "DROP TRIGGER IF EXISTS create_training_players;"
-      );
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_training_players
         AFTER INSERT ON trainings
         FOR EACH ROW
@@ -28,7 +24,10 @@ export const TrainingPlayersModel = (dbInstance) => ({
             WHERE p.team_id = NEW.team_id;
       END;`);
     } catch (error) {
-      console.log("Error al crear Trainings Players: ", error);
+      console.error(error);
+      throw new Error(
+        "No se ha podido crear la tabla de Asistencias a Entrenamientos"
+      );
     }
   },
   getAll: async (trainingId, callback) => {
@@ -65,7 +64,8 @@ export const TrainingPlayersModel = (dbInstance) => ({
         [data.training_id, data.player_id, data.notes, data.assistance]
       );
     } catch (error) {
-      console.error("Error al crear la asistencia del jugador:", error);
+      console.error(error);
+      throw new Error("No se ha podido guardar la asistencia al entrenamiento");
     }
   },
   update: async (data) => {
@@ -78,9 +78,9 @@ export const TrainingPlayersModel = (dbInstance) => ({
         [data.notes, data.assistance, data.id]
       );
     } catch (error) {
-      console.error(
-        `Error al actualizar la asistencia del jugador ${data.player_id}:`,
-        error
+      console.error(error);
+      throw new Error(
+        "No se ha podido actualizar la asistencia al entrenamiento"
       );
     }
   },
@@ -90,9 +90,9 @@ export const TrainingPlayersModel = (dbInstance) => ({
         id,
       ]);
     } catch (error) {
-      console.error(
-        `Error al eliminar la asistencia del jugador con ID ${id}:`,
-        error
+      console.error(error);
+      throw new Error(
+        "No se ha podido eliminar la asistencia al entrenamiento"
       );
     }
   },

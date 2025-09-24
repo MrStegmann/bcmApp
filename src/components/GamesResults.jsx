@@ -45,7 +45,7 @@ const CardGamesResults = ({ game }) => {
 };
 
 const GamesResults = ({ gamesResults }) => {
-  if (!gamesResults)
+  if (!gamesResults || gamesResults.length === 0)
     return (
       <View className="w-full flex flex-col justify-center items-center mt-20">
         <MaterialCommunityIcons

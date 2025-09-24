@@ -1,29 +1,6 @@
-export default class Player {
-  constructor(player) {
-    this.id = player.id;
-    this.teamId = player.teamId;
-    this.firstName = player.firstName;
-    this.lastName = player.lastName;
-    this.number = player.number;
-  }
-
-  toCreate() {
-    return [this.teamId, this.firstName, this.lastName, this.number];
-  }
-
-  toUpdate() {
-    return [this.teamId, this.firstName, this.lastName, this.number, this.id];
-  }
-
-  toDelete() {
-    return this.id;
-  }
-}
-
 export const PlayerModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS players;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS players (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             team_id INTEGER NOT NULL,
@@ -33,7 +10,8 @@ export const PlayerModel = (dbInstance) => ({
             FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
         );`);
     } catch (error) {
-      console.log("Error al crear Players: ", error);
+      console.error(error);
+      throw new Error("No se ha podido crear la tabla de Jugadores");
     }
   },
   getAll: async (teamId, callback) => {
@@ -57,7 +35,10 @@ export const PlayerModel = (dbInstance) => ({
         [data.team_id, data.first_name, data.last_name, data.number]
       );
     } catch (error) {
-      console.error("Error al crear el jugador:", error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar guardar al Jugador ${data.first_name} ${data.last_name}`
+      );
     }
   },
   update: async (data) => {
@@ -67,14 +48,18 @@ export const PlayerModel = (dbInstance) => ({
         [data.team_id, data.first_name, data.last_name, data.number, data.id]
       );
     } catch (error) {
-      console.error(`Error al actualizar el jugador ${data.name}:`, error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar actualizar al Jugador ${data.first_name} ${data.last_name}`
+      );
     }
   },
   delete: async (id) => {
     try {
       await dbInstance.runAsync("DELETE FROM players WHERE id = ?;", [id]);
     } catch (error) {
-      console.error(`Error al eliminar el jugador con ID ${id}:`, error);
+      console.error(error);
+      throw new Error(`Ha ocurrido un error al intentar guardar al Jugador`);
     }
   },
 });

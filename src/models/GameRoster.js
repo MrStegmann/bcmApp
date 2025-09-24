@@ -1,7 +1,6 @@
 export const GameRosterModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS game_roster;");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS game_roster (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             game_id INTEGER NOT NULL,
@@ -12,7 +11,6 @@ export const GameRosterModel = (dbInstance) => ({
             UNIQUE(game_id, player_id) -- Opcional: asegura que un jugador no se agregue dos veces al mismo partido
         );`);
 
-      await dbInstance.execAsync("DROP TRIGGER IF EXISTS create_game_roster;");
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_game_roster
         AFTER INSERT ON games
         FOR EACH ROW
@@ -25,7 +23,8 @@ export const GameRosterModel = (dbInstance) => ({
             WHERE p.team_id = NEW.team_id;
         END;`);
     } catch (error) {
-      console.log("Error al crear Game Rooster: ", error);
+      console.error(error);
+      throw new Error("No se ha podido crear la tabla de Convocatorias");
     }
   },
   getAll: async (gameId, callback) => {
@@ -72,7 +71,10 @@ export const GameRosterModel = (dbInstance) => ({
         params
       );
     } catch (error) {
-      console.error("Error al crear el jugador:", error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar guardar la convocatoria`
+      );
     }
   },
   update: async (data) => {
@@ -82,14 +84,20 @@ export const GameRosterModel = (dbInstance) => ({
         [data.called, data.game_id, data.player_id]
       );
     } catch (error) {
-      console.error(`Error al actualizar el jugador ${data.name}:`, error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar actualizar la convocatoria`
+      );
     }
   },
   delete: async (id) => {
     try {
       await dbInstance.runAsync(`DELETE FROM game_roster WHERE id = ?;`, [id]);
     } catch (error) {
-      console.error(`Error al eliminar el jugador con ID ${id}:`, error);
+      console.error(error);
+      throw new Error(
+        `Ha ocurrido un error al intentar eliminar la convocatoria`
+      );
     }
   },
 });

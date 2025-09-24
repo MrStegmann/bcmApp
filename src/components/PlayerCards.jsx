@@ -11,7 +11,7 @@ const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
           size={30}
           color="gray"
         />
-        <Text className="text-lg font-bold text-danish-light-gray px-16">
+        <Text className="text-lg font-bold text-danish-light-gray text-center">
           Parece que no aún no has registrado ningún jugador
         </Text>
       </View>
