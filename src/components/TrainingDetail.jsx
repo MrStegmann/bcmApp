@@ -43,9 +43,9 @@ const TrainingDetail = ({ data }) => {
       <Text className="text-left w-full text-danish-white px-5">
         Asistencias
       </Text>
-      <View className="w-full max-h-96 border-b border-danish-red mb-2">
+      <View className="w-full h-80 max-h-80 border-b border-danish-red mb-2">
         <ScrollView>
-          <View className="w-full flex flex-row flex-wrap justify-between items-center px-2">
+          <View className="w-full flex flex-row justify-between items-center px-2">
             {trainingPlayers.map((tp) => (
               <TrainingPlayer
                 key={tp.id}
@@ -82,7 +82,7 @@ const TrainingDetail = ({ data }) => {
                   }
                 >
                   <Text className=" text-danish-white">
-                    {data[`warmup${i}`]}
+                    {i + " - " + data[`warmup${i}`]}
                   </Text>
                 </TouchableOpacity>
               );
@@ -114,7 +114,7 @@ const TrainingDetail = ({ data }) => {
                   }
                 >
                   <Text className=" text-danish-white">
-                    {data[`exercise${i}`]}
+                    {i + " - " + data[`exercise${i}`]}
                   </Text>
                 </TouchableOpacity>
               );
@@ -146,7 +146,7 @@ const TrainingDetail = ({ data }) => {
                   }
                 >
                   <Text className=" text-danish-white">
-                    {data[`cooldown${i}`]}
+                    {i + " - " + data[`cooldown${i}`]}
                   </Text>
                 </TouchableOpacity>
               );
