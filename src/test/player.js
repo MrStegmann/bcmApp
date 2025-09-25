@@ -44,4 +44,40 @@ export async function createPlayers(PlayerModel) {
     last_name: "Vende Casas",
     number: "29",
   });
+  await PlayerModel.create({
+    team_id: 1,
+    first_name: "Jugador",
+    last_name: "Siete",
+    number: "99",
+  });
+  await PlayerModel.create({
+    team_id: 1,
+    first_name: "Jugador",
+    last_name: "Ocho",
+    number: "98",
+  });
+  await PlayerModel.create({
+    team_id: 1,
+    first_name: "Jugador",
+    last_name: "Nueve",
+    number: "97",
+  });
+  await PlayerModel.create({
+    team_id: 1,
+    first_name: "Jugador",
+    last_name: "Diez",
+    number: "96",
+  });
+  await PlayerModel.create({
+    team_id: 1,
+    first_name: "Jugador",
+    last_name: "Once",
+    number: "95",
+  });
+  await PlayerModel.create({
+    team_id: 1,
+    first_name: "Jugador",
+    last_name: "Doce",
+    number: "94",
+  });
 }

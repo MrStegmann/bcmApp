@@ -12,6 +12,7 @@ export const TrainingPlayersModel = (dbInstance) => ({
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
 
       );`);
+
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_training_players
         AFTER INSERT ON trainings
         FOR EACH ROW

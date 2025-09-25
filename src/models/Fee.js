@@ -12,7 +12,6 @@ export const FeeModel = (dbInstance) => ({
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
       );`);
-
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_player_fees
         AFTER INSERT ON players
         FOR EACH ROW

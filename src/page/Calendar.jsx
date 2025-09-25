@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import MonthEnums from "../Enums/MonthEnums";
 import useDB from "../hooks/useDB";

@@ -120,7 +120,7 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
             </Text>
           </View>
 
-          <GamesResults gamesResults={gamesResults} />
+          {/* <GamesResults gamesResults={gamesResults} /> */}
         </View>
       )}
 

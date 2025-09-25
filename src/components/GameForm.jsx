@@ -8,6 +8,7 @@ import Input from "../framework/Input";
 import { useAlertStore } from "../store/AlertStore";
 
 const PlayerCard = ({ playerInf, onCall, isCalled }) => {
+  if (!playerInf) return null;
   const pts =
     playerInf.total_t1a + playerInf.total_t2a * 2 + playerInf.total_t3a * 3;
   const val =
@@ -169,32 +170,21 @@ const GameForm = ({ gameData, onSubmit }) => {
         </View>
       </View>
 
-      {players.length > 0 && (
-        <>
-          <Text className="font-bold mt-2 text-center text-danish-white">
-            Convocatoria{" "}
-            {"( " + calledup.length + " jugadores convocados de 12 )"}
-          </Text>
-          <View className="w-full max-h-[30rem] mb-3">
-            <ScrollView
-              horizontal={false}
-              showsHorizontalScrollIndicator={false}
-              showsVerticalScrollIndicator={true}
-            >
-              {players.map((player) => (
-                <PlayerCard
-                  key={player.id}
-                  playerInf={player}
-                  onCall={handleSetCalled}
-                  isCalled={(playerId) =>
-                    calledup.find((cu) => cu === playerId)
-                  }
-                />
-              ))}
-            </ScrollView>
-          </View>
-        </>
-      )}
+      <Text className="font-bold mt-2 text-center text-danish-white">
+        Convocatoria {"( " + calledup.length + " jugadores convocados de 12 )"}
+      </Text>
+      <View className="w-full h-96 border-b border-danish-red mb-10">
+        <ScrollView>
+          {players.map((player) => (
+            <PlayerCard
+              key={player.id}
+              playerInf={player}
+              onCall={handleSetCalled}
+              isCalled={(playerId) => calledup.find((cu) => cu === playerId)}
+            />
+          ))}
+        </ScrollView>
+      </View>
       <Button
         title={gameData ? "Guardar" : "Añadir Partido"}
         onPress={handleSubmit}

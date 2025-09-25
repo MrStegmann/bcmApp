@@ -16,6 +16,10 @@ const TrainingDetail = ({ data }) => {
     TrainingController.loadTPlayers(data.id, setTrainingPlayers);
   };
 
+  useEffect(() => {
+    console.log(trainingPlayers);
+  }, [trainingPlayers]);
+
   const updateTrainingPlayer = async (trainingPlayer) => {
     await TraningPlayersController.edit(trainingPlayer);
     getPlayers();
@@ -45,7 +49,7 @@ const TrainingDetail = ({ data }) => {
       </Text>
       <View className="w-full h-80 max-h-80 border-b border-danish-red mb-2">
         <ScrollView>
-          <View className="w-full flex flex-row justify-between items-center px-2">
+          <View className="w-full flex flex-row flex-wrap justify-between items-center px-2">
             {trainingPlayers.map((tp) => (
               <TrainingPlayer
                 key={tp.id}
