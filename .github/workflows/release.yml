@@ -3,7 +3,7 @@ name: Build & Release Android
 on:
   push:
     tags:
-      - "v*.*.*" # se ejecuta solo cuando haces push de un tag como v1.0.0
+      - "v*.*.*"
 
 jobs:
   build-android:
@@ -12,6 +12,15 @@ jobs:
     steps:
       - name: Descargar el código
         uses: actions/checkout@v3
+
+      - name: Verificar carpeta android
+        run: |
+          if [ ! -d "./android" ]; then
+            echo "Error: no se encontró la carpeta 'android' en el repositorio."
+            exit 1
+          else
+            echo "Carpeta 'android' encontrada, continuando..."
+          fi
 
       - name: Configurar Node.js
         uses: actions/setup-node@v3
@@ -30,7 +39,7 @@ jobs:
       - name: Compilar APK
         run: |
           cd android
-          ./gradlew assembleRelease
+          gradlew assembleRelease
 
       - name: Subir APK al Release de GitHub
         uses: softprops/action-gh-release@v1
