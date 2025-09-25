@@ -1,0 +1,40 @@
+name: Build & Release Android
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # se ejecuta solo cuando haces push de un tag como v1.0.0
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Compilar APK
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      - name: Subir APK al Release de GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: android/app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
