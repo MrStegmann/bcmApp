@@ -177,6 +177,8 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                     <Input
                       value={warmup[`warmup${key}_explanation`]}
                       multiline={true}
+                      numberOfLines={4}
+                      scrollEnabled={true}
                       onChange={(text) =>
                         setWarmup((prev) => ({
                           ...prev,
@@ -218,6 +220,8 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                     <Input
                       value={exercise[`exercise${key}_explanation`]}
                       multiline={true}
+                      numberOfLines={4}
+                      scrollEnabled={true}
                       onChange={(text) =>
                         setExercise((prev) => ({
                           ...prev,
@@ -259,6 +263,7 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                     <Input
                       value={cooldown[`cooldown${key}_explanation`]}
                       multiline={true}
+                      numberOfLines={4}
                       scrollEnabled={true}
                       onChange={(text) =>
                         setCooldown((prev) => ({

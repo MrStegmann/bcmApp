@@ -9,7 +9,7 @@ const ModalInfo = ({ visible, onClose, title, information }) => {
       onRequestClose={onClose}
     >
       <View className="w-full h-full flex justify-center items-center">
-        <View className="w-4/5 h-1/2 flex flex-col justify-center items-center bg-gray-950 rounded-xl border-danish-red border-2 shadow-2xl shadow-danish-dark-gold px-5 py-5">
+        <View className="w-5/6 h-4/5 flex flex-col justify-center items-center bg-gray-950 rounded-xl border-danish-red border-2 shadow-2xl shadow-danish-dark-gold px-5 py-5">
           <Text className="w-full text-xl text-danish-white text-center mb-5">
             {title}
           </Text>
