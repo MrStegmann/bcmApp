@@ -39,7 +39,7 @@ const TrainingPlayer = ({ tp, updateTrainingPlayer }) => {
       </TouchableOpacity>
 
       <View className="w-full flex justify-center items-center">
-        <Text className="text-xs font-bold text-danish-white">
+        <Text className="text-xs font-bold text-danish-white w-4/5 text-center">
           {tp.first_name} {tp.last_name}
         </Text>
       </View>

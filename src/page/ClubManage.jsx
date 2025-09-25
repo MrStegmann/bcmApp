@@ -1,28 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Button,
-  Text,
   View,
   TouchableOpacity,
   KeyboardAvoidingView,
   ScrollView,
 } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import ClubForm from "../components/ClubForm";
 import ClubList from "../components/ClubList";
 import ClubProfile from "./ClubProfile";
 import { useClubStore } from "../store/ClubStore";
-// import Team from "../models/Team";
 import Header from "../components/Header";
 import Alerts from "../components/Alerts";
-// import { useAlertStore } from "../store/AlertStore";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import useDB from "../hooks/useDB";
-import { Team } from "../models/Team";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useAlertStore } from "../store/AlertStore";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const ClubManage = () => {
   const { TeamController } = useDB();
@@ -126,38 +120,36 @@ const ClubManage = () => {
           </TouchableOpacity>
         ))}
       </Header>
-      <View className="w-full h-full mt-10">
-        <KeyboardAvoidingView behavior="height">
-          <ScrollView
-            horizontal={false}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={true}
-          >
-            {club && (
-              <ClubProfile
-                handleReturn={handleReturnClubManage}
-                handleUpdate={handleUpdateClub}
-              />
-            )}
-            {!club && (
-              <>
-                {createMode ? (
-                  <View className="w-full h-full justify-center items-center flex mt-5">
-                    <ClubForm onSubmit={handleAddClub} />
-                  </View>
-                ) : (
-                  <View className="w-full h-full justify-center items-center flex mt-5">
-                    <ClubList
-                      clubs={clubs}
-                      onSelect={handleSelectClub}
-                      onDelete={handleDeleteClub}
-                    />
-                  </View>
-                )}
-              </>
-            )}
-          </ScrollView>
-        </KeyboardAvoidingView>
+      <View className="w-full border-b h-[82%] py-2 border-danish-red shadow shadow-danish-red bg-gray-900 mt-10">
+        <KeyboardAwareScrollView
+          enableOnAndroid={true}
+          extraScrollHeight={130}
+          keyboardShouldPersistTaps="handled"
+        >
+          {club && (
+            <ClubProfile
+              handleReturn={handleReturnClubManage}
+              handleUpdate={handleUpdateClub}
+            />
+          )}
+          {!club && (
+            <>
+              {createMode ? (
+                <View className="w-full h-full justify-center items-center flex mt-5">
+                  <ClubForm onSubmit={handleAddClub} />
+                </View>
+              ) : (
+                <View className="w-full h-full justify-center items-center flex mt-5">
+                  <ClubList
+                    clubs={clubs}
+                    onSelect={handleSelectClub}
+                    onDelete={handleDeleteClub}
+                  />
+                </View>
+              )}
+            </>
+          )}
+        </KeyboardAwareScrollView>
       </View>
     </View>
   );

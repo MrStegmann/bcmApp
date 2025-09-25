@@ -1,6 +1,6 @@
 {
   "name": "bcmapp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
     "start": "npx expo start -c",
@@ -21,6 +21,7 @@
     "react": "19.1.0",
     "react-native": "0.81.4",
     "react-native-gradle-plugin": "^0.71.19",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-quick-sqlite": "^8.2.7",
     "react-native-safe-area-context": "^5.6.1",
     "react-native-sqlite-2": "^3.6.2",

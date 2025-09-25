@@ -6,70 +6,98 @@ import Button from "../framework/Button";
 
 const TrainingForm = ({ onSubmit, trainingData }) => {
   const club = useClubStore((state) => state.club);
-  const [trainingNumber, setTrainingNumber] = useState("1");
+  const [trainingNumber, setTrainingNumber] = useState("");
   const [wrongTrainingNumber, setWrongTrainingNumber] = useState("");
   const [date, setDate] = useState("");
   const [wrongDate, setWrongDate] = useState("");
   const [warmup, setWarmup] = useState({
     warmup1: "",
-    warmup1Explanation: "",
+    warmup1_explanation: "",
     warmup2: "",
-    warmup2Explanation: "",
+    warmup2_explanation: "",
     warmup3: "",
-    warmup3Explanation: "",
+    warmup3_explanation: "",
   });
   const [exercise, setExercise] = useState({
     exercise1: "",
-    exercise1Explanation: "",
+    exercise1_explanation: "",
     exercise2: "",
-    exercise2Explanation: "",
+    exercise2_explanation: "",
     exercise3: "",
-    exercise3Explanation: "",
+    exercise3_explanation: "",
     exercise4: "",
-    exercise4Explanation: "",
+    exercise4_explanation: "",
     exercise5: "",
-    exercise5Explanation: "",
+    exercise5_explanation: "",
     exercise6: "",
-    exercise6Explanation: "",
+    exercise6_explanation: "",
   });
   const [cooldown, setCooldown] = useState({
     cooldown1: "",
-    cooldown1Explanation: "",
+    cooldown1_explanation: "",
     cooldown2: "",
-    cooldown2Explanation: "",
+    cooldown2_explanation: "",
   });
 
   useEffect(() => {
     if (trainingData) {
       setTrainingNumber(trainingData.training_number.toString());
       setDate(trainingData.date);
+      const {
+        warmup1,
+        warmup1_explanation,
+        warmup2,
+        warmup2_explanation,
+        warmup3,
+        warmup3_explanation,
+      } = trainingData;
       setWarmup({
-        warmup1: trainingData.warmup1,
-        warmup1Explanation: trainingData.warmup1_explanation,
-        warmup2: trainingData.warmup2,
-        warmup2Explanation: trainingData.warmup2_explanation,
-        warmup3: trainingData.warmup3,
-        warmup3Explanation: trainingData.warmup3_explanation,
+        warmup1,
+        warmup1_explanation,
+        warmup2,
+        warmup2_explanation,
+        warmup3,
+        warmup3_explanation,
       });
+      const {
+        exercise1,
+        exercise1_explanation,
+        exercise2,
+        exercise2_explanation,
+        exercise3,
+        exercise3_explanation,
+        exercise4,
+        exercise4_explanation,
+        exercise5,
+        exercise5_explanation,
+        exercise6,
+        exercise6_explanation,
+      } = trainingData;
       setExercise({
-        exercise1: trainingData.exercise1,
-        exercise1Explanation: trainingData.exercise1_explanation,
-        exercise2: trainingData.exercise2,
-        exercise2Explanation: trainingData.exercise2_explanation,
-        exercise3: trainingData.exercise3,
-        exercise3Explanation: trainingData.exercise3_explanation,
-        exercise4: trainingData.exercise4,
-        exercise4Explanation: trainingData.exercise4_explanation,
-        exercise5: trainingData.exercise5,
-        exercise5Explanation: trainingData.exercise5_explanation,
-        exercise6: trainingData.exercise6,
-        exercise6Explanation: trainingData.exercise6_explanation,
+        exercise1,
+        exercise1_explanation,
+        exercise2,
+        exercise2_explanation,
+        exercise3,
+        exercise3_explanation,
+        exercise4,
+        exercise4_explanation,
+        exercise5,
+        exercise5_explanation,
+        exercise6,
+        exercise6_explanation,
       });
+      const {
+        cooldown1,
+        cooldown1_explanation,
+        cooldown2,
+        cooldown2_explanation,
+      } = trainingData;
       setCooldown({
-        cooldown1: trainingData.cooldown1,
-        cooldown1Explanation: trainingData.cooldown1_explanation,
-        cooldown2: trainingData.cooldown2,
-        cooldown2Explanation: trainingData.cooldown2_explanation,
+        cooldown1,
+        cooldown1_explanation,
+        cooldown2,
+        cooldown2_explanation,
       });
     }
   }, [trainingData]);
@@ -97,7 +125,7 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
   };
   return (
     <View className="w-full h-full">
-      <View className="w-full h-[45rem] mb-5 border-b border-danish-red">
+      <View className="w-full h-[45rem] mb-5">
         <ScrollView horinzontal={false} showsVerticalScrollIndicator={true}>
           <View className="flex flex-row w-full items-center justify-between px-2">
             <View className="w-1/3">
@@ -105,6 +133,7 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                 label={"Sesión"}
                 value={trainingNumber}
                 onChange={setTrainingNumber}
+                placeholder="Número de sesión"
                 keyboardType="numeric"
                 wrongMsg={wrongTrainingNumber}
               />
@@ -146,12 +175,12 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                       placeholder="Nombre del ejercicio"
                     />
                     <Input
-                      value={warmup[`warmup${key}Explanation`]}
+                      value={warmup[`warmup${key}_explanation`]}
                       multiline={true}
                       onChange={(text) =>
                         setWarmup((prev) => ({
                           ...prev,
-                          [`warmup${key}Explanation`]: text,
+                          [`warmup${key}_explanation`]: text,
                         }))
                       }
                       placeholder="Explicación del ejercicio"
@@ -187,12 +216,12 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                       placeholder="Nombre del ejercicio"
                     />
                     <Input
-                      value={exercise[`exercise${key}Explanation`]}
+                      value={exercise[`exercise${key}_explanation`]}
                       multiline={true}
                       onChange={(text) =>
                         setExercise((prev) => ({
                           ...prev,
-                          [`exercise${key}Explanation`]: text,
+                          [`exercise${key}_explanation`]: text,
                         }))
                       }
                       placeholder="Explicación del ejercicio"
@@ -228,12 +257,13 @@ const TrainingForm = ({ onSubmit, trainingData }) => {
                       placeholder="Nombre del ejercicio"
                     />
                     <Input
-                      value={cooldown[`cooldown${key}Explanation`]}
+                      value={cooldown[`cooldown${key}_explanation`]}
                       multiline={true}
+                      scrollEnabled={true}
                       onChange={(text) =>
                         setCooldown((prev) => ({
                           ...prev,
-                          [`cooldown${key}Explanation`]: text,
+                          [`cooldown${key}_explanation`]: text,
                         }))
                       }
                       placeholder="Explicación del ejercicio"

@@ -135,7 +135,7 @@ const TrainingList = ({ onReturn }) => {
     setItemToDelete(null);
   };
   return (
-    <View className="w-full h-full">
+    <View className="w-full h-full px-3">
       <DeleteModal
         title={`¿Estás seguro de que quieres eliminar este entrenamiento ${itemToDelete?.training_number}?`}
         visible={modalVisible}
