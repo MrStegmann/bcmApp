@@ -1,6 +1,7 @@
 export const PlayerStatsModel = (dbInstance) => ({
   createTable: async () => {
     try {
+      await dbInstance.execAsync("DROP TABLE IF EXISTS players_stats");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS players_stats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         game_id INTEGER NOT NULL,
@@ -21,6 +22,9 @@ export const PlayerStatsModel = (dbInstance) => ({
         FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE,
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
       );`);
+      await dbInstance.execAsync(
+        `CREATE INDEX IF NOT EXISTS idx_stats_player_id ON players_stats(player_id);`
+      );
 
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_player_stats
         AFTER INSERT ON game_roster

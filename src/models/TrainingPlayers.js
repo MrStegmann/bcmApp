@@ -1,6 +1,7 @@
 export const TrainingPlayersModel = (dbInstance) => ({
   createTable: async () => {
     try {
+      await dbInstance.execAsync("DROP TABLE IF EXISTS trainings_players");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS trainings_players (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         training_id INTEGER NOT NULL,

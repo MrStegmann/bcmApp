@@ -7,13 +7,12 @@ import GameForm from "../components/GameForm";
 import GameDetail from "../components/GameDetail";
 import useDB from "../hooks/useDB";
 import TopMenuEnums from "../Enums/TopMenuEnums";
-import Entypo from "@expo/vector-icons/Entypo";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMenuStore } from "../store/MenuStore";
 
 const GameList = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
+  const addItemMenuBefore = useMenuStore((state) => state.addItemMenuBefore);
   const { GameController } = useDB();
   const [games, setGames] = useState([]);
   const [gameSelected, setGameSelected] = useState(null);
@@ -29,36 +28,11 @@ const GameList = ({ onReturn }) => {
   }, []);
 
   useEffect(() => {
-    if (createGame) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: () => setCreateGame(false),
-          children: () => <Entypo name="back" size={18} color="white" />,
-        },
-      ]);
-    } else {
+    if (!createGame || !editGame) {
       setMainMenu();
     }
-  }, [createGame]);
-  useEffect(() => {
-    if (editGame) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: () => {
-            setGameSelected(null);
-            setEditGame(false);
-          },
-          children: () => <Entypo name="back" size={18} color="white" />,
-        },
-      ]);
-    } else {
-      setMainMenu();
-    }
-  }, [editGame]);
+  }, [createGame, editGame]);
+
   useEffect(() => {
     if (editGame) return;
     if (gameSelected) {
@@ -66,10 +40,8 @@ const GameList = ({ onReturn }) => {
         {
           id: TopMenuEnums.GO_BACK,
           name: "Volver",
-          onPress: () => {
-            setGameSelected(null);
-          },
-          children: () => <Entypo name="back" size={18} color="white" />,
+          onPress: () => setGameSelected(null),
+          icon: TopMenuEnums.GO_BACK,
         },
       ]);
     } else {
@@ -80,18 +52,16 @@ const GameList = ({ onReturn }) => {
   const setMainMenu = () => {
     setTopMenu([
       {
-        id: TopMenuEnums.ADD_NEW_SESSION,
+        id: TopMenuEnums.ADD_NEW_GAME,
         name: "Añadir Partido",
         onPress: () => setCreateGame(true),
-        children: () => (
-          <Ionicons name="basketball-sharp" size={18} color="white" />
-        ),
+        icon: TopMenuEnums.ADD_NEW_GAME,
       },
       {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn,
-        children: () => <Entypo name="back" size={18} color="white" />,
+        icon: TopMenuEnums.GO_BACK,
       },
     ]);
   };

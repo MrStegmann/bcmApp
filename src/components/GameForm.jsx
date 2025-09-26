@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View, TouchableOpacity } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useClubStore } from "../store/ClubStore";
 import useDB from "../hooks/useDB";
-import Button from "../framework/Button";
 import Input from "../framework/Input";
 import { useAlertStore } from "../store/AlertStore";
+import { useMenuStore } from "../store/MenuStore";
+import TopMenuEnums from "../Enums/TopMenuEnums";
 
 const PlayerCard = ({ playerInf, onCall, isCalled }) => {
   const pts =
@@ -73,9 +74,10 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
   );
 };
 
-const GameForm = ({ gameData, onSubmit }) => {
+const GameForm = ({ gameData, onSubmit, onCancel }) => {
   const { PlayerController, GameController } = useDB();
   const addAlert = useAlertStore((state) => state.addAlert);
+  const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const [opponent, setOpponent] = useState("");
   const [wrongOpponent, setWrongOpponent] = useState("");
   const [round, setRound] = useState("");
@@ -88,6 +90,25 @@ const GameForm = ({ gameData, onSubmit }) => {
 
   const club = useClubStore((state) => state.club);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setTopMenu([
+        {
+          id: TopMenuEnums.SAVE,
+          name: "Guardar",
+          onPress: () => handleSubmit(),
+          icon: TopMenuEnums.SAVE,
+        },
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: onCancel,
+          icon: TopMenuEnums.GO_BACK,
+        },
+      ]);
+    }, 25);
+    return () => clearTimeout(timeout);
+  }, [opponent, round, date, calledup]);
   useEffect(() => {
     if (gameData) {
       setOpponent(gameData.opponent);
@@ -118,18 +139,18 @@ const GameForm = ({ gameData, onSubmit }) => {
   };
 
   const handleSetCalled = async (state, playerId) => {
-    if (calledup.length === 12)
-      return addAlert({
-        msg: "No puedes convocar a más de 12 jugadores",
-        lifetime: 2500,
-        id: Date.now(),
-      });
-    await GameController.editCalledup({
-      called: state,
-      game_id: gameData.id,
-      player_id: playerId,
-    });
     if (state) {
+      if (calledup.length === 12)
+        return addAlert({
+          msg: "No puedes convocar a más de 12 jugadores",
+          lifetime: 2500,
+          id: Date.now(),
+        });
+      await GameController.editCalledup({
+        called: state,
+        game_id: gameData.id,
+        player_id: playerId,
+      });
       setCalleup((before) => [...before, playerId]);
     } else {
       setCalleup((before) => before.filter((cu) => cu !== playerId));
@@ -137,7 +158,7 @@ const GameForm = ({ gameData, onSubmit }) => {
   };
 
   return (
-    <View className="w-full px-5 h-full">
+    <View className="w-full px-5 flex-1">
       <Input
         label="Equipo Contrario"
         placeholder="Equipo contrario"
@@ -175,12 +196,8 @@ const GameForm = ({ gameData, onSubmit }) => {
             Convocatoria{" "}
             {"( " + calledup.length + " jugadores convocados de 12 )"}
           </Text>
-          <View className="w-full max-h-[30rem] mb-3">
-            <ScrollView
-              horizontal={false}
-              showsHorizontalScrollIndicator={false}
-              showsVerticalScrollIndicator={true}
-            >
+          <View className="w-full h-full">
+            <ScrollView>
               {players.map((player) => (
                 <PlayerCard
                   key={player.id}
@@ -195,10 +212,6 @@ const GameForm = ({ gameData, onSubmit }) => {
           </View>
         </>
       )}
-      <Button
-        title={gameData ? "Guardar" : "Añadir Partido"}
-        onPress={handleSubmit}
-      />
     </View>
   );
 };

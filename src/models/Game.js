@@ -1,6 +1,7 @@
 export const GameModel = (dbInstance) => ({
   createTable: async () => {
     try {
+      await dbInstance.execAsync(`DROP TABLE IF EXISTS games`);
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER NOT NULL,
@@ -19,6 +20,9 @@ export const GameModel = (dbInstance) => ({
         result_extra INTEGER DEFAULT 0,
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
       );`);
+      await dbInstance.execAsync(
+        `CREATE INDEX IF NOT EXISTS idx_games_team_id ON games(team_id);`
+      );
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido crear la tabla de los Partidos");

@@ -2,9 +2,11 @@ export function TeamModel(dbInstance) {
   return {
     createTable: async () => {
       try {
+        await dbInstance.execAsync("DROP TABLE IF EXISTS teams");
         await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS teams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            options TEXT DEFAULT 'showFees:true;',
             created_at TEXT DEFAULT (datetime('now'))
         );`);
       } catch (error) {
@@ -17,7 +19,7 @@ export function TeamModel(dbInstance) {
       try {
         callback(await dbInstance.getAllAsync(`SELECT * FROM teams;`));
       } catch (error) {
-        console.log(error);
+        console.error(error);
         callback([]);
       }
     },
@@ -36,10 +38,10 @@ export function TeamModel(dbInstance) {
     },
     update: async (data) => {
       try {
-        await dbInstance.runAsync("UPDATE teams SET name = ? WHERE id = ?;", [
-          data.name,
-          data.id,
-        ]);
+        await dbInstance.runAsync(
+          "UPDATE teams SET name = ?, options = ? WHERE id = ?;",
+          [data.name, data.options, data.id]
+        );
       } catch (error) {
         console.error(error);
         throw new Error(

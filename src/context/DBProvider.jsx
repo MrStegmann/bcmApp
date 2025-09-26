@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-} from "react";
+import { createContext, useState, useEffect, useMemo } from "react";
 import * as SQLite from "expo-sqlite";
 import { Text, View } from "react-native";
 import { TeamModel } from "../models/Team";
@@ -44,6 +38,9 @@ const DBProvider = ({ children }) => {
         await FeeModel(dbInstance).createTable();
         await TrainingsModel(dbInstance).createTable();
         await TrainingPlayersModel(dbInstance).createTable();
+
+        await createTeam(TeamModel(dbInstance));
+        await createPlayers(PlayerModel(dbInstance));
 
         setModels({
           TeamModel: TeamModel(dbInstance),
@@ -87,9 +84,9 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      edit: async (id, name) => {
+      edit: async (data) => {
         try {
-          await models?.TeamModel.update({ id, name });
+          await models?.TeamModel.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -224,35 +221,24 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      add: async (team_id, first_name, last_name, number) => {
+      add: (data) => {
         try {
-          await models?.PlayerModel.create({
-            team_id,
-            first_name,
-            last_name,
-            number,
-          });
+          models?.PlayerModel.create(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      edit: async (id, team_id, first_name, last_name, number) => {
+      edit: (data) => {
         try {
-          await models?.PlayerModel.update({
-            id,
-            team_id,
-            first_name,
-            last_name,
-            number,
-          });
+          models?.PlayerModel.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
 
-      remove: async (id) => {
+      remove: (id) => {
         try {
-          await models?.PlayerModel.delete(id);
+          models?.PlayerModel.delete(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
