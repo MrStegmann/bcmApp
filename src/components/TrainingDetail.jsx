@@ -13,7 +13,7 @@ const TrainingDetail = ({ data }) => {
     getPlayers();
   }, []);
   const getPlayers = async () => {
-    TrainingController.loadTPlayers(data.id, setTrainingPlayers);
+    setTrainingPlayers(await TrainingController.loadTPlayers(data.id));
   };
 
   const updateTrainingPlayer = async (trainingPlayer) => {

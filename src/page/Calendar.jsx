@@ -35,7 +35,7 @@ const Calendar = ({ onReturn }) => {
   }, [selectedMonth]);
 
   const getPlayersFeeTable = async () => {
-    FeesController.loadFeesByGame(club.id, setPlayersFee);
+    setPlayersFee(await FeesController.loadFeesByGame(club.id));
   };
 
   const switchPaidMonth = async (fee, state) => {

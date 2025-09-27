@@ -37,30 +37,26 @@ export const PlayerStatsModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Estadísticas");
     }
   },
-  getAll: async (gameId, callback) => {
+  getAll: async (gameId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM players_stats WHERE game_id = ?;`,
-          [gameId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM players_stats WHERE game_id = ?;`,
+        [gameId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener las Estadísticas");
     }
   },
-  getAllByPlayer: async (playerId, callback) => {
+  getAllByPlayer: async (playerId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM players_stats WHERE player_id = ?;`,
-          [playerId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM players_stats WHERE player_id = ?;`,
+        [playerId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener las Estadísticas");
     }
   },
   create: async (data) => {

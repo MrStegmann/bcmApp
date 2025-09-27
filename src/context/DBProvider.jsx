@@ -41,6 +41,7 @@ const DBProvider = ({ children }) => {
 
         await createTeam(TeamModel(dbInstance));
         await createPlayers(PlayerModel(dbInstance));
+        await createGame(GameModel(dbInstance));
 
         setModels({
           TeamModel: TeamModel(dbInstance),
@@ -68,13 +69,12 @@ const DBProvider = ({ children }) => {
 
   const TeamController = useMemo(() => {
     return {
-      load: (setCallback) => {
+      load: async () => {
         try {
-          models?.TeamModel.getAll((teams) => {
-            setCallback(teams);
-          });
+          return await models?.TeamModel.getAll();
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
       add: async (name) => {
@@ -103,29 +103,25 @@ const DBProvider = ({ children }) => {
 
   const GameController = useMemo(() => {
     return {
-      load: (teamId, setCallback) => {
+      load: async (teamId) => {
         try {
-          models?.GameModel.getAll(teamId, (items) => {
-            setCallback(items);
-          });
+          return await models?.GameModel.getAll(teamId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadCalledup: async (gameId, setCallback) => {
+      loadCalledup: async (gameId) => {
         try {
-          models?.GameRosterModel.getAllByCalled(gameId, (items) => {
-            setCallback(items);
-          });
+          return await models?.GameRosterModel.getAllByCalled(gameId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      add: async (data, callback) => {
+      add: async (data) => {
         try {
-          await models?.GameModel.create(data, (result) => {
-            if (callback) callback(result);
-          });
+          await models?.GameModel.create(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -137,11 +133,9 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      edit: async (data, callback) => {
+      edit: async (data) => {
         try {
-          await models?.GameModel.update(data, (result) => {
-            if (callback) callback(result);
-          });
+          await models?.GameModel.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -172,73 +166,67 @@ const DBProvider = ({ children }) => {
 
   const PlayerController = useMemo(() => {
     return {
-      load: (teamId, setCallback) => {
+      load: async (teamId) => {
         try {
-          models?.PlayerModel.getAll(teamId, (items) => {
-            setCallback(items);
-          });
+          return await models?.PlayerModel.getAll(teamId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadFees: (playerId, setCallback) => {
+      loadFees: async (playerId) => {
         try {
-          dtos?.PlayerFeeDTO.getPlayerFees(playerId, (items) => {
-            setCallback(items);
-          });
+          return await dtos?.PlayerFeeDTO.getPlayerFees(playerId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadStats: (playerId, setCallback) => {
+      loadStats: async (playerId) => {
         try {
-          dtos?.PlayersStatsDTO.getTotalByPlayer(playerId, (items) => {
-            setCallback(items);
-          });
+          return await dtos?.PlayersStatsDTO.getTotalByPlayer(playerId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadPlayerStats: (playerId, gameId, setCallback) => {
+      loadPlayerStats: async (playerId, gameId) => {
         try {
-          dtos?.PlayersStatsDTO.getByGameAndPlayer(
+          return await dtos?.PlayersStatsDTO.getByGameAndPlayer(
             playerId,
-            gameId,
-            (items) => {
-              setCallback(items);
-            }
+            gameId
           );
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadStatsByTeam: (teamId, setCallback) => {
+      loadStatsByTeam: async (teamId) => {
         try {
-          dtos?.PlayersStatsDTO.getTotalByTeam(teamId, (items) => {
-            setCallback(items);
-          });
+          return await dtos?.PlayersStatsDTO.getTotalByTeam(teamId);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
+        }
+      },
+      add: async (data) => {
+        try {
+          await models?.PlayerModel.create(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      add: (data) => {
+      edit: async (data) => {
         try {
-          models?.PlayerModel.create(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      edit: (data) => {
-        try {
-          models?.PlayerModel.update(data);
+          await models?.PlayerModel.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
 
-      remove: (id) => {
+      remove: async (id) => {
         try {
-          models?.PlayerModel.delete(id);
+          await models?.PlayerModel.delete(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -248,22 +236,20 @@ const DBProvider = ({ children }) => {
 
   const PlayerStatsController = useMemo(() => {
     return {
-      load: (gameId, setCallback) => {
+      load: async (gameId) => {
         try {
-          models?.PlayerStatsModel.getAll(gameId, (items) => {
-            setCallback(items);
-          });
+          return await models?.PlayerStatsModel.getAll(gameId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadByPlayer: (playerId, setCallback) => {
+      loadByPlayer: async (playerId) => {
         try {
-          models?.PlayerStatsModel.getAllByPlayer(playerId, (items) => {
-            setCallback(items);
-          });
+          return await models?.PlayerStatsModel.getAllByPlayer(playerId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
       add: async (data) => {
@@ -292,22 +278,20 @@ const DBProvider = ({ children }) => {
 
   const FeesController = useMemo(() => {
     return {
-      load: (teamId, setCallback) => {
+      load: async (teamId) => {
         try {
-          models?.FeeModel.getAll(teamId, (items) => {
-            setCallback(items);
-          });
+          return await models?.FeeModel.getAll(teamId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadFeesByGame: (teamId, setCallback) => {
+      loadFeesByGame: async (teamId) => {
         try {
-          dtos?.PlayerFeeDTO.getTeamFees(teamId, (items) => {
-            setCallback(items);
-          });
+          return await dtos?.PlayerFeeDTO.getTeamFees(teamId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
       add: async (team_id, player_id, season, month) => {
@@ -343,41 +327,39 @@ const DBProvider = ({ children }) => {
 
   const TrainingController = useMemo(() => {
     return {
-      load: (teamId, setCallback) => {
+      load: async (teamId) => {
         try {
-          models?.TrainingsModel.getAll(teamId, (teams) => {
-            setCallback(teams);
-          });
+          return await models?.TrainingsModel.getAll(teamId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadTPlayers: (trainingId, setCallback) => {
+      loadTPlayers: async (trainingId) => {
         try {
-          dtos?.TrainingPlayerDTO.get(trainingId, (items) => {
-            setCallback(items);
-          });
+          return await dtos?.TrainingPlayerDTO.get(trainingId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
       add: async (data) => {
         try {
-          models?.TrainingsModel.create(data);
+          await models?.TrainingsModel.create(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
       edit: async (data) => {
         try {
-          models?.TrainingsModel.update(data);
+          await models?.TrainingsModel.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
       remove: async (id) => {
         try {
-          models?.TrainingsModel.delete(id);
+          await models?.TrainingsModel.delete(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -387,41 +369,39 @@ const DBProvider = ({ children }) => {
 
   const TraningPlayersController = useMemo(() => {
     return {
-      load: (trainingId, setCallback) => {
+      load: async (trainingId) => {
         try {
-          models?.TrainingPlayersModel.getAll(trainingId, (items) => {
-            setCallback(items);
-          });
+          return await models?.TrainingPlayersModel.getAll(trainingId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
-      loadByPlayer: (playerId, setCallback) => {
+      loadByPlayer: async (playerId) => {
         try {
-          models?.TrainingPlayersModel.getAllByPlayer(playerId, (items) => {
-            setCallback(items);
-          });
+          return await models?.TrainingPlayersModel.getAllByPlayer(playerId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
       add: async (data) => {
         try {
-          models?.TrainingPlayersModel.create(data);
+          await models?.TrainingPlayersModel.create(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
       edit: async (data) => {
         try {
-          models?.TrainingPlayersModel.update(data);
+          await models?.TrainingPlayersModel.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
       remove: async (id) => {
         try {
-          models?.TrainingPlayersModel.delete(id);
+          await models?.TrainingPlayersModel.delete(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }

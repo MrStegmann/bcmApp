@@ -13,15 +13,20 @@ import GamesResults from "../components/GamesResults";
 import { evalue } from "../helpers/evalue";
 
 const ClubProfile = ({ handleReturn, handleUpdate }) => {
-  const { GameController } = useDB();
+  const { GameController, PlayerController } = useDB();
   const [option, setOption] = useState(TopMenuEnums.MAIN);
-  const [gamesResults, setGamesResults] = useState([]);
 
   const club = useClubStore((state) => state.club);
+  const setGames = useClubStore((state) => state.setGames);
+  const setPlayers = useClubStore((state) => state.setPlayers);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
 
   useEffect(() => {
-    GameController.load(club.id, setGamesResults);
+    const getData = async () => {
+      setGames(await GameController.load(club.id));
+      setPlayers(await PlayerController.loadStatsByTeam(club.id));
+    };
+    getData();
   }, []);
 
   useEffect(() => {
@@ -105,7 +110,7 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
     <View className="w-full h-full flex flex-col justify-center items-center">
       {option === TopMenuEnums.MAIN && (
         <View className="w-full flex flex-col justify-center items-center">
-          <GamesResults gamesResults={gamesResults} />
+          {/* <GamesResults /> */}
         </View>
       )}
 

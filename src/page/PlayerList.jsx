@@ -11,7 +11,8 @@ import PlayerCards from "../components/PlayerCards";
 
 const PlayerList = ({ onReturn }) => {
   const { PlayerController } = useDB();
-  const [players, setPlayers] = useState([]);
+  const setPlayers = useClubStore((state) => state.setPlayers);
+  const players = useClubStore((state) => state.players);
   const [createPlayer, setCreatePlayer] = useState(false);
   const [editPlayer, setEditPlayer] = useState(false);
   const [playerSelected, setPlayerSelected] = useState(null);
@@ -21,7 +22,6 @@ const PlayerList = ({ onReturn }) => {
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
 
   useEffect(() => {
-    getData();
     setMainMenu();
   }, []);
 
@@ -65,7 +65,7 @@ const PlayerList = ({ onReturn }) => {
   };
 
   const getData = async () => {
-    PlayerController.loadStatsByTeam(club.id, setPlayers);
+    setPlayers(await PlayerController.loadStatsByTeam(club.id));
   };
 
   const handleAddPlayer = async (data) => {

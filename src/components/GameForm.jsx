@@ -114,10 +114,12 @@ const GameForm = ({ gameData, onSubmit, onCancel }) => {
       setOpponent(gameData.opponent);
       setRound(gameData.round + "");
       setDate(gameData.date);
-      PlayerController.loadStatsByTeam(gameData.team_id, setPlayers);
-      GameController.loadCalledup(gameData.id, (result) =>
-        setCalleup(result.map((res) => res.player_id))
-      );
+      const getData = async () => {
+        setPlayers(await PlayerController.loadStatsByTeam(gameData.team_id));
+        const RESULT_CALLEDUP = await GameController.loadCalledup(gameData.id);
+        setCalleup(RESULT_CALLEDUP.map((res) => res.player_id));
+      };
+      getData();
     }
   }, []);
 

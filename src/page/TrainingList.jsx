@@ -67,7 +67,7 @@ const TrainingList = ({ onReturn }) => {
   };
 
   const getTrainings = async () => {
-    TrainingController.load(club.id, setTrainings);
+    setTrainings(await TrainingController.load(club.id));
   };
 
   const handleAddTraining = async (data) => {

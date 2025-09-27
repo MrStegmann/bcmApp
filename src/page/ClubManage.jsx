@@ -57,7 +57,7 @@ const ClubManage = () => {
   }, [clubs]);
 
   const getData = async () => {
-    TeamController.load(setClubs);
+    setClubs(await TeamController.load());
   };
 
   const handleAddClub = async (data) => {

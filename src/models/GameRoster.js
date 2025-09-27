@@ -28,30 +28,26 @@ export const GameRosterModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Convocatorias");
     }
   },
-  getAll: async (gameId, callback) => {
+  getAll: async (gameId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM game_roster WHERE game_id = ?;`,
-          [gameId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM game_roster WHERE game_id = ?;`,
+        [gameId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener las Convocatorias");
     }
   },
-  getAllByCalled: async (gameId, callback) => {
+  getAllByCalled: async (gameId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM game_roster WHERE game_id = ? AND called = 1;`,
-          [gameId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM game_roster WHERE game_id = ? AND called = 1;`,
+        [gameId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener las Convocatorias");
     }
   },
   create: async (data) => {

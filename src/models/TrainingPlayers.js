@@ -31,30 +31,30 @@ export const TrainingPlayersModel = (dbInstance) => ({
       );
     }
   },
-  getAll: async (trainingId, callback) => {
+  getAll: async (trainingId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM trainings_players WHERE training_id = ?;`,
-          [trainingId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM trainings_players WHERE training_id = ?;`,
+        [trainingId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error(
+        "No se ha podido obtener las Asistencias a Entrenamientos"
+      );
     }
   },
-  getAllByPlayer: async (playerId, callback) => {
+  getAllByPlayer: async (playerId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM trainings_players WHERE player_id = ?;`,
-          [playerId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM trainings_players WHERE player_id = ?;`,
+        [playerId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error(
+        "No se ha podido obtener las Asistencias a Entrenamientos"
+      );
     }
   },
 

@@ -15,12 +15,14 @@ export function TeamModel(dbInstance) {
       }
     },
 
-    getAll: async (callback) => {
+    getAll: async () => {
       try {
-        callback(await dbInstance.getAllAsync(`SELECT * FROM teams;`));
+        return await dbInstance.getAllAsync(`SELECT * FROM teams;`);
       } catch (error) {
         console.error(error);
-        callback([]);
+        throw new Error(
+          `Ha ocurrido un error al intentar obtener todos los equipos`
+        );
       }
     },
 

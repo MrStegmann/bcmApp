@@ -40,16 +40,15 @@ export const FeeModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Cuotas");
     }
   },
-  getAll: async (teamId, callback) => {
+  getAll: async (teamId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(`SELECT * FROM fees WHERE team_id = ?`, [
-          teamId,
-        ])
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM fees WHERE team_id = ?`,
+        [teamId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error(`Ha ocurrido un error al intentar obtener las cuotas`);
     }
   },
 

@@ -18,17 +18,15 @@ export const PlayerModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Jugadores");
     }
   },
-  getAll: async (teamId, callback) => {
+  getAll: async (teamId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM players WHERE team_id = ?;`,
-          [teamId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM players WHERE team_id = ?;`,
+        [teamId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener a los Jugadores");
     }
   },
 

@@ -67,7 +67,7 @@ const GameList = ({ onReturn }) => {
   };
 
   const getData = async () => {
-    GameController.load(club.id, setGames);
+    setGames(await GameController.load(club.id));
   };
 
   const handleCreateGame = async (game) => {
