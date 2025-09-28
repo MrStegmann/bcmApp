@@ -2,7 +2,6 @@ export function TeamModel(dbInstance) {
   return {
     createTable: async () => {
       try {
-        await dbInstance.execAsync("DROP TABLE IF EXISTS teams");
         await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS teams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,

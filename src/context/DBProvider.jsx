@@ -13,11 +13,7 @@ import { GamePlayerDTO } from "../dtos/GamePlayerDTO";
 import { PlayersStatsDTO } from "../dtos/PlayersStatsDTO";
 import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
 import { PlayerFeeDTO } from "../dtos/PlayerFeeDTO";
-import { createTeam } from "../test/team";
-import { createPlayers } from "../test/player";
 import { useAlertStore } from "../store/AlertStore";
-import { createGame } from "../test/game";
-import { createTrainings } from "../test/trainings";
 
 const DBContext = createContext();
 
@@ -38,10 +34,6 @@ const DBProvider = ({ children }) => {
         await FeeModel(dbInstance).createTable();
         await TrainingsModel(dbInstance).createTable();
         await TrainingPlayersModel(dbInstance).createTable();
-
-        await createTeam(TeamModel(dbInstance));
-        await createPlayers(PlayerModel(dbInstance));
-        await createGame(GameModel(dbInstance));
 
         setModels({
           TeamModel: TeamModel(dbInstance),
