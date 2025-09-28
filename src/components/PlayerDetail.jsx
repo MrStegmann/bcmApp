@@ -3,15 +3,44 @@ import { ImageBackground, ScrollView, Text, View } from "react-native";
 import useDB from "../hooks/useDB";
 import jersey from "../../assets/jersey.png";
 import Entypo from "@expo/vector-icons/Entypo";
-import { evalue } from "../helpers/evalue";
-import { useClubStore } from "../store/ClubStore";
 
 const RowData = ({ children }) => {
   return <>{children}</>;
 };
 const PlayerCard = ({ playerInf }) => {
+  const percent = {
+    t1Per:
+      playerInf.total_t1a === "0" && playerInf.total_t1i === "0"
+        ? 0
+        : (Number(playerInf.total_t1a) / Number(playerInf.total_t1i)) * 100,
+    t2Per:
+      playerInf.total_t2a === "0" && playerInf.total_t2i === "0"
+        ? 0
+        : (Number(playerInf.total_t2a) / Number(playerInf.total_t2i)) * 100,
+    t3Per:
+      playerInf.total_t3a === "0" && playerInf.total_t3i === "0"
+        ? 0
+        : (Number(playerInf.total_t3a) / Number(playerInf.total_t3i)) * 100,
+  };
+  const pts =
+    Number(playerInf.total_t1a) +
+    Number(playerInf.total_t2a) * 2 +
+    Number(playerInf.total_t3i) * 3;
+  const val =
+    Number(playerInf.total_t2a) +
+    Number(playerInf.total_t3a) +
+    Number(playerInf.total_t1a) +
+    (Number(playerInf.total_dreb) + Number(playerInf.total_oreb)) +
+    Number(playerInf.total_asis) +
+    Number(playerInf.total_rec) -
+    Number(playerInf.total_per) -
+    Number(playerInf.total_falt) -
+    (Number(playerInf.total_t2i) - Number(playerInf.total_t2a)) -
+    (Number(playerInf.total_t3i) - Number(playerInf.total_t3a)) -
+    (Number(playerInf.total_t1i) - Number(playerInf.total_t1a));
+
   return (
-    <View className={`w-full px-5 mt-5`}>
+    <View className={`w-full px-5 mt-3`}>
       <View className="w-full flex flex-row justify-between items-center">
         <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
           <Text className="text-danish-white">Mins</Text>
@@ -20,13 +49,13 @@ const PlayerCard = ({ playerInf }) => {
         <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">PTS</Text>
-            <Text className="text-danish-white">{`${playerInf.total_pts}`}</Text>
+            <Text className="text-danish-white">{`${pts}`}</Text>
           </View>
         </View>
         <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">Val</Text>
-            <Text className="text-danish-white">{`${playerInf.total_val}`}</Text>
+            <Text className="text-danish-white">{`${val}`}</Text>
           </View>
         </View>
       </View>
@@ -43,7 +72,7 @@ const PlayerCard = ({ playerInf }) => {
             </View>
             <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
               <Text className="text-danish-white">T{key}%</Text>
-              <Text className="text-danish-white">{`${(playerInf[`total_t${key}Per`] || 0).toFixed(1)}%`}</Text>
+              <Text className="text-danish-white">{`${(percent[`t${key}Per`] || 0).toFixed(1)}%`}</Text>
             </View>
           </RowData>
         ))}
@@ -83,40 +112,43 @@ const PlayerCard = ({ playerInf }) => {
 const PlayerDetail = ({ data }) => {
   const { PlayerController, PlayerStatsController, TraningPlayersController } =
     useDB();
-  const club = useClubStore((state) => state.club);
   const [playerFees, setPlayerFees] = useState([]);
   const [playerAllStats, setPlayerAllStats] = useState([]);
   const [stats, setStats] = useState([]);
   const [totalTrainings, setTotalTrainings] = useState(0);
   const [totalTrainingsAssis, setTotalTrainingsAssis] = useState(0);
-  const [showFees, setShowFees] = useState(false);
 
   useEffect(() => {
-    const getData = async () => {
-      const TOTAL_TRAININGS = await TraningPlayersController.loadByPlayer(
-        data.id
+    TraningPlayersController.loadByPlayer(data.id, (results) => {
+      setTotalTrainings(results.length);
+      setTotalTrainingsAssis(results.filter((tp) => tp.assistance).length);
+    });
+    PlayerController.loadFees(data.id, setPlayerFees);
+    PlayerController.loadStats(data.id, (items) => {
+      setPlayerAllStats(
+        items.map((item) => ({
+          ...item,
+          pts: item.total_t2a * 2 + item.total_t3a * 3 + item.total_t1a,
+          total_t1per: item.total_t1a / item.total_t1i,
+          total_t2per: item.total_t2a / item.total_t2i,
+          total_t3per: item.total_t3a / item.total_t3i,
+          total_reb: item.total_dreb + item.total_oreb,
+          val:
+            item.total_t2a +
+            item.total_t3a +
+            item.total_t1a +
+            (item.total_dreb + item.total_oreb) +
+            item.total_asis +
+            item.total_rec -
+            item.total_per -
+            item.total_falt -
+            (item.total_t2i - item.total_t2a) -
+            (item.total_t3i - item.total_t3a) -
+            (item.total_t1i - item.total_t1a),
+        }))
       );
-      setTotalTrainings(TOTAL_TRAININGS.length);
-      setTotalTrainingsAssis(
-        TOTAL_TRAININGS.filter((tp) => tp.assistance).length
-      );
-
-      setPlayerFees(await PlayerController.loadFees(data.id));
-
-      const RESULT_PLAYERALLSTATS = await PlayerController.loadStats(data.id);
-      setPlayerAllStats(RESULT_PLAYERALLSTATS);
-      setStats(await PlayerStatsController.loadByPlayer(data.id));
-    };
-
-    const dataOptions = club.options.split(";");
-    for (const option of dataOptions) {
-      const [key, value] = option.split(":");
-      if (key && value) {
-        if (key === "showFees") setShowFees(evalue(value));
-      }
-    }
-
-    getData();
+    });
+    PlayerStatsController.loadByPlayer(data.id, setStats);
   }, []);
 
   return (
@@ -137,7 +169,7 @@ const PlayerDetail = ({ data }) => {
             </Text>
           </View>
         </View>
-        <View className="w-full mt-5 flex flex-row flex-wrap gap-2 justify-between">
+        <View className="w-full mt-2 flex flex-row flex-wrap gap-2 justify-between">
           <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
             <Text className="font-bold text-danish-white">P. J</Text>
             <Text className="font-bold text-danish-white">{`${stats.length}`}</Text>
@@ -165,32 +197,29 @@ const PlayerDetail = ({ data }) => {
           </Text>
         </View>
       )}
-      {showFees ? (
-        <View className="w-full flex flex-col justify-center mt-10">
-          <Text className="font-bold mb-1 mt-4 text-danish-white text-center">
-            Calendario de Pagos
-          </Text>
-          <View className="flex flex-row flex-wrap w-full h-full px-3 gap-4 justify-center items-center">
-            {playerFees.map((pf) => (
-              <View
-                key={pf.fee_id}
-                className={`w-20 h-20 flex flex-col justify-center items-center border rounded-xl  bg-danish-dark-gray shadow-inner ${pf.paid ? "shadow-danish-gold border-danish-gold" : "shadow-danish-red border-danish-red"}  p-1`}
-              >
-                <Text className="text-xs w-full text-center font-bold text-danish-white">
-                  {pf.month}
-                </Text>
-                <View className="w-full flex-1 flex items-center justify-center">
-                  {pf.paid ? (
-                    <Entypo name="check" size={18} color="gold" />
-                  ) : (
-                    <Entypo name="cross" size={18} color="red" />
-                  )}
-                </View>
-              </View>
-            ))}
+
+      <Text className="font-bold mb-1 mt-4 text-danish-white">
+        Calendario de Pagos
+      </Text>
+      <View className="flex flex-row flex-wrap w-full h-full px-3 gap-4 justify-center items-center">
+        {playerFees.map((pf) => (
+          <View
+            key={pf.fee_id}
+            className={`w-20 h-20 flex flex-col justify-center items-center border rounded-xl  bg-danish-dark-gray shadow-inner ${pf.paid ? "shadow-danish-gold border-danish-gold" : "shadow-danish-red border-danish-red"}  p-1`}
+          >
+            <Text className="text-xs w-full text-center font-bold text-danish-white">
+              {pf.month}
+            </Text>
+            <View className="w-full flex-1 flex items-center justify-center">
+              {pf.paid ? (
+                <Entypo name="check" size={18} color="gold" />
+              ) : (
+                <Entypo name="cross" size={18} color="red" />
+              )}
+            </View>
           </View>
-        </View>
-      ) : null}
+        ))}
+      </View>
     </View>
   );
 };

@@ -1,7 +1,6 @@
 export const TrainingPlayersModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS trainings_players");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS trainings_players (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         training_id INTEGER NOT NULL,
@@ -32,30 +31,30 @@ export const TrainingPlayersModel = (dbInstance) => ({
       );
     }
   },
-  getAll: async (trainingId) => {
+  getAll: async (trainingId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM trainings_players WHERE training_id = ?;`,
-        [trainingId]
+      callback(
+        await dbInstance.getAllAsync(
+          `SELECT * FROM trainings_players WHERE training_id = ?;`,
+          [trainingId]
+        )
       );
     } catch (error) {
-      console.error(error);
-      throw new Error(
-        "No se ha podido obtener las Asistencias a Entrenamientos"
-      );
+      console.log(error);
+      callback([]);
     }
   },
-  getAllByPlayer: async (playerId) => {
+  getAllByPlayer: async (playerId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM trainings_players WHERE player_id = ?;`,
-        [playerId]
+      callback(
+        await dbInstance.getAllAsync(
+          `SELECT * FROM trainings_players WHERE player_id = ?;`,
+          [playerId]
+        )
       );
     } catch (error) {
-      console.error(error);
-      throw new Error(
-        "No se ha podido obtener las Asistencias a Entrenamientos"
-      );
+      console.log(error);
+      callback([]);
     }
   },
 

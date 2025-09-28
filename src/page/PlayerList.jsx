@@ -6,13 +6,13 @@ import PlayerDetail from "../components/PlayerDetail";
 import DeleteModal from "../framework/DeleteModal";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
+import Entypo from "@expo/vector-icons/Entypo";
 import useDB from "../hooks/useDB";
 import PlayerCards from "../components/PlayerCards";
 
 const PlayerList = ({ onReturn }) => {
   const { PlayerController } = useDB();
-  const setPlayers = useClubStore((state) => state.setPlayers);
-  const players = useClubStore((state) => state.players);
+  const [players, setPlayers] = useState([]);
   const [createPlayer, setCreatePlayer] = useState(false);
   const [editPlayer, setEditPlayer] = useState(false);
   const [playerSelected, setPlayerSelected] = useState(null);
@@ -22,14 +22,42 @@ const PlayerList = ({ onReturn }) => {
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
 
   useEffect(() => {
+    getData();
     setMainMenu();
   }, []);
 
   useEffect(() => {
-    if (!createPlayer || !editPlayer) {
+    if (createPlayer) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => setCreatePlayer(false),
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
       setMainMenu();
     }
-  }, [createPlayer, editPlayer]);
+  }, [createPlayer]);
+
+  useEffect(() => {
+    if (editPlayer) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => {
+            setPlayerSelected(null);
+            setEditPlayer(false);
+          },
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
+      setMainMenu();
+    }
+  }, [editPlayer]);
 
   useEffect(() => {
     if (editPlayer) return;
@@ -38,8 +66,10 @@ const PlayerList = ({ onReturn }) => {
         {
           id: TopMenuEnums.GO_BACK,
           name: "Volver",
-          onPress: () => setPlayerSelected(null),
-          icon: TopMenuEnums.GO_BACK,
+          onPress: () => {
+            setPlayerSelected(null);
+          },
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -53,29 +83,42 @@ const PlayerList = ({ onReturn }) => {
         id: TopMenuEnums.ADD_NEW_PLAYER,
         name: "Añadir Jugador",
         onPress: () => setCreatePlayer(true),
-        icon: TopMenuEnums.ADD_NEW_PLAYER,
+        children: () => <Entypo name="add-user" size={18} color="white" />,
       },
       {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn,
-        icon: TopMenuEnums.GO_BACK,
+        children: () => <Entypo name="back" size={18} color="white" />,
       },
     ]);
   };
 
   const getData = async () => {
-    setPlayers(await PlayerController.loadStatsByTeam(club.id));
+    PlayerController.loadStatsByTeam(club.id, setPlayers);
   };
 
   const handleAddPlayer = async (data) => {
-    await PlayerController.add(data);
+    await PlayerController.add(
+      data.teamId,
+      data.firstName,
+      data.lastName,
+      data.number,
+      club.id
+    );
     getData();
     setCreatePlayer(false);
   };
 
   const handleUpdatePlayer = async (data) => {
-    await PlayerController.edit(data);
+    await PlayerController.edit(
+      data.id,
+      data.teamId,
+      data.firstName,
+      data.lastName,
+      data.number,
+      club.id
+    );
     getData();
     setEditPlayer(false);
     setPlayerSelected(null);
@@ -121,16 +164,16 @@ const PlayerList = ({ onReturn }) => {
         <PlayerForm
           onSubmit={handleUpdatePlayer}
           playerData={playerSelected}
-          onCancel={() => {
-            setEditPlayer(false);
-            setPlayerSelected(null);
-          }}
+          onCancel={() => setEditPlayer(false)}
         />
       )}
       {!createPlayer &&
         !editPlayer &&
         (playerSelected ? (
-          <PlayerDetail data={playerSelected} />
+          <PlayerDetail
+            data={playerSelected}
+            onReturn={() => setPlayerSelected(null)}
+          />
         ) : (
           <PlayerCards
             players={players}

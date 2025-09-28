@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useMenuStore } from "../store/MenuStore";
 import { useClubStore } from "../store/ClubStore";
 import MonthEnums from "../Enums/MonthEnums";
 import useDB from "../hooks/useDB";
 import Entypo from "@expo/vector-icons/Entypo";
-import TopMenuEnums from "../Enums/TopMenuEnums";
 
 const months = Object.keys(MonthEnums);
 
-const Calendar = ({ onReturn }) => {
+const Calendar = () => {
   const { FeesController } = useDB();
   const [playersFee, setPlayersFee] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(
@@ -17,25 +15,13 @@ const Calendar = ({ onReturn }) => {
   );
 
   const club = useClubStore((state) => state.club);
-  const setTopMenu = useMenuStore((state) => state.setTopMenu);
-
-  useEffect(() => {
-    setTopMenu([
-      {
-        id: TopMenuEnums.GO_BACK,
-        name: "Volver",
-        onPress: onReturn,
-        icon: TopMenuEnums.GO_BACK,
-      },
-    ]);
-  }, []);
 
   useEffect(() => {
     getPlayersFeeTable();
   }, [selectedMonth]);
 
   const getPlayersFeeTable = async () => {
-    setPlayersFee(await FeesController.loadFeesByGame(club.id));
+    FeesController.loadFeesByGame(club.id, setPlayersFee);
   };
 
   const switchPaidMonth = async (fee, state) => {

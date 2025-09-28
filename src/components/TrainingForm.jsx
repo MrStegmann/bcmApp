@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
-import { Text, View, ScrollView } from "react-native";
+import { useState, useEffect, useMemo } from "react";
+import { Text, View, ScrollView, TextInput } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import Input from "../framework/Input";
-import TopMenuEnums from "../Enums/TopMenuEnums";
-import { useMenuStore } from "../store/MenuStore";
+import Button from "../framework/Button";
 
-const TrainingForm = ({ onSubmit, trainingData, onCancel }) => {
+const TrainingForm = ({ onSubmit, trainingData }) => {
   const club = useClubStore((state) => state.club);
-  const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const [trainingNumber, setTrainingNumber] = useState("");
   const [wrongTrainingNumber, setWrongTrainingNumber] = useState("");
   const [date, setDate] = useState("");
@@ -40,26 +38,6 @@ const TrainingForm = ({ onSubmit, trainingData, onCancel }) => {
     cooldown2: "",
     cooldown2_explanation: "",
   });
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setTopMenu([
-        {
-          id: TopMenuEnums.SAVE,
-          name: "Guardar",
-          onPress: () => handleSubmit(),
-          icon: TopMenuEnums.SAVE,
-        },
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: onCancel,
-          icon: TopMenuEnums.GO_BACK,
-        },
-      ]);
-    }, 25);
-    return () => clearTimeout(timeout);
-  }, [trainingNumber, date, warmup, exercise, cooldown]);
 
   useEffect(() => {
     if (trainingData) {
@@ -301,6 +279,12 @@ const TrainingForm = ({ onSubmit, trainingData, onCancel }) => {
             </View>
           </View>
         </ScrollView>
+      </View>
+      <View className="w-full px-2">
+        <Button
+          title={trainingData ? "Guardar" : "Crear entrenamiento"}
+          onPress={handleSubmit}
+        />
       </View>
     </View>
   );

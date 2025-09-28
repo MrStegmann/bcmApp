@@ -1,7 +1,6 @@
 export const PlayerModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS players");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS players (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             team_id INTEGER NOT NULL,
@@ -10,23 +9,22 @@ export const PlayerModel = (dbInstance) => ({
             number TEXT NOT NULL,
             FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
         );`);
-      await dbInstance.execAsync(
-        `CREATE INDEX IF NOT EXISTS idx_players_team_id ON players(team_id);`
-      );
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido crear la tabla de Jugadores");
     }
   },
-  getAll: async (teamId) => {
+  getAll: async (teamId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM players WHERE team_id = ?;`,
-        [teamId]
+      callback(
+        await dbInstance.getAllAsync(
+          `SELECT * FROM players WHERE team_id = ?;`,
+          [teamId]
+        )
       );
     } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener a los Jugadores");
+      console.log(error);
+      callback([]);
     }
   },
 
@@ -34,12 +32,12 @@ export const PlayerModel = (dbInstance) => ({
     try {
       await dbInstance.runAsync(
         "INSERT INTO players (team_id, first_name, last_name, number) VALUES (?, ?, ?, ?);",
-        [data.teamId, data.firstName, data.lastName, data.number]
+        [data.team_id, data.first_name, data.last_name, data.number]
       );
     } catch (error) {
       console.error(error);
       throw new Error(
-        `Ha ocurrido un error al intentar guardar al Jugador ${data.firstName} ${data.lastName}`
+        `Ha ocurrido un error al intentar guardar al Jugador ${data.first_name} ${data.last_name}`
       );
     }
   },
@@ -47,12 +45,12 @@ export const PlayerModel = (dbInstance) => ({
     try {
       await dbInstance.runAsync(
         "UPDATE players SET team_id = ?, first_name = ?, last_name = ?, number= ?  WHERE id = ?;",
-        [data.teamId, data.firstName, data.lastName, data.number, data.id]
+        [data.team_id, data.first_name, data.last_name, data.number, data.id]
       );
     } catch (error) {
       console.error(error);
       throw new Error(
-        `Ha ocurrido un error al intentar actualizar al Jugador ${data.firstName} ${data.lastName}`
+        `Ha ocurrido un error al intentar actualizar al Jugador ${data.first_name} ${data.last_name}`
       );
     }
   },

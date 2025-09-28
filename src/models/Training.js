@@ -1,7 +1,6 @@
 export const TrainingsModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync("DROP TABLE IF EXISTS trainings");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS trainings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         team_id INTEGER NOT NULL,
@@ -32,23 +31,22 @@ export const TrainingsModel = (dbInstance) => ({
 
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
       );`);
-      await dbInstance.execAsync(
-        `CREATE INDEX IF NOT EXISTS idx_trainings_team_id ON trainings(team_id);`
-      );
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido crear la tabla de Entrenamientos");
     }
   },
-  getAll: async (teamId) => {
+  getAll: async (teamId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM trainings WHERE team_id = ?;`,
-        [teamId]
+      callback(
+        await dbInstance.getAllAsync(
+          `SELECT * FROM trainings WHERE team_id = ?;`,
+          [teamId]
+        )
       );
     } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener los Entrenamientos");
+      console.log(error);
+      callback([]);
     }
   },
 

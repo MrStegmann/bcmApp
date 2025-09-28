@@ -1,39 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import Input from "../framework/Input";
-import TopMenuEnums from "../Enums/TopMenuEnums";
-import { useMenuStore } from "../store/MenuStore";
+import Button from "../framework/Button";
 
 const PlayerForm = ({ onSubmit, onCancel, playerData }) => {
   const club = useClubStore((state) => state.club);
-  const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const [firstName, setFirstName] = useState("");
   const [wrongFirstName, setWrongFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [wrongLastName, setWrongLastName] = useState("");
   const [number, setNumber] = useState("");
   const [wrongNumber, setWrongNumber] = useState("");
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setTopMenu([
-        {
-          id: TopMenuEnums.SAVE,
-          name: "Guardar",
-          onPress: handleSubmit,
-          icon: TopMenuEnums.SAVE,
-        },
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: onCancel,
-          icon: TopMenuEnums.GO_BACK,
-        },
-      ]);
-    }, 25);
-    return () => clearTimeout(timeout);
-  }, [firstName, lastName, number]);
 
   useEffect(() => {
     if (playerData) {
@@ -89,6 +67,10 @@ const PlayerForm = ({ onSubmit, onCancel, playerData }) => {
         onChange={setNumber}
         wrongMsg={wrongNumber}
         keyboardType="numeric"
+      />
+      <Button
+        title={playerData ? "Guardar" : "Añadir jugador"}
+        onPress={handleSubmit}
       />
     </View>
   );

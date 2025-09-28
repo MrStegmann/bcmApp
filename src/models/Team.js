@@ -2,11 +2,9 @@ export function TeamModel(dbInstance) {
   return {
     createTable: async () => {
       try {
-        await dbInstance.execAsync("DROP TABLE IF EXISTS teams");
         await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS teams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            options TEXT DEFAULT 'showFees:true;',
             created_at TEXT DEFAULT (datetime('now'))
         );`);
       } catch (error) {
@@ -15,14 +13,12 @@ export function TeamModel(dbInstance) {
       }
     },
 
-    getAll: async () => {
+    getAll: async (callback) => {
       try {
-        return await dbInstance.getAllAsync(`SELECT * FROM teams;`);
+        callback(await dbInstance.getAllAsync(`SELECT * FROM teams;`));
       } catch (error) {
-        console.error(error);
-        throw new Error(
-          `Ha ocurrido un error al intentar obtener todos los equipos`
-        );
+        console.log(error);
+        callback([]);
       }
     },
 
@@ -40,10 +36,10 @@ export function TeamModel(dbInstance) {
     },
     update: async (data) => {
       try {
-        await dbInstance.runAsync(
-          "UPDATE teams SET name = ?, options = ? WHERE id = ?;",
-          [data.name, data.options, data.id]
-        );
+        await dbInstance.runAsync("UPDATE teams SET name = ? WHERE id = ?;", [
+          data.name,
+          data.id,
+        ]);
       } catch (error) {
         console.error(error);
         throw new Error(

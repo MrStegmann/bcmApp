@@ -1,7 +1,6 @@
 export const GameRosterModel = (dbInstance) => ({
   createTable: async () => {
     try {
-      await dbInstance.execAsync(`DROP TABLE IF EXISTS game_roster`);
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS game_roster (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             game_id INTEGER NOT NULL,
@@ -28,26 +27,30 @@ export const GameRosterModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Convocatorias");
     }
   },
-  getAll: async (gameId) => {
+  getAll: async (gameId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM game_roster WHERE game_id = ?;`,
-        [gameId]
+      callback(
+        await dbInstance.getAllAsync(
+          `SELECT * FROM game_roster WHERE game_id = ?;`,
+          [gameId]
+        )
       );
     } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener las Convocatorias");
+      console.log(error);
+      callback([]);
     }
   },
-  getAllByCalled: async (gameId) => {
+  getAllByCalled: async (gameId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM game_roster WHERE game_id = ? AND called = 1;`,
-        [gameId]
+      callback(
+        await dbInstance.getAllAsync(
+          `SELECT * FROM game_roster WHERE game_id = ? AND called = 1;`,
+          [gameId]
+        )
       );
     } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener las Convocatorias");
+      console.log(error);
+      callback([]);
     }
   },
   create: async (data) => {

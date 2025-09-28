@@ -1,84 +1,47 @@
 export async function createPlayer(PlayerModel) {
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Patrick",
-    lastName: "Stegmann",
+    team_id: 1,
+    first_name: "Patrick",
+    last_name: "Stegmann",
     number: "10",
   });
 }
 
 export async function createPlayers(PlayerModel) {
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Patrick",
-    lastName: "Stegmann",
+    team_id: 1,
+    first_name: "Patrick",
+    last_name: "Stegmann",
     number: "10",
   });
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Carlos",
-    lastName: "León",
+    team_id: 1,
+    first_name: "Carlos",
+    last_name: "León",
     number: "9",
   });
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Rau",
-    lastName: "Gomez",
+    team_id: 1,
+    first_name: "Rau",
+    last_name: "Gomez",
     number: "00",
   });
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Juan Carlos",
-    lastName: "El Xokas",
+    team_id: 1,
+    first_name: "Juan Carlos",
+    last_name: "El Xokas",
     number: "13",
   });
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Miguel",
-    lastName: "Come Viejas",
+    team_id: 1,
+    first_name: "Miguel",
+    last_name: "Come Viejas",
     number: "69",
   });
   await PlayerModel.create({
-    teamId: 1,
-    firstName: "Sergio",
-    lastName: "Vende Casas",
-    number: "29",
-  });
-
-  await PlayerModel.create({
-    teamId: 1,
-    firstName: "Rodri",
-    lastName: "Triplista",
-    number: "10",
-  });
-  await PlayerModel.create({
-    teamId: 1,
-    firstName: "Juan",
-    lastName: "Quejero",
-    number: "9",
-  });
-  await PlayerModel.create({
-    teamId: 1,
-    firstName: "Vicente",
-    lastName: "Correcaminos",
-    number: "00",
-  });
-  await PlayerModel.create({
-    teamId: 1,
-    firstName: "Christian",
-    lastName: "Manito",
-    number: "13",
-  });
-  await PlayerModel.create({
-    teamId: 1,
-    firstName: "Jesder",
-    lastName: "Prime",
-    number: "69",
-  });
-  await PlayerModel.create({
-    teamId: 1,
-    firstName: "Ismael",
-    lastName: "Manosalzadas",
+    team_id: 1,
+    first_name: "Sergio",
+    last_name: "Vende Casas",
     number: "29",
   });
   await PlayerModel.create({

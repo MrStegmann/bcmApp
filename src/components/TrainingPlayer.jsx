@@ -14,25 +14,35 @@ const TrainingPlayer = ({ tp, updateTrainingPlayer }) => {
   }, [tp]);
 
   return (
-    <TouchableOpacity
-      className={`w-2/5 my-1 p-2 rounded-lg bg-danish-dark-gray border-2 shadow-lg flex flex-col justify-center items-center relative ${Boolean(tp.assistance) ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
-      onPress={() =>
-        updateTrainingPlayer({
-          notes,
-          assistance: !Boolean(tp.assistance),
-          id: tp.tp_id,
-        })
-      }
+    <View
+      className={`w-full mx-1 my-1 p-2 rounded-lg bg-danish-dark-gray border-2 shadow-lg flex flex-col justify-center items-center relative ${Boolean(tp.assistance) ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
     >
-      {Boolean(tp.assistance) ? (
-        <FontAwesome6 name="person-circle-check" size={16} color="gold" />
-      ) : (
-        <FontAwesome6 name="person-circle-exclamation" size={16} color="red" />
-      )}
+      <TouchableOpacity
+        className="absolute top-2 left-2"
+        onPress={() =>
+          updateTrainingPlayer({
+            notes,
+            assistance: !Boolean(tp.assistance),
+            id: tp.tp_id,
+          })
+        }
+      >
+        {Boolean(tp.assistance) ? (
+          <FontAwesome6 name="person-circle-check" size={18} color="gold" />
+        ) : (
+          <FontAwesome6
+            name="person-circle-exclamation"
+            size={18}
+            color="red"
+          />
+        )}
+      </TouchableOpacity>
 
-      <Text className="text-xs font-bold text-danish-white mt-2">
-        {tp.first_name} {tp.last_name}
-      </Text>
+      <View className="w-full flex justify-center items-center">
+        <Text className="text-sm font-bold text-danish-white w-4/5 text-center">
+          {tp.first_name} {tp.last_name}
+        </Text>
+      </View>
 
       <View className="w-full flex flex-col justify-between items-center mt-5 px-1">
         <TextInput
@@ -52,7 +62,7 @@ const TrainingPlayer = ({ tp, updateTrainingPlayer }) => {
           }
         />
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

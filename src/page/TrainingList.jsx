@@ -6,6 +6,8 @@ import TrainingDetail from "../components/TrainingDetail";
 import DeleteModal from "../framework/DeleteModal";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
+import Entypo from "@expo/vector-icons/Entypo";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import useDB from "../hooks/useDB";
 import TraningCards from "../components/TraningCards";
 
@@ -28,10 +30,36 @@ const TrainingList = ({ onReturn }) => {
   }, []);
 
   useEffect(() => {
-    if (!createTraining || !editTraining) {
+    if (createTraining) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => setCreateTraining(false),
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
       setMainMenu();
     }
-  }, [createTraining, editTraining]);
+  }, [createTraining]);
+
+  useEffect(() => {
+    if (editTraining) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => {
+            (setSelectedTraining(null), setEditTraining(false));
+          },
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
+      setMainMenu();
+    }
+  }, [editTraining]);
 
   useEffect(() => {
     if (editTraining) return;
@@ -41,7 +69,7 @@ const TrainingList = ({ onReturn }) => {
           id: TopMenuEnums.GO_BACK,
           name: "Volver",
           onPress: () => setSelectedTraining(null),
-          icon: TopMenuEnums.GO_BACK,
+          children: () => <Entypo name="back" size={18} color="white" />,
         },
       ]);
     } else {
@@ -55,19 +83,21 @@ const TrainingList = ({ onReturn }) => {
         id: TopMenuEnums.ADD_NEW_SESSION,
         name: "Añadir Sesión",
         onPress: () => setCreateTraining(true),
-        icon: TopMenuEnums.ADD_NEW_SESSION,
+        children: () => (
+          <MaterialIcons name="assignment-add" size={18} color="white" />
+        ),
       },
       {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn,
-        icon: TopMenuEnums.GO_BACK,
+        children: () => <Entypo name="back" size={18} color="white" />,
       },
     ]);
   };
 
   const getTrainings = async () => {
-    setTrainings(await TrainingController.load(club.id));
+    TrainingController.load(club.id, setTrainings);
   };
 
   const handleAddTraining = async (data) => {
@@ -124,16 +154,16 @@ const TrainingList = ({ onReturn }) => {
         <TrainingForm
           onSubmit={handleUpdateTraining}
           trainingData={selectedTraining}
-          onCancel={() => {
-            setEditTraining(false);
-            setSelectedTraining(null);
-          }}
+          onCancel={() => setEditTraining(false)}
         />
       )}
       {!createTraining &&
         !editTraining &&
         (selectedTraining ? (
-          <TrainingDetail data={selectedTraining} />
+          <TrainingDetail
+            data={selectedTraining}
+            onReturn={() => setSelectedTraining(null)}
+          />
         ) : (
           <TraningCards
             trainings={trainings}

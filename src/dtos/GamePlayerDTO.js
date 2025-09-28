@@ -1,8 +1,9 @@
 export const GamePlayerDTO = (dbInstance) => ({
-  get: async (gameId) => {
+  get: async (gameId, callback) => {
     try {
-      return await dbInstance.getAllAsync(
-        `
+      callback(
+        await dbInstance.getAllAsync(
+          `
             SELECT
                 g.*,
                 p.id AS player_id,
@@ -18,13 +19,12 @@ export const GamePlayerDTO = (dbInstance) => ({
             WHERE
                 g.id = ?;
             `,
-        [gameId]
+          [gameId]
+        )
       );
     } catch (error) {
       console.error(error);
-      throw new Error(
-        "No se ha podido obtener la información del jugador y su convocación"
-      );
+      callback([]);
     }
   },
 });

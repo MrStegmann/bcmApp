@@ -7,13 +7,13 @@ import GameForm from "../components/GameForm";
 import GameDetail from "../components/GameDetail";
 import useDB from "../hooks/useDB";
 import TopMenuEnums from "../Enums/TopMenuEnums";
+import Entypo from "@expo/vector-icons/Entypo";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMenuStore } from "../store/MenuStore";
-import { useAlertStore } from "../store/AlertStore";
 
 const GameList = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
-  const addAlert = useAlertStore((state) => state.addAlert);
   const { GameController } = useDB();
   const [games, setGames] = useState([]);
   const [gameSelected, setGameSelected] = useState(null);
@@ -29,14 +29,50 @@ const GameList = ({ onReturn }) => {
   }, []);
 
   useEffect(() => {
-    if (!createGame || !editGame) {
+    if (createGame) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => setCreateGame(false),
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
       setMainMenu();
     }
-  }, [createGame, editGame]);
-
+  }, [createGame]);
+  useEffect(() => {
+    if (editGame) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => {
+            setGameSelected(null);
+            setEditGame(false);
+          },
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
+      setMainMenu();
+    }
+  }, [editGame]);
   useEffect(() => {
     if (editGame) return;
-    if (!gameSelected) {
+    if (gameSelected) {
+      setTopMenu([
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: () => {
+            setGameSelected(null);
+          },
+          children: () => <Entypo name="back" size={18} color="white" />,
+        },
+      ]);
+    } else {
       setMainMenu();
     }
   }, [gameSelected]);
@@ -44,22 +80,24 @@ const GameList = ({ onReturn }) => {
   const setMainMenu = () => {
     setTopMenu([
       {
-        id: TopMenuEnums.ADD_NEW_GAME,
+        id: TopMenuEnums.ADD_NEW_SESSION,
         name: "Añadir Partido",
         onPress: () => setCreateGame(true),
-        icon: TopMenuEnums.ADD_NEW_GAME,
+        children: () => (
+          <Ionicons name="basketball-sharp" size={18} color="white" />
+        ),
       },
       {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn,
-        icon: TopMenuEnums.GO_BACK,
+        children: () => <Entypo name="back" size={18} color="white" />,
       },
     ]);
   };
 
   const getData = async () => {
-    setGames(await GameController.load(club.id));
+    GameController.load(club.id, setGames);
   };
 
   const handleCreateGame = async (game) => {
@@ -100,13 +138,8 @@ const GameList = ({ onReturn }) => {
 
   const handleUpdateResults = async (game) => {
     await GameController.edit(game);
-    addAlert({
-      msg: "Se ha guardado el partido",
-      lifetime: 2500,
-      id: Date.now(),
-    });
     getData();
-    setGameSelected(null);
+    setGameSelected((before) => games.find((g) => g.id === before.id));
   };
 
   return (
@@ -140,7 +173,6 @@ const GameList = ({ onReturn }) => {
           <GameDetail
             data={gameSelected}
             onUpdateResults={handleUpdateResults}
-            onReturn={() => setGameSelected(null)}
           />
         ) : (
           <GameCards

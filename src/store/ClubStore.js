@@ -7,6 +7,7 @@ export const useClubStore = create((set) => ({
 
   players: [],
   setPlayers: (players) => set({ players }),
+
   games: [],
   setGames: (games) => set({ games }),
 }));
