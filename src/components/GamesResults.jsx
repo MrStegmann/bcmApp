@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useClubStore } from "../store/ClubStore";
 
 const CardGamesResults = ({ game }) => {
   const result =
@@ -44,8 +45,9 @@ const CardGamesResults = ({ game }) => {
   );
 };
 
-const GamesResults = ({ gamesResults }) => {
-  if (!gamesResults || gamesResults.length === 0)
+const GamesResults = () => {
+  const games = useClubStore((state) => state.games);
+  if (!games || games.length === 0)
     return (
       <View className="w-full flex flex-col justify-center items-center mt-20">
         <MaterialCommunityIcons
@@ -65,7 +67,7 @@ const GamesResults = ({ gamesResults }) => {
       </Text>
       <View className="w-full h-96 flex flex-col">
         <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
-          {gamesResults.map((game) => (
+          {games.map((game) => (
             <CardGamesResults key={game.id} game={game} />
           ))}
         </ScrollView>

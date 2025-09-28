@@ -1,6 +1,7 @@
 export const PlayerStatsModel = (dbInstance) => ({
   createTable: async () => {
     try {
+      await dbInstance.execAsync("DROP TABLE IF EXISTS players_stats");
       await dbInstance.execAsync(`CREATE TABLE IF NOT EXISTS players_stats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         game_id INTEGER NOT NULL,
@@ -21,6 +22,9 @@ export const PlayerStatsModel = (dbInstance) => ({
         FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE,
         FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
       );`);
+      await dbInstance.execAsync(
+        `CREATE INDEX IF NOT EXISTS idx_stats_player_id ON players_stats(player_id);`
+      );
 
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_player_stats
         AFTER INSERT ON game_roster
@@ -33,30 +37,26 @@ export const PlayerStatsModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Estadísticas");
     }
   },
-  getAll: async (gameId, callback) => {
+  getAll: async (gameId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM players_stats WHERE game_id = ?;`,
-          [gameId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM players_stats WHERE game_id = ?;`,
+        [gameId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener las Estadísticas");
     }
   },
-  getAllByPlayer: async (playerId, callback) => {
+  getAllByPlayer: async (playerId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `SELECT * FROM players_stats WHERE player_id = ?;`,
-          [playerId]
-        )
+      return await dbInstance.getAllAsync(
+        `SELECT * FROM players_stats WHERE player_id = ?;`,
+        [playerId]
       );
     } catch (error) {
-      console.log(error);
-      callback([]);
+      console.error(error);
+      throw new Error("No se ha podido obtener las Estadísticas");
     }
   },
   create: async (data) => {

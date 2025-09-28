@@ -1,9 +1,8 @@
 export const PlayerFeeDTO = (dbInstance) => ({
-  getPlayerFees: async (playerId, callback) => {
+  getPlayerFees: async (playerId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `
+      return await dbInstance.getAllAsync(
+        `
             SELECT
                 p.id,
                 p.first_name,
@@ -20,19 +19,19 @@ export const PlayerFeeDTO = (dbInstance) => ({
             WHERE
                 p.id = ?
             ;`,
-          [playerId]
-        )
+        [playerId]
       );
     } catch (error) {
       console.error(error);
-      callback([]);
+      throw new Error(
+        "No se ha podido obtener la información del jugador y sus cuotas"
+      );
     }
   },
-  getTeamFees: async (teamId, callback) => {
+  getTeamFees: async (teamId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `
+      return await dbInstance.getAllAsync(
+        `
             SELECT
         
                 p.first_name,
@@ -51,12 +50,13 @@ export const PlayerFeeDTO = (dbInstance) => ({
             WHERE
                 f.team_id = ?
             ;`,
-          [teamId]
-        )
+        [teamId]
       );
     } catch (error) {
       console.error(error);
-      callback([]);
+      throw new Error(
+        "No se ha podido obtener la información de los jugadores y sus cuotas"
+      );
     }
   },
 });

@@ -1,28 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View, TouchableOpacity } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useClubStore } from "../store/ClubStore";
 import useDB from "../hooks/useDB";
-import Button from "../framework/Button";
 import Input from "../framework/Input";
 import { useAlertStore } from "../store/AlertStore";
+import { useMenuStore } from "../store/MenuStore";
+import TopMenuEnums from "../Enums/TopMenuEnums";
 
 const PlayerCard = ({ playerInf, onCall, isCalled }) => {
-  if (!playerInf) return null;
-  const pts =
-    playerInf.total_t1a + playerInf.total_t2a * 2 + playerInf.total_t3a * 3;
-  const val =
-    playerInf.total_t2a +
-    playerInf.total_t3a +
-    playerInf.total_t1a +
-    (playerInf.total_dreb + playerInf.total_oreb) +
-    playerInf.total_asis +
-    playerInf.total_rec -
-    playerInf.total_per -
-    playerInf.total_falt -
-    (playerInf.total_t2i - playerInf.total_t2a) -
-    (playerInf.total_t3i - playerInf.total_t3a) -
-    (playerInf.total_t1i - playerInf.total_t1a);
   return (
     <TouchableOpacity
       onPress={() => onCall(!isCalled(playerInf.id), playerInf.id)}
@@ -55,7 +41,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">PTS</Text>
-            <Text className="text-danish-white">{`${pts}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_pts}`}</Text>
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">Faltas</Text>
@@ -65,7 +51,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
         <View className="w-1/4">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">Val</Text>
-            <Text className="text-danish-white">{`${val}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_val}`}</Text>
           </View>
         </View>
       </View>
@@ -74,9 +60,10 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
   );
 };
 
-const GameForm = ({ gameData, onSubmit }) => {
+const GameForm = ({ gameData, onSubmit, onCancel }) => {
   const { PlayerController, GameController } = useDB();
   const addAlert = useAlertStore((state) => state.addAlert);
+  const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const [opponent, setOpponent] = useState("");
   const [wrongOpponent, setWrongOpponent] = useState("");
   const [round, setRound] = useState("");
@@ -90,14 +77,35 @@ const GameForm = ({ gameData, onSubmit }) => {
   const club = useClubStore((state) => state.club);
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      setTopMenu([
+        {
+          id: TopMenuEnums.SAVE,
+          name: "Guardar",
+          onPress: () => handleSubmit(),
+          icon: TopMenuEnums.SAVE,
+        },
+        {
+          id: TopMenuEnums.GO_BACK,
+          name: "Volver",
+          onPress: onCancel,
+          icon: TopMenuEnums.GO_BACK,
+        },
+      ]);
+    }, 25);
+    return () => clearTimeout(timeout);
+  }, [opponent, round, date, calledup]);
+  useEffect(() => {
     if (gameData) {
       setOpponent(gameData.opponent);
       setRound(gameData.round + "");
       setDate(gameData.date);
-      PlayerController.loadStatsByTeam(gameData.team_id, setPlayers);
-      GameController.loadCalledup(gameData.id, (result) =>
-        setCalleup(result.map((res) => res.player_id))
-      );
+      const getData = async () => {
+        setPlayers(await PlayerController.loadStatsByTeam(gameData.team_id));
+        const RESULT_CALLEDUP = await GameController.loadCalledup(gameData.id);
+        setCalleup(RESULT_CALLEDUP.map((res) => res.player_id));
+      };
+      getData();
     }
   }, []);
 
@@ -119,18 +127,18 @@ const GameForm = ({ gameData, onSubmit }) => {
   };
 
   const handleSetCalled = async (state, playerId) => {
-    if (calledup.length === 12)
-      return addAlert({
-        msg: "No puedes convocar a más de 12 jugadores",
-        lifetime: 2500,
-        id: Date.now(),
-      });
-    await GameController.editCalledup({
-      called: state,
-      game_id: gameData.id,
-      player_id: playerId,
-    });
     if (state) {
+      if (calledup.length === 12)
+        return addAlert({
+          msg: "No puedes convocar a más de 12 jugadores",
+          lifetime: 2500,
+          id: Date.now(),
+        });
+      await GameController.editCalledup({
+        called: state,
+        game_id: gameData.id,
+        player_id: playerId,
+      });
       setCalleup((before) => [...before, playerId]);
     } else {
       setCalleup((before) => before.filter((cu) => cu !== playerId));
@@ -138,7 +146,7 @@ const GameForm = ({ gameData, onSubmit }) => {
   };
 
   return (
-    <View className="w-full px-5 h-full">
+    <View className="w-full px-5 flex-1">
       <Input
         label="Equipo Contrario"
         placeholder="Equipo contrario"
@@ -170,25 +178,28 @@ const GameForm = ({ gameData, onSubmit }) => {
         </View>
       </View>
 
-      <Text className="font-bold mt-2 text-center text-danish-white">
-        Convocatoria {"( " + calledup.length + " jugadores convocados de 12 )"}
-      </Text>
-      <View className="w-full h-96 border-b border-danish-red mb-10">
-        <ScrollView>
-          {players.map((player) => (
-            <PlayerCard
-              key={player.id}
-              playerInf={player}
-              onCall={handleSetCalled}
-              isCalled={(playerId) => calledup.find((cu) => cu === playerId)}
-            />
-          ))}
-        </ScrollView>
-      </View>
-      <Button
-        title={gameData ? "Guardar" : "Añadir Partido"}
-        onPress={handleSubmit}
-      />
+      {players.length > 0 && (
+        <>
+          <Text className="font-bold mt-2 text-center text-danish-white">
+            Convocatoria{" "}
+            {"( " + calledup.length + " jugadores convocados de 12 )"}
+          </Text>
+          <View className="w-full h-full">
+            <ScrollView>
+              {players.map((player) => (
+                <PlayerCard
+                  key={player.id}
+                  playerInf={player}
+                  onCall={handleSetCalled}
+                  isCalled={(playerId) =>
+                    calledup.find((cu) => cu === playerId)
+                  }
+                />
+              ))}
+            </ScrollView>
+          </View>
+        </>
+      )}
     </View>
   );
 };

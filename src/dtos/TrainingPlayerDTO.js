@@ -1,9 +1,8 @@
 export const TrainingPlayerDTO = (dbInstance) => ({
-  get: async (trainingId, callback) => {
+  get: async (trainingId) => {
     try {
-      callback(
-        await dbInstance.getAllAsync(
-          `
+      return await dbInstance.getAllAsync(
+        `
             SELECT
                 p.*,
                 tp.id as tp_id,
@@ -17,12 +16,13 @@ export const TrainingPlayerDTO = (dbInstance) => ({
             WHERE
                 tp.training_id = ?;
             `,
-          [trainingId]
-        )
+        [trainingId]
       );
     } catch (error) {
       console.error(error);
-      callback([]);
+      throw new Error(
+        "No se ha podido obtener la información del jugador y sus asistencias a entrenamientos"
+      );
     }
   },
 });
