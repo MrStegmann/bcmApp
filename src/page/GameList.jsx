@@ -8,11 +8,12 @@ import GameDetail from "../components/GameDetail";
 import useDB from "../hooks/useDB";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import { useMenuStore } from "../store/MenuStore";
+import { useAlertStore } from "../store/AlertStore";
 
 const GameList = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
-  const addItemMenuBefore = useMenuStore((state) => state.addItemMenuBefore);
+  const addAlert = useAlertStore((state) => state.addAlert);
   const { GameController } = useDB();
   const [games, setGames] = useState([]);
   const [gameSelected, setGameSelected] = useState(null);
@@ -35,16 +36,7 @@ const GameList = ({ onReturn }) => {
 
   useEffect(() => {
     if (editGame) return;
-    if (gameSelected) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: () => setGameSelected(null),
-          icon: TopMenuEnums.GO_BACK,
-        },
-      ]);
-    } else {
+    if (!gameSelected) {
       setMainMenu();
     }
   }, [gameSelected]);
@@ -108,8 +100,13 @@ const GameList = ({ onReturn }) => {
 
   const handleUpdateResults = async (game) => {
     await GameController.edit(game);
+    addAlert({
+      msg: "Se ha guardado el partido",
+      lifetime: 2500,
+      id: Date.now(),
+    });
     getData();
-    setGameSelected((before) => games.find((g) => g.id === before.id));
+    setGameSelected(null);
   };
 
   return (
@@ -143,6 +140,7 @@ const GameList = ({ onReturn }) => {
           <GameDetail
             data={gameSelected}
             onUpdateResults={handleUpdateResults}
+            onReturn={() => setGameSelected(null)}
           />
         ) : (
           <GameCards

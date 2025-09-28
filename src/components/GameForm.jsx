@@ -9,20 +9,6 @@ import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 
 const PlayerCard = ({ playerInf, onCall, isCalled }) => {
-  const pts =
-    playerInf.total_t1a + playerInf.total_t2a * 2 + playerInf.total_t3a * 3;
-  const val =
-    playerInf.total_t2a +
-    playerInf.total_t3a +
-    playerInf.total_t1a +
-    (playerInf.total_dreb + playerInf.total_oreb) +
-    playerInf.total_asis +
-    playerInf.total_rec -
-    playerInf.total_per -
-    playerInf.total_falt -
-    (playerInf.total_t2i - playerInf.total_t2a) -
-    (playerInf.total_t3i - playerInf.total_t3a) -
-    (playerInf.total_t1i - playerInf.total_t1a);
   return (
     <TouchableOpacity
       onPress={() => onCall(!isCalled(playerInf.id), playerInf.id)}
@@ -55,7 +41,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">PTS</Text>
-            <Text className="text-danish-white">{`${pts}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_pts}`}</Text>
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">Faltas</Text>
@@ -65,7 +51,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
         <View className="w-1/4">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">Val</Text>
-            <Text className="text-danish-white">{`${val}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_val}`}</Text>
           </View>
         </View>
       </View>
