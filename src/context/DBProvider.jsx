@@ -31,7 +31,7 @@ const DBProvider = ({ children }) => {
       try {
         const dbInstance = await SQLite.openDatabaseAsync("bcm.app.db");
 
-        await dropAllTables(dbInstance);
+        // await dropAllTables(dbInstance);
 
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
