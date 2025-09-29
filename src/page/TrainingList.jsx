@@ -10,7 +10,6 @@ import useDB from "../hooks/useDB";
 import TraningCards from "../components/TraningCards";
 
 const TrainingList = ({ onReturn }) => {
-  const [trainings, setTrainings] = useState([]);
   const [selectedTraining, setSelectedTraining] = useState(null);
   const [createTraining, setCreateTraining] = useState(false);
   const [editTraining, setEditTraining] = useState(false);
@@ -20,6 +19,8 @@ const TrainingList = ({ onReturn }) => {
   const { TrainingController } = useDB();
 
   const club = useClubStore((state) => state.club);
+  const trainings = useClubStore((state) => state.trainings);
+  const setTrainings = useClubStore((state) => state.setTrainings);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
 
   useEffect(() => {
@@ -70,17 +71,14 @@ const TrainingList = ({ onReturn }) => {
     setTrainings(await TrainingController.load(club.id));
   };
 
-  const handleAddTraining = async (data) => {
-    TrainingController.add(data);
-    getTrainings();
+  const handleSaveTraining = async (data) => {
+    await TrainingController.save(data);
     setCreateTraining(false);
-  };
-
-  const handleUpdateTraining = async (data) => {
-    TrainingController.edit(data);
-    getTrainings();
     setSelectedTraining(null);
     setEditTraining(false);
+    if (data.id)
+      setTrainings([...trainings.filter((t) => t.id !== data.id), data]);
+    else getTrainings();
   };
 
   const handleOpenEditForm = (item) => {
@@ -116,13 +114,13 @@ const TrainingList = ({ onReturn }) => {
 
       {createTraining && !editTraining && (
         <TrainingForm
-          onSubmit={handleAddTraining}
+          onSubmit={handleSaveTraining}
           onCancel={() => setCreateTraining(false)}
         />
       )}
       {!createTraining && editTraining && (
         <TrainingForm
-          onSubmit={handleUpdateTraining}
+          onSubmit={handleSaveTraining}
           trainingData={selectedTraining}
           onCancel={() => {
             setEditTraining(false);

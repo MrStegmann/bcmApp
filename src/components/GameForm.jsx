@@ -121,9 +121,14 @@ const GameForm = ({ gameData, onSubmit, onCancel }) => {
     if (date === "") setWrongDate("Debe instroducir la fecha del partido");
     if (round === "") setWrongRound("Debe instroducir la jornada del partido");
     if ([opponent, date, round].includes("")) return;
-    const game = { id: gameData?.id, team_id: club.id, opponent, round, date };
 
-    onSubmit(game, calledup);
+    onSubmit({
+      ...(gameData?.id != null && { id: gameData?.id }),
+      team_id: club.id,
+      opponent,
+      round,
+      date,
+    });
   };
 
   const handleSetCalled = async (state, playerId) => {

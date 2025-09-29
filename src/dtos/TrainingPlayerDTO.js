@@ -6,7 +6,6 @@ export const TrainingPlayerDTO = (dbInstance) => ({
             SELECT
                 p.*,
                 tp.id as tp_id,
-                tp.player_id,
                 tp.notes,
                 tp.assistance
             FROM

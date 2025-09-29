@@ -61,11 +61,11 @@ const PlayerForm = ({ onSubmit, onCancel, playerData }) => {
     if (isNaN(number)) return setWrongNumber("Debes introducir un número.");
 
     onSubmit({
-      teamId: club.id,
-      firstName,
-      lastName,
+      ...(playerData?.id != null && { id: playerData?.id }),
+      team_id: club.id,
+      first_name: firstName,
+      last_name: lastName,
       number,
-      id: playerData?.id,
     });
   };
   return (

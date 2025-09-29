@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import useDB from "../hooks/useDB";
 import TrainingPlayer from "./TrainingPlayer";
 import ModalInfo from "../framework/ModalInfo";
@@ -13,7 +13,8 @@ const TrainingDetail = ({ data }) => {
     getPlayers();
   }, []);
   const getPlayers = async () => {
-    setTrainingPlayers(await TrainingController.loadTPlayers(data.id));
+    const result = await TrainingController.loadTPlayers(data.id);
+    setTrainingPlayers(result);
   };
 
   const updateTrainingPlayer = async (trainingPlayer) => {

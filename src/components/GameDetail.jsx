@@ -89,7 +89,25 @@ const PlayerCard = ({
       per: Number(per),
       falt: Number(falt),
     });
-    onUpdate();
+    onUpdate({
+      ...playerInf,
+      id: playerInf.statId,
+      game_id: club.id,
+      player_id: playerInf.id,
+      minutes: Number(minutes),
+      t1a: Number(pt.t1a),
+      t1i: Number(pt.t1i),
+      t2a: Number(pt.t2a),
+      t2i: Number(pt.t2i),
+      t3a: Number(pt.t3a),
+      t3i: Number(pt.t3i),
+      dreb: Number(dreb),
+      oreb: Number(oreb),
+      asis: Number(asis),
+      rec: Number(rec),
+      per: Number(per),
+      falt: Number(falt),
+    });
   };
 
   const percent = {
@@ -181,19 +199,19 @@ const PlayerCard = ({
                   <Text className="text-danish-white text-sm">{"<"}</Text>
                 </TouchableOpacity>
                 <View
-                  className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${falt > 0 && "bg-danish-gold"}`}
+                  className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${falt > 0 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                 />
                 <View
-                  className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${falt > 1 && "bg-danish-gold"}`}
+                  className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${falt > 1 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                 />
                 <View
-                  className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${falt > 2 && "bg-danish-gold"}`}
+                  className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${falt > 2 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                 />
                 <View
-                  className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${falt > 3 && "bg-danish-gold"}`}
+                  className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${falt > 3 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                 />
                 <View
-                  className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${falt > 4 && "bg-danish-gold"}`}
+                  className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${falt > 4 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                 />
                 <TouchableOpacity
                   className="w-4 p-1 border border-danish-white rounded-lg"
@@ -420,16 +438,22 @@ const GameResults = ({
       ...opponentResults,
       [quarterSelected]: {
         ...opponentResults[quarterSelected],
-        pts: opponentResults[quarterSelected].pts + pts,
+        pts:
+          opponentResults[quarterSelected].pts + pts < 0
+            ? 0
+            : opponentResults[quarterSelected].pts + pts,
       },
     });
   };
-  const handleChangeFalt = (falt) => {
+  const handleChangeOpFalt = (falt) => {
     setOpponentResults({
       ...opponentResults,
       [quarterSelected]: {
         ...opponentResults[quarterSelected],
-        falt: opponentResults[quarterSelected].falt + falt,
+        falt:
+          opponentResults[quarterSelected].falt + falt < 0
+            ? 0
+            : opponentResults[quarterSelected].falt + falt,
       },
     });
   };
@@ -480,16 +504,16 @@ const GameResults = ({
                   </Text>
                   <View className="w-full flex flex-row justify-center items-center gap-1 mt-2">
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${clubResults[quarter].falt > 0 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${clubResults[quarter].falt > 0 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${clubResults[quarter].falt > 1 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${clubResults[quarter].falt > 1 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${clubResults[quarter].falt > 2 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${clubResults[quarter].falt > 2 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${clubResults[quarter].falt > 3 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${clubResults[quarter].falt > 3 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                   </View>
                 </View>
@@ -560,7 +584,7 @@ const GameResults = ({
                   </Text>
                   <View className="w-3/4 flex flex-row justify-end items-center gap-1">
                     <TouchableOpacity
-                      onPress={() => handleChangeFalt(-1)}
+                      onPress={() => handleChangeOpFalt(-1)}
                       className="w-8 p-1 border border-danish-white rounded-lg"
                     >
                       <Text className="text-center font-bold text-xs text-danish-white">
@@ -569,19 +593,19 @@ const GameResults = ({
                     </TouchableOpacity>
 
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${opponentResults[quarter].falt > 0 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${opponentResults[quarter].falt > 0 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${opponentResults[quarter].falt > 1 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${opponentResults[quarter].falt > 1 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${opponentResults[quarter].falt > 2 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${opponentResults[quarter].falt > 2 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <View
-                      className={`w-2 h-6 border border-danish-dark-gray bg-danish-light-gray rounded-lg ${opponentResults[quarter].falt > 3 && "bg-danish-gold"}`}
+                      className={`w-2 h-6 border border-danish-dark-gray rounded-lg ${opponentResults[quarter].falt > 3 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
                     />
                     <TouchableOpacity
-                      onPress={() => handleChangeFalt(1)}
+                      onPress={() => handleChangeOpFalt(1)}
                       className="w-8 p-1 border border-danish-white rounded-lg"
                     >
                       <Text className="text-center font-bold text-xs text-danish-white">
@@ -613,7 +637,7 @@ const GameResults = ({
   );
 };
 
-const GameDetail = ({ data, onUpdateResults, onReturn }) => {
+const GameDetail = ({ data, onReturn }) => {
   if (!data) return;
   const [quarterSelected, setQuarterSelected] = useState("c1");
   const [clubResults, setClubResults] = useState({
@@ -704,7 +728,6 @@ const GameDetail = ({ data, onUpdateResults, onReturn }) => {
   }, [clubResults, opponentResults]);
 
   const getPlayerStats = async () => {
-    setPlayerDetails(null);
     const array = [];
     for (const playerId of calledup) {
       const RESULT_PLAYERS_STATES = await PlayerController.loadPlayerStats(
@@ -717,22 +740,9 @@ const GameDetail = ({ data, onUpdateResults, onReturn }) => {
   };
 
   const handleSaveResults = async () => {
-    await onUpdateResults({
-      id: data.id,
-      team_id: club.id,
-      opponent: data.opponent,
-      round: data.round,
-      date: data.date,
-      result_c1_opponent: opponentResults.c1.pts,
-      result_c2_opponent: opponentResults.c2.pts,
-      result_c3_opponent: opponentResults.c3.pts,
-      result_c4_opponent: opponentResults.c4.pts,
-      result_extra_opponent: opponentResults.extra.pts,
-      falts_c1_opponent: opponentResults.c1.falt,
-      falts_c2_opponent: opponentResults.c2.falt,
-      falts_c3_opponent: opponentResults.c3.falt,
-      falts_c4_opponent: opponentResults.c4.falt,
-      falts_extra_opponent: opponentResults.extra.falt,
+    await GameController.editGameResult({
+      id: data.result_id,
+      game_id: data.id,
       result_c1: clubResults.c1.pts,
       result_c2: clubResults.c2.pts,
       result_c3: clubResults.c3.pts,
@@ -744,6 +754,28 @@ const GameDetail = ({ data, onUpdateResults, onReturn }) => {
       falts_c4: clubResults.c4.falt,
       falts_extra: clubResults.extra.falt,
     });
+    await GameController.editGameResultOpponent({
+      id: data.result_id_opponent,
+      game_id: data.id,
+      result_c1_opponent: opponentResults.c1.pts,
+      result_c2_opponent: opponentResults.c2.pts,
+      result_c3_opponent: opponentResults.c3.pts,
+      result_c4_opponent: opponentResults.c4.pts,
+      result_extra_opponent: opponentResults.extra.pts,
+      falts_c1_opponent: opponentResults.c1.falt,
+      falts_c2_opponent: opponentResults.c2.falt,
+      falts_c3_opponent: opponentResults.c3.falt,
+      falts_c4_opponent: opponentResults.c4.falt,
+      falts_extra_opponent: opponentResults.extra.falt,
+    });
+  };
+
+  const handleUpdateStats = (playerStats) => {
+    setPlayers_Stats((before) => [
+      ...before.filter((bef) => bef.id !== playerStats.id),
+      playerStats,
+    ]);
+    setPlayerDetails(null);
   };
 
   return (
@@ -789,7 +821,7 @@ const GameDetail = ({ data, onUpdateResults, onReturn }) => {
             clubResults={clubResults}
             setClubResults={setClubResults}
             quarterSelected={quarterSelected}
-            onUpdate={() => getPlayerStats()}
+            onUpdate={handleUpdateStats}
           />
         )}
       </View>

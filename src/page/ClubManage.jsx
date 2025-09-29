@@ -26,49 +26,37 @@ const ClubManage = () => {
   useEffect(() => {
     if (club) return;
     if (!createMode) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.ADD_NEW_TEAM,
-          name: "Añadir Equipo",
-          onPress: () => setCreateMode(true),
-          icon: TopMenuEnums.ADD_NEW_TEAM,
-        },
-      ]);
+      setMainMenu();
     }
   }, [createMode]);
 
   useEffect(() => {
     if (!club) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.ADD_NEW_TEAM,
-          name: "Añadir Equipo",
-          onPress: () => setCreateMode(true),
-          icon: TopMenuEnums.ADD_NEW_TEAM,
-        },
-      ]);
+      setMainMenu();
+      getData();
     }
   }, [club]);
 
-  useEffect(() => {
-    if (club?.id) {
-      setClub(clubs.find((t) => t.id === club.id));
-    }
-  }, [clubs]);
+  const setMainMenu = () => {
+    setTopMenu([
+      {
+        id: TopMenuEnums.ADD_NEW_TEAM,
+        name: "Añadir Equipo",
+        onPress: () => setCreateMode(true),
+        icon: TopMenuEnums.ADD_NEW_TEAM,
+      },
+    ]);
+  };
 
   const getData = async () => {
     setClubs(await TeamController.load());
   };
 
-  const handleAddClub = async (data) => {
-    await TeamController.add(data.name);
+  const handleSave = async (data) => {
+    await TeamController.save(data);
     setCreateMode(false);
-    getData();
-  };
-
-  const handleUpdateClub = async (data) => {
-    await TeamController.edit(data);
-    getData();
+    if (data.id) setClub(data);
+    else getData();
   };
 
   const handleDeleteClub = async (id) => {
@@ -99,7 +87,7 @@ const ClubManage = () => {
             {club && (
               <ClubProfile
                 handleReturn={handleReturnClubManage}
-                handleUpdate={handleUpdateClub}
+                handleUpdate={handleSave}
               />
             )}
             {!club && (
@@ -107,7 +95,7 @@ const ClubManage = () => {
                 {createMode ? (
                   <View className="w-full h-full justify-center items-center flex mt-5">
                     <ClubForm
-                      onSubmit={handleAddClub}
+                      onSubmit={handleSave}
                       onReturn={() => setCreateMode(false)}
                     />
                   </View>

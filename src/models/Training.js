@@ -51,47 +51,9 @@ export const TrainingsModel = (dbInstance) => ({
     }
   },
 
-  create: async (data) => {
-    try {
-      await dbInstance.runAsync(
-        "INSERT INTO trainings (team_id, training_number, date, warmup1, warmup1_explanation, warmup2, warmup2_explanation, warmup3, warmup3_explanation, exercise1, exercise1_explanation, exercise2, exercise2_explanation, exercise3, exercise3_explanation, exercise4, exercise4_explanation, exercise5, exercise5_explanation, exercise6, exercise6_explanation, cooldown1, cooldown1_explanation, cooldown2, cooldown2_explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-        [
-          data.team_id,
-          data.training_number,
-          data.date,
-          data.warmup1,
-          data.warmup1_explanation,
-          data.warmup2,
-          data.warmup2_explanation,
-          data.warmup3,
-          data.warmup3_explanation,
-          data.exercise1,
-          data.exercise1_explanation,
-          data.exercise2,
-          data.exercise2_explanation,
-          data.exercise3,
-          data.exercise3_explanation,
-          data.exercise4,
-          data.exercise4_explanation,
-          data.exercise5,
-          data.exercise5_explanation,
-          data.exercise6,
-          data.exercise6_explanation,
-          data.cooldown1,
-          data.cooldown1_explanation,
-          data.cooldown2,
-          data.cooldown2_explanation,
-        ]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido guardar el entrenamiento");
-    }
-  },
-  update: async (data) => {
-    try {
-      await dbInstance.runAsync(
-        `UPDATE trainings SET
+  save: async (data) => {
+    const sqlStatment = data?.id
+      ? `UPDATE trainings SET
           team_id = ?,
           training_number = ?,
           date = ?,
@@ -117,8 +79,10 @@ export const TrainingsModel = (dbInstance) => ({
           cooldown1_explanation = ?,
           cooldown2 = ?,
           cooldown2_explanation = ?
-        WHERE id = ?;`,
-        [
+        WHERE id = ?;`
+      : `INSERT INTO trainings (team_id, training_number, date, warmup1, warmup1_explanation, warmup2, warmup2_explanation, warmup3, warmup3_explanation, exercise1, exercise1_explanation, exercise2, exercise2_explanation, exercise3, exercise3_explanation, exercise4, exercise4_explanation, exercise5, exercise5_explanation, exercise6, exercise6_explanation, cooldown1, cooldown1_explanation, cooldown2, cooldown2_explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+    const params = data?.id
+      ? [
           data.team_id,
           data.training_number,
           data.date,
@@ -146,10 +110,12 @@ export const TrainingsModel = (dbInstance) => ({
           data.cooldown2_explanation,
           data.id,
         ]
-      );
+      : Object.values(data);
+    try {
+      await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {
       console.error(error);
-      throw new Error("No se ha podido actualizar el entrenamiento");
+      throw new Error(`No se ha podido guardar el entrenamiento`);
     }
   },
   delete: async (id) => {

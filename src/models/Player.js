@@ -17,42 +17,32 @@ export const PlayerModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Jugadores");
     }
   },
-  getAll: async (teamId) => {
+  get: async (data) => {
+    const sqlStatment =
+      data?.teamId && data?.playerId
+        ? `SELECT * FROM players WHERE team_id = ? AND id = ?;`
+        : `SELECT * FROM players WHERE team_id = ?;`;
+    const params =
+      data?.teamId && data?.playerId ? Object.entries(data) : [data.teamId];
     try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM players WHERE team_id = ?;`,
-        [teamId]
-      );
+      return await dbInstance.getAllAsync(sqlStatment, params);
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido obtener a los Jugadores");
     }
   },
-
-  create: async (data) => {
+  save: async (data) => {
+    const sqlStatment = data?.id
+      ? `UPDATE players SET team_id = ?, first_name = ?, last_name = ?, number= ?  WHERE id = ?;`
+      : `INSERT INTO players (team_id, first_name, last_name, number) VALUES (?, ?, ?, ?);`;
+    const params = data?.id
+      ? [data.team_id, data.first_name, data.last_name, data.number, data.id]
+      : Object.values(data);
     try {
-      await dbInstance.runAsync(
-        "INSERT INTO players (team_id, first_name, last_name, number) VALUES (?, ?, ?, ?);",
-        [data.teamId, data.firstName, data.lastName, data.number]
-      );
+      await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {
       console.error(error);
-      throw new Error(
-        `Ha ocurrido un error al intentar guardar al Jugador ${data.firstName} ${data.lastName}`
-      );
-    }
-  },
-  update: async (data) => {
-    try {
-      await dbInstance.runAsync(
-        "UPDATE players SET team_id = ?, first_name = ?, last_name = ?, number= ?  WHERE id = ?;",
-        [data.teamId, data.firstName, data.lastName, data.number, data.id]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Ha ocurrido un error al intentar actualizar al Jugador ${data.firstName} ${data.lastName}`
-      );
+      throw new Error(`Ha ocurrido un error al intentar guardar ${data.name}`);
     }
   },
   delete: async (id) => {

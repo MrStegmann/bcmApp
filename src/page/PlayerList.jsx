@@ -13,6 +13,7 @@ const PlayerList = ({ onReturn }) => {
   const { PlayerController } = useDB();
   const setPlayers = useClubStore((state) => state.setPlayers);
   const players = useClubStore((state) => state.players);
+  const updatePlayer = useClubStore((state) => state.updatePlayer);
   const [createPlayer, setCreatePlayer] = useState(false);
   const [editPlayer, setEditPlayer] = useState(false);
   const [playerSelected, setPlayerSelected] = useState(null);
@@ -68,17 +69,13 @@ const PlayerList = ({ onReturn }) => {
     setPlayers(await PlayerController.loadStatsByTeam(club.id));
   };
 
-  const handleAddPlayer = async (data) => {
-    await PlayerController.add(data);
-    getData();
+  const handleSavePlayer = async (data) => {
+    await PlayerController.save(data);
     setCreatePlayer(false);
-  };
-
-  const handleUpdatePlayer = async (data) => {
-    await PlayerController.edit(data);
-    getData();
     setEditPlayer(false);
     setPlayerSelected(null);
+    if (data.id) updatePlayer(data);
+    else getData();
   };
 
   const handleOpenEditForm = (player) => {
@@ -113,13 +110,13 @@ const PlayerList = ({ onReturn }) => {
       />
       {createPlayer && !editPlayer && (
         <PlayerForm
-          onSubmit={handleAddPlayer}
+          onSubmit={handleSavePlayer}
           onCancel={() => setCreatePlayer(false)}
         />
       )}
       {!createPlayer && editPlayer && (
         <PlayerForm
-          onSubmit={handleUpdatePlayer}
+          onSubmit={handleSavePlayer}
           playerData={playerSelected}
           onCancel={() => {
             setEditPlayer(false);

@@ -58,7 +58,12 @@ export default function ClubForm({ onSubmit, clubData, onReturn }) {
     const str = Object.entries(options)
       .map(([key, value]) => `${key}:${value}`)
       .join(";");
-    onSubmit({ name: name.trim(), id: clubData?.id, options: str });
+
+    onSubmit({
+      ...(clubData?.id != null && { id: clubData?.id }),
+      name: name.trim(),
+      options: str,
+    });
     setName("");
     setOptions({ showFees: true });
   };

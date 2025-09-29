@@ -14,9 +14,13 @@ export function TeamModel(dbInstance) {
       }
     },
 
-    getAll: async () => {
+    get: async (id) => {
+      const sqlStatment = id
+        ? `SELECT * FROM teams WHERE id = ?`
+        : `SELECT * FROM teams`;
+      const params = id ? [id] : [];
       try {
-        return await dbInstance.getAllAsync(`SELECT * FROM teams;`);
+        return await dbInstance.getAllAsync(sqlStatment, params);
       } catch (error) {
         console.error(error);
         throw new Error(
@@ -24,29 +28,19 @@ export function TeamModel(dbInstance) {
         );
       }
     },
-
-    create: async (data) => {
+    save: async (data) => {
+      const sqlStatment = data?.id
+        ? `UPDATE teams SET name = ?, options = ? WHERE id = ?;`
+        : `INSERT INTO teams (name) VALUES (?);`;
+      const params = data?.id
+        ? [data.name, data.options, data.id]
+        : Object.values(data);
       try {
-        await dbInstance.runAsync("INSERT INTO teams (name) VALUES (?);", [
-          data.name,
-        ]);
+        await dbInstance.runAsync(sqlStatment, params);
       } catch (error) {
         console.error(error);
         throw new Error(
           `Ha ocurrido un error al intentar guardar ${data.name}`
-        );
-      }
-    },
-    update: async (data) => {
-      try {
-        await dbInstance.runAsync(
-          "UPDATE teams SET name = ?, options = ? WHERE id = ?;",
-          [data.name, data.options, data.id]
-        );
-      } catch (error) {
-        console.error(error);
-        throw new Error(
-          `Ha ocurrido un error al intentar actualizar ${data.name}`
         );
       }
     },

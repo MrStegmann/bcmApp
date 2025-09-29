@@ -45,7 +45,7 @@ const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
                   <View className="flex flex-col justify-center items-center">
                     <Text className="text-danish-white text-sm">Pts</Text>
                     <Text className="text-danish-white text-sm">
-                      {player.total_pts}
+                      {player.total_pts || 0}
                     </Text>
                   </View>
                   <View className="flex flex-col justify-center items-center">
@@ -57,7 +57,7 @@ const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
                   <View className="flex flex-col justify-center items-center">
                     <Text className="text-danish-white text-sm">Val</Text>
                     <Text className="text-danish-white text-sm">
-                      {player.total_val}
+                      {player.total_val || 0}
                     </Text>
                   </View>
                 </View>

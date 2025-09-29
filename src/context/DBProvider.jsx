@@ -14,6 +14,10 @@ import { PlayersStatsDTO } from "../dtos/PlayersStatsDTO";
 import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
 import { PlayerFeeDTO } from "../dtos/PlayerFeeDTO";
 import { useAlertStore } from "../store/AlertStore";
+import { GameResults } from "../models/GameResults";
+import { GameResultsOpponent } from "../models/GameResultsOpponent";
+import { GameResultsDTO } from "../dtos/GameResultsDTO";
+import { dropAllTables } from "../test/dropTables";
 
 const DBContext = createContext();
 
@@ -26,10 +30,15 @@ const DBProvider = ({ children }) => {
     const initDb = async () => {
       try {
         const dbInstance = await SQLite.openDatabaseAsync("bcm.app.db");
+
+        await dropAllTables(dbInstance);
+
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
         await GameModel(dbInstance).createTable();
         await GameRosterModel(dbInstance).createTable();
+        await GameResults(dbInstance).createTable();
+        await GameResultsOpponent(dbInstance).createTable();
         await PlayerStatsModel(dbInstance).createTable();
         await FeeModel(dbInstance).createTable();
         await TrainingsModel(dbInstance).createTable();
@@ -40,6 +49,8 @@ const DBProvider = ({ children }) => {
           PlayerModel: PlayerModel(dbInstance),
           GameModel: GameModel(dbInstance),
           GameRosterModel: GameRosterModel(dbInstance),
+          GameResults: GameResults(dbInstance),
+          GameResultsOpponent: GameResultsOpponent(dbInstance),
           PlayerStatsModel: PlayerStatsModel(dbInstance),
           FeeModel: FeeModel(dbInstance),
           TrainingsModel: TrainingsModel(dbInstance),
@@ -51,6 +62,7 @@ const DBProvider = ({ children }) => {
           PlayersStatsDTO: PlayersStatsDTO(dbInstance),
           TrainingPlayerDTO: TrainingPlayerDTO(dbInstance),
           PlayerFeeDTO: PlayerFeeDTO(dbInstance),
+          GameResultsDTO: GameResultsDTO(dbInstance),
         });
       } catch (error) {
         addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
@@ -61,24 +73,17 @@ const DBProvider = ({ children }) => {
 
   const TeamController = useMemo(() => {
     return {
-      load: async () => {
+      load: async (id) => {
         try {
-          return await models?.TeamModel.getAll();
+          return await models?.TeamModel.get(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
           return [];
         }
       },
-      add: async (name) => {
+      save: async (data) => {
         try {
-          await models?.TeamModel.create({ name });
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      edit: async (data) => {
-        try {
-          await models?.TeamModel.update(data);
+          await models?.TeamModel.save(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -111,13 +116,15 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-      add: async (data) => {
+      getGameResults: async (teamId) => {
         try {
-          await models?.GameModel.create(data);
+          return await dtos?.GameResultsDTO.get(teamId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
         }
       },
+
       addCalledup: async (data) => {
         try {
           await models?.GameRosterModel.create(data);
@@ -125,9 +132,9 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      edit: async (data) => {
+      save: async (data) => {
         try {
-          await models?.GameModel.update(data);
+          await models?.GameModel.save(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -135,6 +142,20 @@ const DBProvider = ({ children }) => {
       editCalledup: async (data) => {
         try {
           await models?.GameRosterModel.update(data);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+        }
+      },
+      editGameResult: async (data) => {
+        try {
+          await models?.GameResults.update(data);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+        }
+      },
+      editGameResultOpponent: async (data) => {
+        try {
+          await models?.GameResultsOpponent.update(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -154,13 +175,13 @@ const DBProvider = ({ children }) => {
         }
       },
     };
-  }, [models]);
+  }, [models, dtos]);
 
   const PlayerController = useMemo(() => {
     return {
-      load: async (teamId) => {
+      load: async (teamId, playerId) => {
         try {
-          return await models?.PlayerModel.getAll(teamId);
+          return await models?.PlayerModel.get({ teamId, playerId });
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
           return [];
@@ -201,16 +222,9 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-      add: async (data) => {
+      save: async (data) => {
         try {
-          await models?.PlayerModel.create(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      edit: async (data) => {
-        try {
-          await models?.PlayerModel.update(data);
+          await models?.PlayerModel.save(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -335,16 +349,9 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-      add: async (data) => {
+      save: async (data) => {
         try {
-          await models?.TrainingsModel.create(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      edit: async (data) => {
-        try {
-          await models?.TrainingsModel.update(data);
+          await models?.TrainingsModel.save(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }

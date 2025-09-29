@@ -136,7 +136,7 @@ const TrainingForm = ({ onSubmit, trainingData, onCancel }) => {
     if ([date, trainingNumber].includes("")) return;
 
     onSubmit({
-      id: trainingData?.id,
+      ...(trainingData?.id != null && { id: trainingData?.id }),
       team_id: trainingData?.team_id || club.id,
       training_number: trainingNumber,
       date,

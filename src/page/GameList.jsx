@@ -59,21 +59,15 @@ const GameList = ({ onReturn }) => {
   };
 
   const getData = async () => {
-    setGames(await GameController.load(club.id));
+    setGames(await GameController.getGameResults(club.id));
   };
 
-  const handleCreateGame = async (game) => {
-    await GameController.add(game);
-
-    getData();
+  const handleSaveGame = async (data) => {
+    await GameController.save(data);
     setCreateGame(false);
-  };
-
-  const handleUpdateGame = async (game) => {
-    await GameController.edit(game);
-    getData();
     setGameSelected(null);
     setEditGame(false);
+    getData();
   };
 
   const handleOpenEditForm = async (game) => {
@@ -120,13 +114,13 @@ const GameList = ({ onReturn }) => {
       />
       {createGame && !editGame && (
         <GameForm
-          onSubmit={handleCreateGame}
+          onSubmit={handleSaveGame}
           onCancel={() => setCreateGame(false)}
         />
       )}
       {editGame && !createGame && (
         <GameForm
-          onSubmit={handleUpdateGame}
+          onSubmit={handleSaveGame}
           gameData={gameSelected}
           onCancel={() => {
             setEditGame(false);

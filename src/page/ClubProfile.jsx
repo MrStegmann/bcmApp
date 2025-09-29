@@ -77,15 +77,6 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
         }
       }
       setTopMenu(menu);
-    } else if (TopMenuEnums.EDIT_TEAM === option) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: () => setOption(TopMenuEnums.MAIN),
-          icon: TopMenuEnums.GO_BACK,
-        },
-      ]);
     }
   }, [option, club]);
 
@@ -116,21 +107,19 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
 
       {option === TopMenuEnums.EDIT_TEAM && (
         <View className="flex-1 w-full h-full justify-center items-center">
-          <ClubForm onSubmit={onUpdateClub} clubData={club} />
+          <ClubForm
+            onSubmit={onUpdateClub}
+            clubData={club}
+            onReturn={onReturn}
+          />
         </View>
       )}
-      {option === TopMenuEnums.PLAYERS && (
-        <PlayerList onReturn={() => setOption(TopMenuEnums.MAIN)} />
-      )}
-      {option === TopMenuEnums.CALENDAR && (
-        <Calendar onReturn={() => setOption(TopMenuEnums.MAIN)} />
-      )}
+      {option === TopMenuEnums.PLAYERS && <PlayerList onReturn={onReturn} />}
+      {option === TopMenuEnums.CALENDAR && <Calendar onReturn={onReturn} />}
       {option === TopMenuEnums.TRAININGS && (
-        <TrainingList onReturn={() => setOption(TopMenuEnums.MAIN)} />
+        <TrainingList onReturn={onReturn} />
       )}
-      {option === TopMenuEnums.GAMES && (
-        <GameList onReturn={() => setOption(TopMenuEnums.MAIN)} />
-      )}
+      {option === TopMenuEnums.GAMES && <GameList onReturn={onReturn} />}
     </View>
   );
 };
