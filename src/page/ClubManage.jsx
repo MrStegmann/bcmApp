@@ -113,7 +113,6 @@ const ClubManage = () => {
           </KeyboardAwareScrollView>
         </View>
       </View>
-      <View className="w-full h-14 mt-12 border-t border-danish-red" />
     </View>
   );
 };

@@ -18,6 +18,7 @@ import { GameResults } from "../models/GameResults";
 import { GameResultsOpponent } from "../models/GameResultsOpponent";
 import { GameResultsDTO } from "../dtos/GameResultsDTO";
 import { dropAllTables } from "../test/dropTables";
+import { CreaTeam } from "../test/CreateTeam";
 
 const DBContext = createContext();
 
@@ -31,7 +32,7 @@ const DBProvider = ({ children }) => {
       try {
         const dbInstance = await SQLite.openDatabaseAsync("bcm.app.db");
 
-        // await dropAllTables(dbInstance);
+        await dropAllTables(dbInstance);
 
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
@@ -44,7 +45,7 @@ const DBProvider = ({ children }) => {
         await TrainingsModel(dbInstance).createTable();
         await TrainingPlayersModel(dbInstance).createTable();
 
-        setModels({
+        const models = {
           TeamModel: TeamModel(dbInstance),
           PlayerModel: PlayerModel(dbInstance),
           GameModel: GameModel(dbInstance),
@@ -55,7 +56,11 @@ const DBProvider = ({ children }) => {
           FeeModel: FeeModel(dbInstance),
           TrainingsModel: TrainingsModel(dbInstance),
           TrainingPlayersModel: TrainingPlayersModel(dbInstance),
-        });
+        };
+
+        await CreaTeam(models);
+
+        setModels(models);
 
         setDTOs({
           GamePlayerDTO: GamePlayerDTO(dbInstance),
@@ -258,16 +263,9 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-      add: async (data) => {
+      save: async (data) => {
         try {
-          await models?.PlayerStatsModel.create(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      edit: async (data) => {
-        try {
-          await models?.PlayerStatsModel.update(data);
+          await models?.PlayerStatsModel.save(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }

@@ -41,7 +41,15 @@ export const GameRosterModel = (dbInstance) => ({
   getAllByCalled: async (gameId) => {
     try {
       return await dbInstance.getAllAsync(
-        `SELECT * FROM game_roster WHERE game_id = ? AND called = 1;`,
+        `SELECT 
+          gr.*,
+          p.first_name,
+          p.last_name,
+          p.number 
+        FROM game_roster gr
+        JOIN
+          players p ON gr.player_id = p.id 
+        WHERE gr.game_id = ? AND gr.called = 1;`,
         [gameId]
       );
     } catch (error) {
