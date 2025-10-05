@@ -19,19 +19,11 @@ export const PlayerStatsModel = (dbInstance) => ({
         per INTEGER DEFAULT 0,
         falt INTEGER DEFAULT 0,
         FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE,
-        FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE,
-        UNIQUE (game_id, player_id)
+        FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
       );`);
       await dbInstance.execAsync(
         `CREATE INDEX IF NOT EXISTS idx_stats_player_id ON players_stats(player_id);`
       );
-
-      await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_player_stats
-        AFTER INSERT ON game_roster
-        FOR EACH ROW
-        BEGIN
-            INSERT INTO players_stats (game_id, player_id) VALUES (NEW.game_id, NEW.player_id);
-        END;`);
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido crear la tabla de Estadísticas");

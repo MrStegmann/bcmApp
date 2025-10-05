@@ -8,6 +8,7 @@ export const GameModel = (dbInstance) => ({
         opponent TEXT NOT NULL,
         round INTEGER,
         date TEXT,
+        played INTEGER DEFAULT 0,
         FOREIGN KEY(team_id) REFERENCES teams(id) ON DELETE CASCADE
       );`);
       await dbInstance.execAsync(
@@ -31,7 +32,7 @@ export const GameModel = (dbInstance) => ({
   },
   save: async (data) => {
     const sqlStatment = data?.id
-      ? `UPDATE games SET team_id = ?, opponent = ?, round = ?, date = ? WHERE id = ?;`
+      ? `UPDATE games SET team_id = ?, opponent = ?, round = ?, date = ?, played = ? WHERE id = ?;`
       : `INSERT INTO games (team_id, opponent, round, date) VALUES (?, ?, ?, ?);`;
     const { id, ...rest } = data;
     const params = data?.id

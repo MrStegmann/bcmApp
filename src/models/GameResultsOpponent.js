@@ -43,72 +43,22 @@ export const GameResultsOpponent = (dbInstance) => ({
       throw new Error("No se ha podido crear los Partidos");
     }
   },
+  save: async (data) => {
+    const sqlStatment = data.id
+      ? `UPDATE game_results_opponent SET game_id = ?, result_c1_opponent = ?, result_c2_opponent = ?, result_c3_opponent = ?, result_c4_opponent = ?, result_extra_opponent = ?,falts_c1_opponent = ?, falts_c2_opponent = ?, falts_c3_opponent = ?, falts_c4_opponent = ?, falts_extra_opponent = ? WHERE id = ?;`
+      : `INSERT INTO game_results_opponent (game_id, result_c1_opponent, result_c2_opponent, result_c3_opponent, result_c4_opponent, result_extra_opponent, falts_c1_opponent, falts_c2_opponent, falts_c3_opponent, falts_c4_opponent, falts_extra_opponent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-  create: async (data) => {
+    const { id, ...rest } = data;
+    const params = data?.id
+      ? [...Object.values(rest), data.id]
+      : Object.values(rest);
+
     try {
-      await dbInstance.runAsync(
-        `INSERT INTO game_results_opponent (
-        game_id, 
-        result_c1_opponent, 
-        result_c2_opponent, 
-        result_c3_opponent,
-        result_c4_opponent,
-        result_extra_opponent,
-        falts_c1_opponent,
-        falts_c2_opponent,
-        falts_c3_opponent,
-        falts_c4_opponent,
-        falts_extra_opponent
-        ) VALUES (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        [
-          data.game_id,
-          data.result_c1_opponent,
-          data.result_c2_opponent,
-          data.result_c3_opponent,
-          data.result_c4_opponent,
-          data.result_extra_opponent,
-          data.falts_c1_opponent,
-          data.falts_c2_opponent,
-          data.falts_c3_opponent,
-          data.falts_c4_opponent,
-          data.falts_extra_opponent,
-        ]
-      );
+      await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {
       console.error(error);
       throw new Error(
-        `Ha ocurrido un error al intentar guardar los resultados del partido`
-      );
-    }
-  },
-  update: async (data) => {
-    try {
-      await dbInstance.runAsync(
-        `UPDATE game_results_opponent SET
-            game_id = ?, 
-            result_c1_opponent = ?, result_c2_opponent = ?, result_c3_opponent = ?, result_c4_opponent = ?, result_extra_opponent = ?,
-            falts_c1_opponent = ?, falts_c2_opponent = ?, falts_c3_opponent = ?, falts_c4_opponent = ?, falts_extra_opponent = ?,
-            WHERE id = ?;`,
-        [
-          data.game_id,
-          data.result_c1_opponent,
-          data.result_c2_opponent,
-          data.result_c3_opponent,
-          data.result_c4_opponent,
-          data.result_extra_opponent,
-          data.falts_c1_opponent,
-          data.falts_c2_opponent,
-          data.falts_c3_opponent,
-          data.falts_c4_opponent,
-          data.falts_extra_opponent,
-          data.id,
-        ]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Ha ocurrido un error al intentar actualizar los resultados del partido`
+        `Ha ocurrido un error al intentar guardar el partido contra ${data.opponent}`
       );
     }
   },

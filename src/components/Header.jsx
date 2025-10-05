@@ -7,12 +7,13 @@ import {
   MaterialIcons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { useGameStore } from "../store/GameStore";
+import { useMatchStore } from "../store/MatchStore";
 
-const HeaderDetails = ({ gameDetail }) => {
+const HeaderDetails = () => {
   const club = useClubStore((state) => state.club);
+  const matchStore = useMatchStore((state) => state);
 
-  if (!gameDetail.id) {
+  if (!matchStore.playing) {
     return (
       <View
         className={`w-full flex flex-row justify-center items-center px-16`}
@@ -24,62 +25,19 @@ const HeaderDetails = ({ gameDetail }) => {
     );
   }
 
-  const { time, quarter, opponent, results, opponentResults } = gameDetail;
-
-  // Formato mm:ss
-  const mins = Math.floor(time[quarter] / 60)
-    .toString()
-    .padStart(2, "0");
-  const segs = (time[quarter] % 60).toString().padStart(2, "0");
   return (
     <View className={`w-full flex flex-row justify-center items-center`}>
-      <View className="flex flex-col justify-center items-center px-5">
-        <Text className="text-danish-white text-sm">Faltas de Equipo</Text>
-        <View className="flex flex-row gap-2">
-          <View
-            className={`w-2 py-1 border border-danish-red rounded-full ${results[quarter].falts > 0 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-          <View
-            className={`w-2 h-8 border border-danish-red rounded-full ${results[quarter].falts > 1 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-          <View
-            className={`w-2 h-8 border border-danish-red rounded-full ${results[quarter].falts > 2 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-          <View
-            className={`w-2 h-8 border border-danish-red rounded-full ${results[quarter].falts > 3 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-        </View>
-      </View>
-
       <Text className="text-center text-lg font-bold text-danish-white my-1">
         {club?.name}
       </Text>
 
-      <View className="my-1 mx-10 flex flex-col justify-start h-[3.8rem]">
-        <Text className="text-center text-xs font-bold text-danish-white">{`${mins}:${segs}`}</Text>
-        <Text className="text-center text-lg font-bold text-danish-white">{`${results[quarter].pts} - ${opponentResults[quarter].pts}`}</Text>
+      <View className="mx-10 flex flex-col justify-center">
+        <Text className="text-center text-lg font-bold text-danish-white">{`${matchStore.results.team} - ${matchStore.results.opponent}`}</Text>
       </View>
 
       <Text className="text-center text-lg font-bold text-danish-white my-1">
-        {opponent}
+        {matchStore.opponent}
       </Text>
-      <View className="flex flex-col justify-center items-center px-5">
-        <Text className="text-danish-white text-sm">Faltas de Equipo</Text>
-        <View className="flex flex-row gap-2">
-          <View
-            className={`w-2 py-1 border border-danish-red rounded-full ${opponentResults[quarter].falts > 0 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-          <View
-            className={`w-2 h-8 border border-danish-red rounded-full ${opponentResults[quarter].falts > 1 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-          <View
-            className={`w-2 h-8 border border-danish-red rounded-full ${opponentResults[quarter].falts > 2 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-          <View
-            className={`w-2 h-8 border border-danish-red rounded-full ${opponentResults[quarter].falts > 3 ? "bg-danish-gold" : "bg-danish-light-gray"}`}
-          />
-        </View>
-      </View>
     </View>
   );
 };
@@ -124,13 +82,12 @@ const IconButton = ({ value, alt }) => {
 
 const Header = () => {
   const topMenu = useMenuStore((state) => state.topMenu);
-  const gameDetail = useGameStore((state) => state);
 
   return (
     <View className="w-full z-10">
       <View className="w-full h-20 flex justify-end items-center rounded-b-full shadow-2xl shadow-red-900">
         <View className="w-full h-full flex justify-center items-center rounded-b-full bg-danish-dark-gray shadow-inner shadow-red-900 relative">
-          <HeaderDetails gameDetail={gameDetail} />
+          <HeaderDetails />
 
           <View className="absolute -bottom-6 flex-row justify-center w-full gap-3">
             {topMenu.map((menu) => (

@@ -144,6 +144,20 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
+      saveResults: async (data) => {
+        try {
+          await models?.GameResults.save(data);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+        }
+      },
+      saveOpponentResults: async (data) => {
+        try {
+          await models?.GameResultsOpponent.save(data);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+        }
+      },
       editCalledup: async (data) => {
         try {
           await models?.GameRosterModel.update(data);

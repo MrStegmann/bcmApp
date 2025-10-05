@@ -1,8 +1,7 @@
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, View, ScrollView, TouchableOpacity } from "react-native";
 
-const GameCards = ({ games, onSelect, onEdit, onDelete }) => {
+const GameCards = ({ games, onSelect, onEdit, onDelete, onPlay }) => {
   if (games.length === 0)
     return (
       <View className="w-full flex flex-col justify-center items-center mt-20">
@@ -64,6 +63,15 @@ const GameCards = ({ games, onSelect, onEdit, onDelete }) => {
                 </View>
 
                 <View className="w-[25%] flex flex-row justify-end items-center gap-3">
+                  {!game.played && (
+                    <TouchableOpacity color="blue" onPress={() => onPlay(game)}>
+                      <MaterialCommunityIcons
+                        name="whistle-outline"
+                        size={18}
+                        color="white"
+                      />
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity color="blue" onPress={() => onEdit(game)}>
                     <Feather name="edit" size={18} color="white" />
                   </TouchableOpacity>
