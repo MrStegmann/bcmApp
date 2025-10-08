@@ -129,6 +129,14 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
+      getLastGameResults: async (teamId) => {
+        try {
+          return await dtos?.GameResultsDTO.getLasts(teamId);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
+        }
+      },
       getRoasterStats: async (gameId) => {
         try {
           return await dtos?.PlayersStatsDTO.getByRoaster(gameId);

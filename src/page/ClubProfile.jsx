@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import ClubForm from "../components/ClubForm";
 import { useClubStore } from "../store/ClubStore";
 import PlayerList from "./PlayerList";
-import Calendar from "./Calendar";
 import TrainingList from "./TrainingList";
 import GameList from "./GameList";
 import { useMenuStore } from "../store/MenuStore";
@@ -14,15 +13,15 @@ import GamesResults from "../components/GamesResults";
 const ClubProfile = ({ handleReturn, handleUpdate }) => {
   const { GameController, PlayerController } = useDB();
   const [option, setOption] = useState(TopMenuEnums.MAIN);
+  const [games, setGames] = useState([]);
 
   const club = useClubStore((state) => state.club);
-  const setGames = useClubStore((state) => state.setGames);
   const setPlayers = useClubStore((state) => state.setPlayers);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
 
   useEffect(() => {
     const getData = async () => {
-      setGames(await GameController.load(club.id));
+      setGames(await GameController.getLastGameResults(club.id));
       setPlayers(await PlayerController.loadStatsByTeam(club.id));
     };
     getData();
@@ -30,7 +29,7 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
 
   useEffect(() => {
     if (TopMenuEnums.MAIN === option) {
-      const menu = [
+      setTopMenu([
         {
           id: TopMenuEnums.PLAYERS,
           name: "Plantilla de Jugadores",
@@ -61,8 +60,7 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
           onPress: handleReturn,
           icon: TopMenuEnums.CLOSE_SESION,
         },
-      ];
-      setTopMenu(menu);
+      ]);
     }
   }, [option, club]);
 
@@ -87,7 +85,7 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
     <View className="w-full h-full flex flex-col justify-center items-center">
       {option === TopMenuEnums.MAIN && (
         <View className="w-full flex flex-col justify-center items-center">
-          {/* <GamesResults /> */}
+          <GamesResults games={games} />
         </View>
       )}
 

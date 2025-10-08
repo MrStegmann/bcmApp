@@ -1,7 +1,6 @@
 import React from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useClubStore } from "../store/ClubStore";
 
 const CardGamesResults = ({ game }) => {
   const result =
@@ -18,7 +17,7 @@ const CardGamesResults = ({ game }) => {
     game.result_extra_opponent;
   return (
     <View
-      className={`w-full px-2 py-3 flex flex-row justify-between items-center rounded-lg shadow-inner border-2 bg-danish-dark-gray ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+      className={`w-full my-1 px-2 py-3 flex flex-row justify-between items-center rounded-lg shadow-inner border-2 bg-danish-dark-gray ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
     >
       <View className="w-1/3 flex flex-col justify-center items-center">
         <Text className="text-center text-xs text-danish-white">
@@ -45,35 +44,35 @@ const CardGamesResults = ({ game }) => {
   );
 };
 
-const GamesResults = () => {
-  const games = useClubStore((state) => state.games);
-  if (!games || games.length === 0)
-    return (
-      <View className="w-full flex flex-col justify-center items-center mt-20">
-        <MaterialCommunityIcons
-          name="book-open-blank-variant-outline"
-          size={30}
-          color="gray"
-        />
-        <Text className="text-lg font-bold text-danish-light-gray px-16">
-          Parece que no hay registros recientes que mostrar...
-        </Text>
-      </View>
-    );
+const GamesResults = React.memo(({ games }) => {
   return (
     <View className="p-4 shadow w-full px-3">
       <Text className="text-danish-white font-bold text-center mb-1">
         Resultado Ultimos partidos
       </Text>
-      <View className="w-full h-96 flex flex-col">
-        <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
-          {games.map((game) => (
-            <CardGamesResults key={game.id} game={game} />
-          ))}
-        </ScrollView>
-      </View>
+      {games.length === 0 && (
+        <View className="w-full flex flex-col justify-center items-center mt-20">
+          <MaterialCommunityIcons
+            name="book-open-blank-variant-outline"
+            size={30}
+            color="gray"
+          />
+          <Text className="text-lg font-bold text-danish-light-gray px-16">
+            Parece que no hay registros recientes que mostrar...
+          </Text>
+        </View>
+      )}
+      {games.length > 0 && (
+        <View className="w-full h-96 flex flex-col">
+          <FlatList
+            data={games}
+            renderItem={({ item }) => <CardGamesResults game={item} />}
+            keyExtractor={(item) => item.id}
+          />
+        </View>
+      )}
     </View>
   );
-};
+});
 
 export default GamesResults;
