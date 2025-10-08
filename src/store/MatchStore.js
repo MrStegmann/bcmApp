@@ -60,7 +60,7 @@ export const useMatchStore = create((set) => ({
 }));
 
 export const useMatchPlayerStore = create((set, get) => ({
-  players: {}, // [playerId]: { stats: {pts: 0,  t1a: 0,  t1i: 0,  t2a: 0,  t2i: 0,  t3a: 0,  t3i: 0,  falt: 0,  asis: 0,  dreb: 0,  oreb: 0,  rec: 0,  per: 0,  min: 0}, isBench: true, player_id: 1, first_name: "Jugador", last_name: "Uno", number: 1 }
+  players: {}, // [playerId]: { stats: {pts: 0,  t1a: 0,  t1i: 0,  t2a: 0,  t2i: 0,  t3a: 0,  t3i: 0,  falt: 0,  asis: 0,  dreb: 0,  oreb: 0,  rec: 0,  per: 0,  minutes: 0}, isBench: true, player_id: 1, first_name: "Jugador", last_name: "Uno", number: 1 }
   setPlayers: (players) => set({ players }),
   setPlayerById: (id, player) =>
     set((state) => ({ players: { ...state.players, [id]: player } })),

@@ -19,7 +19,7 @@ const playerStats = {
   oreb: 0,
   rec: 0,
   per: 0,
-  min: 0,
+  minutes: 0,
 };
 const SHOTS_KEY = ["1a", "1i", "2a", "2i", "3a", "3i"];
 

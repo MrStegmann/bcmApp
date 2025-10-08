@@ -36,7 +36,20 @@ const StatCounter = React.memo(
 );
 
 // --- Configuración de Estadísticas para mapeo ---
-const STATS_CONFIG = [...Object.values(StatsEnums)];
+const STATS_CONFIG = [
+  StatsEnums.t1a,
+  StatsEnums.t1i,
+  StatsEnums.t2a,
+  StatsEnums.t2i,
+  StatsEnums.t3a,
+  StatsEnums.t3i,
+  StatsEnums.falt,
+  StatsEnums.dreb,
+  StatsEnums.oreb,
+  StatsEnums.asis,
+  StatsEnums.rec,
+  StatsEnums.per,
+];
 
 const QuintetPlayer = React.memo(
   ({ playerId, isInToBench, setToBench, quarter }) => {

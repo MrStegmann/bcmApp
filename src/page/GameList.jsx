@@ -115,6 +115,11 @@ const GameList = ({ onReturn }) => {
     matchStore.setPlaying(false);
   };
 
+  const handleSaveDetail = () => {
+    setGameSelected(null);
+    getData();
+  };
+
   return (
     <View className="w-full h-full justify-start items-center px-2">
       <DeleteModal
@@ -154,7 +159,7 @@ const GameList = ({ onReturn }) => {
           <GameDetail
             data={gameSelected}
             onReturn={() => setGameSelected(null)}
-            onSave={handleAfterSaveMatch}
+            onSave={handleSaveDetail}
           />
         ) : (
           <GameCards

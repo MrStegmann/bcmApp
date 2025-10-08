@@ -10,6 +10,7 @@ import TopMenuEnums from "../Enums/TopMenuEnums";
 import { timeFormat } from "../helpers/timeFormat";
 import StatsEnums from "../Enums/StatsEnums";
 import QuartersEnums from "../Enums/QuartersEnums";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 // --- Componente Auxiliar para Contadores Genéricos (Rebotes, Asistencias, Pérdidas) ---
 
@@ -37,7 +38,20 @@ const StatCounter = React.memo(
 );
 
 // --- Configuración de Estadísticas para mapeo ---
-const STATS_CONFIG = [...Object.values(StatsEnums)];
+const STATS_CONFIG = [
+  StatsEnums.t1a,
+  StatsEnums.t1i,
+  StatsEnums.t2a,
+  StatsEnums.t2i,
+  StatsEnums.t3a,
+  StatsEnums.t3i,
+  StatsEnums.falt,
+  StatsEnums.dreb,
+  StatsEnums.oreb,
+  StatsEnums.asis,
+  StatsEnums.rec,
+  StatsEnums.per,
+];
 
 const marker = { team: 0, opponent: 0 };
 const defaultMarker = {
@@ -295,13 +309,21 @@ const GameDetail = ({ data, onSave, onReturn }) => {
     });
 
     getRoaster();
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     mainMenu();
-  }, [onReturn, result, teamFalt, handleSave, onSave]);
+  }, [
+    players,
+    data,
+    result,
+    teamFalt,
+    GameController,
+    PlayerStatsController,
+    onReturn,
+  ]);
 
-  const mainMenu = useCallback(() => {
+  const mainMenu = () => {
     setTopMenu([
       {
         id: TopMenuEnums.SAVE,
@@ -316,7 +338,7 @@ const GameDetail = ({ data, onSave, onReturn }) => {
         icon: TopMenuEnums.GO_BACK,
       },
     ]);
-  }, [onReturn, result, teamFalt, handleSave, players, onSave]);
+  };
 
   const handleSave = async () => {
     await GameController.save({
@@ -325,7 +347,6 @@ const GameDetail = ({ data, onSave, onReturn }) => {
       opponent: data.opponent,
       round: data.round,
       date: data.date,
-      played: true,
     });
     await GameController.saveResults({
       id: data.result_id,
@@ -355,18 +376,20 @@ const GameDetail = ({ data, onSave, onReturn }) => {
       falts_c4_opponent: teamFalt.c4.opponent,
       falts_extra_opponent: teamFalt.extra.opponent,
     });
+
     const newPlayers = [...Object.values(players)];
+
     // Usar Promise.all para guardar en paralelo si la BBDD lo soporta
-    const savePlayerPromises = newPlayers.map((player) => {
-      const playerStats = {
-        id: player.statId,
-        game_id: data.id,
-        player_id: player.player_id,
-        ...player,
-      };
-      return PlayerStatsController.save(playerStats);
-    });
-    await Promise.all(savePlayerPromises);
+    await Promise.all(
+      newPlayers.map((player) =>
+        PlayerStatsController.save({
+          id: player.statId,
+          game_id: data.id,
+          player_id: player.player_id,
+          ...player,
+        })
+      )
+    );
     onSave();
   };
 
@@ -499,19 +522,32 @@ const GameDetail = ({ data, onSave, onReturn }) => {
           </View>
         ))}
       </View>
-      <View className="w-full mt-1 flex flex-col mb-12">
-        <FlatList
-          data={toMapPlayers}
-          renderItem={({ item }) => (
-            <PlayerStat
-              player={item[1]}
-              index={item[0]}
-              setPlayers={setPlayers}
-            />
-          )}
-          keyExtractor={(item) => item.player_id}
-        />
-      </View>
+      {players ? (
+        <View className="w-full mt-1 flex flex-col mb-12">
+          <FlatList
+            data={toMapPlayers}
+            renderItem={({ item }) => (
+              <PlayerStat
+                player={item[1]}
+                index={item[0]}
+                setPlayers={setPlayers}
+              />
+            )}
+            keyExtractor={(item) => item[0]}
+          />
+        </View>
+      ) : (
+        <View className="w-full flex flex-col justify-center items-center mt-20">
+          <MaterialCommunityIcons
+            name="book-open-blank-variant-outline"
+            size={30}
+            color="gray"
+          />
+          <Text className="text-lg font-bold text-danish-light-gray px-16">
+            Cargando datos...
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

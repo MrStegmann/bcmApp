@@ -56,7 +56,7 @@ export const PlayerStatsModel = (dbInstance) => ({
       id,
       game_id,
       player_id,
-      min,
+      minutes,
       t1a,
       t1i,
       t2a,
@@ -71,12 +71,12 @@ export const PlayerStatsModel = (dbInstance) => ({
       falt,
     } = data;
     const sqlStatment = id
-      ? `UPDATE players_stats SET minutes = ?, t1a = ?, t1i = ?, t2a = ?, t2i = ?, t3a = ?, t3i = ?, dreb = ?, oreb = ?, asis = ?, rec = ?, per = ?, falt = ? WHERE game_id = ? AND player_id = ?;`
+      ? `UPDATE players_stats SET minutes = ?, t1a = ?, t1i = ?, t2a = ?, t2i = ?, t3a = ?, t3i = ?, dreb = ?, oreb = ?, asis = ?, rec = ?, per = ?, falt = ? WHERE id = ?`
       : `INSERT INTO players_stats (game_id, player_id, minutes, t1a, t1i, t2a, t2i, t3a, t3i, dreb, oreb, asis, rec, per, falt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
     const params = id
       ? [
-          min,
+          minutes,
           t1a,
           t1i,
           t2a,
@@ -89,13 +89,12 @@ export const PlayerStatsModel = (dbInstance) => ({
           rec,
           per,
           falt,
-          game_id,
-          player_id,
+          id,
         ]
       : [
           game_id,
           player_id,
-          min,
+          minutes,
           t1a,
           t1i,
           t2a,

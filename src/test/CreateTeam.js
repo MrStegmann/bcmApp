@@ -59,7 +59,7 @@ export async function CreaTeam(models) {
       await models.PlayerStatsModel.save({
         game_id: 1,
         player_id: i,
-        min: 15 * 60 * 1000,
+        minutes: 15 * 60 * 1000,
         t1a: 2,
         t1i: 4,
         t2a: 3,
@@ -91,7 +91,7 @@ export async function CreaTeam(models) {
       await models.PlayerStatsModel.save({
         game_id: 2,
         player_id: i,
-        min: 15 * 60 * 1000,
+        minutes: 15 * 60 * 1000,
         t1a: 2,
         t1i: 4,
         t2a: 3,

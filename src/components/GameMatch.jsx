@@ -95,7 +95,7 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     onSave,
   ]);
 
-  const mainMenu = useCallback(() => {
+  const mainMenu = () => {
     setTopMenu([
       {
         id: TopMenuEnums.SAVE,
@@ -110,15 +110,7 @@ const GameMatch = ({ data, onReturn, onSave }) => {
         icon: TopMenuEnums.GO_BACK,
       },
     ]);
-  }, [
-    onReturn,
-    teamResultStore,
-    teamFaltsStore,
-    handleSave,
-    matchStore,
-    matchPlayer,
-    onSave,
-  ]);
+  };
 
   const handleSave = async () => {
     await GameController.save({
@@ -159,15 +151,15 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     });
     const newPlayers = [...Object.values(matchPlayer.players)];
     // Usar Promise.all para guardar en paralelo si la BBDD lo soporta
-    const savePlayerPromises = newPlayers.map((player) => {
-      const playerStats = {
-        game_id: data.id,
-        player_id: player.player_id,
-        ...player.stats,
-      };
-      return PlayerStatsController.save(playerStats);
-    });
-    await Promise.all(savePlayerPromises);
+    await Promise.all(
+      newPlayers.map((player) =>
+        PlayerStatsController.save({
+          game_id: data.id,
+          player_id: player.player_id,
+          ...player,
+        })
+      )
+    );
     onSave();
   };
 
