@@ -15,7 +15,7 @@ const TrainingPlayer = ({ tp, updateTrainingPlayer }) => {
 
   return (
     <TouchableOpacity
-      className={`w-2/5 my-1 p-2 rounded-lg bg-danish-dark-gray border-2 shadow-lg flex flex-col justify-center items-center relative ${Boolean(tp.assistance) ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+      className={`w-full h-40 my-1 p-2 rounded-lg bg-danish-dark-gray border-2 shadow-lg flex flex-col justify-center items-center relative ${Boolean(tp.assistance) ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
       onPress={() =>
         updateTrainingPlayer({
           notes,
@@ -38,7 +38,7 @@ const TrainingPlayer = ({ tp, updateTrainingPlayer }) => {
         <TextInput
           value={notes}
           multiline={true}
-          numberOfLines={4}
+          numberOfLines={1}
           scrollEnabled={true}
           onChangeText={setNotes}
           placeholder="Notas"

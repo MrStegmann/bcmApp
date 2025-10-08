@@ -10,7 +10,6 @@ import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import useDB from "../hooks/useDB";
 import GamesResults from "../components/GamesResults";
-import { evalue } from "../helpers/evalue";
 
 const ClubProfile = ({ handleReturn, handleUpdate }) => {
   const { GameController, PlayerController } = useDB();
@@ -63,19 +62,6 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
           icon: TopMenuEnums.CLOSE_SESION,
         },
       ];
-      // const dataOptions = club.options.split(";");
-      // for (const option of dataOptions) {
-      //   const [key, value] = option.split(":");
-      //   if (key && value) {
-      //     if (key === "showFees" && evalue(value))
-      //       menu.splice(1, 0, {
-      //         id: TopMenuEnums.CALENDAR,
-      //         name: "Calendario de cuotas",
-      //         onPress: () => onSelectOption(TopMenuEnums.CALENDAR),
-      //         icon: TopMenuEnums.CALENDAR,
-      //       });
-      //   }
-      // }
       setTopMenu(menu);
     }
   }, [option, club]);
@@ -115,7 +101,6 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
         </View>
       )}
       {option === TopMenuEnums.PLAYERS && <PlayerList onReturn={onReturn} />}
-      {option === TopMenuEnums.CALENDAR && <Calendar onReturn={onReturn} />}
       {option === TopMenuEnums.TRAININGS && (
         <TrainingList onReturn={onReturn} />
       )}

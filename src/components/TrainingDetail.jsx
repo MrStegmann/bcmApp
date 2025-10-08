@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import useDB from "../hooks/useDB";
 import TrainingPlayer from "./TrainingPlayer";
 import ModalInfo from "../framework/ModalInfo";
 
 const TrainingDetail = ({ data }) => {
   const { TraningPlayersController, TrainingController } = useDB();
+  const [showPlayers, setShowPlayers] = useState(false);
   const [trainingPlayers, setTrainingPlayers] = useState([]);
   const [exerciseDetails, setExerciseDetails] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -31,30 +32,47 @@ const TrainingDetail = ({ data }) => {
     setExerciseDetails(null);
   };
   return (
-    <View className="w-full h-full flex flex-col justify-center items-center">
+    <View className="w-full h-full flex-1 flex flex-col justify-center items-center">
       <ModalInfo
         title={`${exerciseDetails?.name}`}
-        information={`${exerciseDetails?.explanation}`}
+        information={
+          <Text className="text-danish-white">
+            {exerciseDetails?.explanation}
+          </Text>
+        }
         visible={modalVisible}
         onClose={handleCloseModal}
+      />
+
+      <ModalInfo
+        title={`Asistencia`}
+        information={
+          <FlatList
+            data={trainingPlayers}
+            renderItem={({ item }) => (
+              <TrainingPlayer
+                updateTrainingPlayer={updateTrainingPlayer}
+                tp={item}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        }
+        visible={showPlayers}
+        onClose={() => setShowPlayers(false)}
       />
       <Text className="font-bold text-danish-white text-lg mb-5">
         Sesión #{data.training_number} - {data.date}
       </Text>
-      <Text className="text-left w-full text-danish-white px-5">
-        Asistencias
-      </Text>
-      <View className="w-full flex flex-row flex-wrap justify-between items-center px-2">
-        {trainingPlayers.map((tp) => (
-          <TrainingPlayer
-            key={tp.id}
-            updateTrainingPlayer={updateTrainingPlayer}
-            tp={tp}
-          />
-        ))}
-      </View>
 
-      <View className="w-full my-2 px-2">
+      <TouchableOpacity
+        className="flex items-center bg-danish-dark-gray rounded-lg shadow-lg shadow-danish-red p-1 border border-danish-red hover:border-danish-gold active:border-danish-gold hover:bg-danish-red active:bg-danish-red"
+        onPress={() => setShowPlayers(true)}
+      >
+        <Text className="text-center text-danish-white">Asistencias</Text>
+      </TouchableOpacity>
+
+      <View className="w-full my-2">
         <View className="p-2 mb-2 rounded-lg border-2 border-danish-red">
           <Text className="font-semibold text-danish-white text-sm mb-1">
             Calentamiento
