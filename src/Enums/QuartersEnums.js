@@ -1,0 +1,7 @@
+export default {
+  c1: "c1",
+  c2: "c2",
+  c3: "c3",
+  c4: "c4",
+  extra: "extra",
+};

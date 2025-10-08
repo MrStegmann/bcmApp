@@ -92,48 +92,134 @@ export const PlayersStatsDTO = (dbInstance) => ({
       );
     }
   },
+  getStatGameByPlayer: async (playerId) => {
+    try {
+      return await dbInstance.getAllAsync(
+        `
+          SELECT
+            g.date,
+            g.round,
+            g.opponent,
+            ps.id as statId,
+            ps.minutes,
+            (ps.t1a * 1) + (ps.t2a * 2) + (ps.t3a * 3) AS pts, 
+            ps.t1a,
+            ps.t1i,
+            (ps.t1a / ps.t1i) * 100 AS p1Per,
+            ps.t2a,
+            ps.t2i,
+            (ps.t2a / ps.t2i) * 100 AS p2Per,
+            ps.t3a,
+            ps.t3i,
+            (ps.t3a / ps.t3i) * 100 AS p3Per,
+            ps.dreb,
+            ps.oreb,
+            ps.dreb + ps.oreb AS reb,
+            ps.asis,
+            ps.rec,
+            ps.per,
+            ps.falt,
+            ps.t1a + ps.t2a + ps.t3a + ps.dreb + ps.oreb + ps.asis + ps.rec - ps.per - ps.falt - (ps.t1i-ps.t1a) - (ps.t2i-ps.t2a) - (ps.t3i-ps.t3a) AS val
+          FROM
+            players_stats ps
+          JOIN
+            games g ON g.id = ps.game_id
+          WHERE
+            ps.player_id = ?;
+          `,
+        [playerId]
+      );
+    } catch (error) {
+      console.error(error);
+      throw new Error(
+        "No se ha podido obtener la información del jugador y sus estadísticas por partido"
+      );
+    }
+  },
   getByGameAndPlayer: async (playerId, gameId) => {
     try {
       return await dbInstance.getFirstAsync(
         `
-            SELECT
-                    p.id,
-                    p.first_name,
-                    p.last_name,
-                    p.number,
-                    ps.id as statId,
-                    ps.minutes,
-                    (ps.t1a * 1) + (ps.t2a * 2) + (ps.t3a * 3) AS pts, 
-                    ps.t1a,
-                    ps.t1i,
-                    (ps.t1a / ps.t1i) * 100 AS p1Per,
-                    ps.t2a,
-                    ps.t2i,
-                    (ps.t2a / ps.t2i) * 100 AS p2Per,
-                    ps.t3a,
-                    ps.t3i,
-                    (ps.t3a / ps.t3i) * 100 AS p3Per,
-                    ps.dreb,
-                    ps.oreb,
-                    ps.dreb + ps.oreb AS reb,
-                    ps.asis,
-                    ps.rec,
-                    ps.per,
-                    ps.falt,
-                    ps.t1a + ps.t2a + ps.t3a + ps.dreb + ps.oreb + ps.asis + ps.rec - ps.per - ps.falt - (ps.t1i-ps.t1a) - (ps.t2i-ps.t2a) - (ps.t3i-ps.t3a) AS val
-                FROM
-                    players p
-                JOIN
-                    players_stats ps ON p.id = ps.player_id
-                WHERE
-                    p.id = ? AND ps.game_id = ?;
-                `,
+          SELECT
+            p.id,
+            p.first_name,
+            p.last_name,
+            p.number,
+            ps.id as statId,
+            ps.minutes,
+            (ps.t1a * 1) + (ps.t2a * 2) + (ps.t3a * 3) AS pts, 
+            ps.t1a,
+            ps.t1i,
+            (ps.t1a / ps.t1i) * 100 AS p1Per,
+            ps.t2a,
+            ps.t2i,
+            (ps.t2a / ps.t2i) * 100 AS p2Per,
+            ps.t3a,
+            ps.t3i,
+            (ps.t3a / ps.t3i) * 100 AS p3Per,
+            ps.dreb,
+            ps.oreb,
+            ps.dreb + ps.oreb AS reb,
+            ps.asis,
+            ps.rec,
+            ps.per,
+            ps.falt,
+            ps.t1a + ps.t2a + ps.t3a + ps.dreb + ps.oreb + ps.asis + ps.rec - ps.per - ps.falt - (ps.t1i-ps.t1a) - (ps.t2i-ps.t2a) - (ps.t3i-ps.t3a) AS val
+          FROM
+            players p
+          JOIN
+            players_stats ps ON p.id = ps.player_id
+          WHERE
+            p.id = ? AND ps.game_id = ?;
+          `,
         [playerId, gameId]
       );
     } catch (error) {
       console.error(error);
       throw new Error(
         "No se ha podido obtener la información del jugador y sus estadísticas por partido"
+      );
+    }
+  },
+  getByRoaster: async (gameId) => {
+    try {
+      return await dbInstance.getAllAsync(
+        `
+            SELECT
+              gr.*,
+              p.id AS player_id,
+              p.first_name,
+              p.last_name,
+              p.number,
+              ps.id as statId,
+              ps.minutes,
+              ps.t1a,
+              ps.t1i,
+              ps.t2a,
+              ps.t2i,
+              ps.t3a,
+              ps.t3i,
+              ps.dreb,
+              ps.oreb,
+              ps.asis,
+              ps.rec,
+              ps.per,
+              ps.falt
+            FROM
+              game_roster gr
+            LEFT JOIN
+              players p ON gr.player_id = p.id
+            LEFT JOIN
+              players_stats ps ON gr.player_id = ps.player_id
+            WHERE
+              gr.game_id = ? AND gr.called = 1;
+            `,
+        [gameId]
+      );
+    } catch (error) {
+      console.error(error);
+      throw new Error(
+        "No se ha podido obtener la información del jugador y su convocación"
       );
     }
   },

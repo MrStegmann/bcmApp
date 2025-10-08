@@ -2,14 +2,22 @@ import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import StopwatchTimer from "react-native-animated-stopwatch-timer";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useMatchPlayerStore } from "../store/MatchStore";
+import {
+  useMatchCronoStore,
+  useMatchPlayerStore,
+  useMatchTeamFalts,
+  useMatchTeamResult,
+} from "../store/MatchStore";
+import StatsEnums from "../Enums/StatsEnums";
 
 // --- Componente Auxiliar para Contadores Genéricos (Rebotes, Asistencias, Pérdidas) ---
 
 const StatCounter = React.memo(
   ({ statKey, currentValue, increment, decrement }) => {
     return (
-      <View className="w-12 px-1 flex flex-row justify-center items-center">
+      <View
+        className={`${[StatsEnums.dreb, StatsEnums.oreb].includes(statKey) ? "w-14" : "w-12"} px-1 flex flex-row justify-center items-center`}
+      >
         <TouchableOpacity
           className="flex justify-center items-center"
           onPress={() => decrement(statKey)}
@@ -27,53 +35,17 @@ const StatCounter = React.memo(
   }
 );
 
-// --- Componente Auxiliar para Tiros (Lleva lógica de resultado de equipo) ---
-const ShotCounter = React.memo(({ shotType, currentValue, handleShot }) => {
-  return (
-    <View className="w-12 px-1 flex flex-row justify-center items-center">
-      <TouchableOpacity
-        className="flex justify-center items-center"
-        onPress={() => handleShot(shotType, "substract")}
-      >
-        <MaterialIcons name="arrow-back-ios" size={10} color="white" />
-      </TouchableOpacity>
-      <Text className="text-danish-white text-sm text-center">
-        {currentValue}
-      </Text>
-      <TouchableOpacity onPress={() => handleShot(shotType, "add")}>
-        <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
-      </TouchableOpacity>
-    </View>
-  );
-});
-
 // --- Configuración de Estadísticas para mapeo ---
-const STATS_CONFIG = [
-  { key: "dreb", label: "DReb" },
-  { key: "oreb", label: "OReb" },
-  { key: "asis", label: "Asis" },
-  { key: "rec", label: "Rec" },
-  { key: "per", label: "Per" },
-];
-
-const SHOTS_KEY = ["1a", "1i", "2a", "2i", "3a", "3i"];
+const STATS_CONFIG = [...Object.values(StatsEnums)];
 
 const QuintetPlayer = React.memo(
-  ({
-    playerId,
-    setPlayer,
-    isInToBench,
-    setToBench,
-    crono,
-    quarter,
-    result,
-    onSetResult,
-    onSetTeamFalt,
-    teamFalt,
-  }) => {
+  ({ playerId, isInToBench, setToBench, quarter }) => {
     const player = useMatchPlayerStore((state) => state.players[playerId]);
     const setPlayerById = useMatchPlayerStore((state) => state.setPlayerById);
     if (!player) return null;
+    const teamResultStore = useMatchTeamResult((state) => state);
+    const teamFaltsStore = useMatchTeamFalts((state) => state);
+    const crono = useMatchCronoStore((state) => state.crono);
 
     const stopwatchTimerRef = useRef(null); // Referencia para el Crono. Necesario para que funcione la librería correctamente
     // Control del Crono
@@ -95,106 +67,72 @@ const QuintetPlayer = React.memo(
       }
     }, [crono]);
 
-    const handleShot = useCallback(
-      (shotType, type) => {
-        const action = type === "add" ? "add" : "substract";
-
-        switch (shotType) {
-          case "1a":
-          case "2a":
-          case "3a":
-            action === "add" ? addShot(shotType) : substractShot(shotType);
-            break;
-          case "1i":
-          case "2i":
-          case "3i":
-            action === "add" ? addFail(shotType) : substractFail(shotType);
-            break;
-          default:
-            break;
-        }
-      },
-      [player, setPlayerById]
-    );
-    const addShot = (shot) => {
-      const newStats = { ...stats };
-
-      const iShot = shot === "1a" ? "1i" : shot === "2a" ? "2i" : "3i";
-      const prevA = newStats[`t${shot}`];
-      const prevI = newStats[`t${iShot}`];
-      newStats[`t${shot}`] = prevA + 1;
-      newStats[`t${iShot}`] = prevI + 1;
-      const newResult = { ...result };
-      newResult[quarter].team =
-        newResult[quarter].team + (shot === "1a" ? 1 : shot === "2a" ? 2 : 3);
-      onSetResult(newResult);
-      setPlayerById(playerId, { ...player, stats: newStats });
-    };
-    const substractShot = (shot) => {
-      const newStats = { ...stats };
-      const iShot = shot === "1a" ? "1i" : shot === "2a" ? "2i" : "3i";
-      const prevA = newStats[`${shot}a`];
-      const prevI = newStats[`${iShot}i`];
-      newStats[`t${shot}`] = prevA - 1 < 0 ? 0 : prevA - 1;
-      newStats[`t${iShot}`] = prevI - 1 < 0 ? 0 : prevI - 1;
-
-      const newResult = { ...result };
-      newResult[quarter].team =
-        newResult[quarter].team - (shot === "1a" ? 1 : shot === "2a" ? 2 : 3) <
-        0
-          ? 0
-          : newResult[quarter].team -
-            (shot === "1a" ? 1 : shot === "2a" ? 2 : 3);
-      onSetResult(newResult);
-      setPlayerById(playerId, { ...player, stats: newStats });
-    };
-
-    const addFail = (shot) => {
-      const newStats = { ...stats };
-      const prevI = newStats[`t${shot}`];
-      newStats[`t${shot}`] = prevI + 1;
-      setPlayerById(playerId, { ...player, stats: newStats });
-    };
-    const substractFail = (shot) => {
-      const newStats = { ...stats };
-      const prevI = newStats[`t${shot}`];
-      newStats[`t${shot}`] = prevI - 1 < 0 ? 0 : prevI - 1;
-      setPlayerById(playerId, { ...player, stats: newStats });
-    };
-
-    const addFault = () => {
-      const newStats = { ...stats };
-      const prev = newStats.falt;
-      newStats.falt = prev + 1;
-
-      const newTeamFalt = { ...teamFalt };
-      newTeamFalt[quarter].team = newTeamFalt[quarter].team + 1;
-      onSetTeamFalt(newTeamFalt);
-      setPlayerById(playerId, { ...player, stats: newStats });
-    };
-    const substractFault = () => {
-      const newStats = { ...stats };
-      const prev = newStats.falt;
-      newStats.falt = prev - 1 < 0 ? 0 : prev - 1;
-
-      const newTeamFalt = { ...teamFalt };
-      newTeamFalt[quarter].team =
-        newTeamFalt[quarter].team - 1 < 0 ? 0 : newTeamFalt[quarter].team - 1;
-      onSetTeamFalt(newTeamFalt);
-      setPlayerById(playerId, { ...player, stats: newStats });
-    };
-
     const addStat = (stat) => {
-      const newStats = { ...stats };
-      const prev = newStats[stat];
-      newStats[stat] = prev + 1;
-      setPlayerById(playerId, { ...player, stats: newStats });
+      const newPlayer = { ...player };
+      const prev = newPlayer.stats[stat];
+      if ([StatsEnums.t1a, StatsEnums.t2a, StatsEnums.t3a].includes(stat)) {
+        const iShot =
+          stat === StatsEnums.t1a
+            ? StatsEnums.t1i
+            : stat === StatsEnums.t2a
+              ? StatsEnums.t2i
+              : StatsEnums.t3i;
+        const iPrev = newPlayer.stats[iShot];
+        newPlayer.stats[stat] = prev + 1;
+        newPlayer.stats[iShot] = iPrev + 1;
+        teamResultStore.setTeamResult({
+          ...teamResultStore.teamResult,
+          [quarter]:
+            teamResultStore.teamResult[quarter] +
+            (stat === StatsEnums.t1a ? 1 : stat === StatsEnums.t2a ? 2 : 3),
+        });
+      } else {
+        newPlayer.stats[stat] = prev + 1;
+        if (stat === StatsEnums.falt)
+          teamFaltsStore.setTeamFalt({
+            ...teamFaltsStore.teamFalt,
+            [quarter]: teamFaltsStore.teamFalt[quarter] + 1,
+          });
+      }
+
+      setPlayerById(playerId, newPlayer);
     };
     const substractStat = (stat) => {
-      const newStats = { ...stats };
-      const prev = newStats[stat];
-      newStats[stat] = prev - 1 < 0 ? 0 : prev - 1;
-      setPlayerById(playerId, { ...player, stats: newStats });
+      const newPlayer = { ...player };
+      const prev = newPlayer.stats[stat];
+      if ([StatsEnums.t1a, StatsEnums.t2a, StatsEnums.t3a].includes(stat)) {
+        const iShot =
+          stat === StatsEnums.t1a
+            ? StatsEnums.t1i
+            : stat === StatsEnums.t2a
+              ? StatsEnums.t2i
+              : StatsEnums.t3i;
+        const iPrev = newPlayer.stats[iShot];
+        newPlayer.stats[stat] = prev - 1 < 0 ? 0 : prev - 1;
+        newPlayer.stats[iShot] = iPrev - 1 < 0 ? 0 : iPrev - 1;
+        teamResultStore.setTeamResult({
+          ...teamResultStore.teamResult,
+          [quarter]:
+            teamResultStore.teamResult[quarter] -
+              (stat === StatsEnums.t1a ? 1 : stat === StatsEnums.t2a ? 2 : 3) <
+            0
+              ? 0
+              : teamResultStore.teamResult[quarter] -
+                (stat === StatsEnums.t1a ? 1 : stat === StatsEnums.t2a ? 2 : 3),
+        });
+      } else {
+        newPlayer.stats[stat] = prev - 1 < 0 ? 0 : prev - 1;
+        if (stat === StatsEnums.falt)
+          teamFaltsStore.setTeamFalt({
+            ...teamFaltsStore.teamFalt,
+            [quarter]:
+              teamFaltsStore.teamFalt[quarter] - 1 < 0
+                ? 0
+                : teamFaltsStore.teamFalt[quarter] - 1,
+          });
+      }
+
+      setPlayerById(playerId, newPlayer);
     };
 
     const stats = { ...player.stats };
@@ -233,29 +171,7 @@ const QuintetPlayer = React.memo(
         <View className="w-12 px-1">
           <Text className="text-danish-white text-sm text-center">{pts}</Text>
         </View>
-        {SHOTS_KEY.map((t) => (
-          <ShotCounter
-            key={`t${t}`}
-            shotType={t}
-            currentValue={stats[`t${t}`]}
-            handleShot={handleShot}
-          />
-        ))}
-        <View className="w-12 px-1 flex flex-row justify-center items-center">
-          <TouchableOpacity
-            className="flex justify-center items-center"
-            onPress={substractFault}
-          >
-            <MaterialIcons name="arrow-back-ios" size={10} color="white" />
-          </TouchableOpacity>
-          <Text className="text-danish-white text-sm text-center">
-            {stats.falt}
-          </Text>
-          <TouchableOpacity onPress={addFault}>
-            <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
-          </TouchableOpacity>
-        </View>
-        {STATS_CONFIG.map(({ key }) => (
+        {STATS_CONFIG.map((key) => (
           <StatCounter
             key={key}
             statKey={key}

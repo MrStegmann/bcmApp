@@ -1,95 +1,98 @@
-import { useEffect, useState } from "react";
-import { ImageBackground, ScrollView, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ImageBackground, Text, View } from "react-native";
 import useDB from "../hooks/useDB";
 import jersey from "../../assets/jersey.png";
-import Entypo from "@expo/vector-icons/Entypo";
-import { evalue } from "../helpers/evalue";
-import { useClubStore } from "../store/ClubStore";
+import { timeFormat } from "../helpers/timeFormat";
+import StatsEnums from "../Enums/StatsEnums";
 
-const RowData = ({ children }) => {
-  return <>{children}</>;
-};
-const PlayerCard = ({ playerInf }) => {
+const STATS_CONFIG = [
+  StatsEnums.minutes,
+  StatsEnums.t1a,
+  StatsEnums.t1i,
+  "p1Per",
+  StatsEnums.t2a,
+  StatsEnums.t2i,
+  "p2Per",
+  StatsEnums.t3a,
+  StatsEnums.t3i,
+  "p3Per",
+  StatsEnums.falt,
+  StatsEnums.dreb,
+  StatsEnums.oreb,
+  StatsEnums.asis,
+  StatsEnums.rec,
+  StatsEnums.per,
+];
+
+const StatsByGame = React.memo(({ info }) => {
+  return (
+    <View className="w-full flex flex-col">
+      <Text className="text-danish-white text-xs">{`${info.round} - ${info.date} ${info.opponent}`}</Text>
+      <View className="w-full flex flex-row justify-between flex-wrap gap-x-5">
+        {STATS_CONFIG.map((stat) =>
+          stat === StatsEnums.minutes ? (
+            <Text className="text-danish-white text-xs">{`Mins: ${timeFormat(info[stat]) || 0}`}</Text>
+          ) : (
+            <Text className="text-danish-white capitalize text-xs">{`${stat}: ${info[stat] || 0}`}</Text>
+          )
+        )}
+      </View>
+    </View>
+  );
+});
+
+const PlayerCard = React.memo(({ playerInf }) => {
   return (
     <View className={`w-full px-5 mt-5`}>
       <View className="w-full flex flex-row justify-between items-center">
         <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
-          <Text className="text-danish-white">Mins</Text>
-          <Text className="text-danish-white">{`${playerInf.total_minutes || 0}`}</Text>
-        </View>
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">PTS</Text>
-            <Text className="text-danish-white">{`${playerInf.total_pts}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_pts || 0}`}</Text>
           </View>
         </View>
         <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">Val</Text>
-            <Text className="text-danish-white">{`${playerInf.total_val}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_val || 0}`}</Text>
           </View>
         </View>
       </View>
       <View className="w-full flex flex-row flex-wrap justify-between items-center mt-5 gap-y-2">
-        {[1, 2, 3].map((key) => (
-          <RowData key={key}>
-            <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
-              <Text className="text-danish-white">T{key}A</Text>
-              <Text className="text-danish-white">{`${playerInf[`total_t${key}a`] || 0}`}</Text>
+        {STATS_CONFIG.map((stat) =>
+          stat === StatsEnums.minutes ? (
+            <View
+              key={stat}
+              className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center"
+            >
+              <Text className="text-danish-white text-sm">Mins</Text>
+              <Text className="text-danish-white">{`${timeFormat(playerInf[`total_${stat}`]) || 0}`}</Text>
             </View>
-            <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
-              <Text className="text-danish-white">T{key}I</Text>
-              <Text className="text-danish-white">{`${playerInf[`total_t${key}i`] || 0}`}</Text>
+          ) : (
+            <View
+              key={stat}
+              className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center"
+            >
+              <Text className="text-danish-white capitalize text-sm">
+                {stat}
+              </Text>
+              <Text className="text-danish-white">{`${playerInf[`total_${stat}`] || 0}`}</Text>
             </View>
-            <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
-              <Text className="text-danish-white">T{key}%</Text>
-              <Text className="text-danish-white">{`${(playerInf[`total_t${key}Per`] || 0).toFixed(1)}%`}</Text>
-            </View>
-          </RowData>
-        ))}
-
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col justify-center items-center">
-          <Text className="text-danish-white">OReb</Text>
-          <Text className="text-danish-white">{`${playerInf.total_oreb || 0}`}</Text>
-        </View>
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col justify-center items-center">
-          <Text className="text-danish-white">DReb</Text>
-          <Text className="text-danish-white">{`${playerInf.total_dreb || 0}`}</Text>
-        </View>
-
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col justify-center items-center">
-          <Text className="text-danish-white">Asis</Text>
-          <Text className="text-danish-white">{`${playerInf.total_asis || 0}`}</Text>
-        </View>
-
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col justify-center items-center">
-          <Text className="text-danish-white">Rec</Text>
-          <Text className="text-danish-white">{`${playerInf.total_rec || 0}`}</Text>
-        </View>
-
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col justify-center items-center">
-          <Text className="text-danish-white">PER</Text>
-          <Text className="text-danish-white">{`${playerInf.total_per || 0}`}</Text>
-        </View>
-        <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col justify-center items-center">
-          <Text className="text-danish-white">FALT</Text>
-          <Text className="text-danish-white">{`${playerInf.total_falt || 0}`}</Text>
-        </View>
+          )
+        )}
       </View>
     </View>
   );
-};
+});
 
 const PlayerDetail = ({ data }) => {
   const { PlayerController, PlayerStatsController, TraningPlayersController } =
     useDB();
-  const club = useClubStore((state) => state.club);
-  const [playerFees, setPlayerFees] = useState([]);
   const [playerAllStats, setPlayerAllStats] = useState([]);
   const [stats, setStats] = useState([]);
+  const [gameStats, setGameStats] = useState([]);
   const [totalTrainings, setTotalTrainings] = useState(0);
   const [totalTrainingsAssis, setTotalTrainingsAssis] = useState(0);
-  const [showFees, setShowFees] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -101,20 +104,11 @@ const PlayerDetail = ({ data }) => {
         TOTAL_TRAININGS.filter((tp) => tp.assistance).length
       );
 
-      setPlayerFees(await PlayerController.loadFees(data.id));
-
       const RESULT_PLAYERALLSTATS = await PlayerController.loadStats(data.id);
       setPlayerAllStats(RESULT_PLAYERALLSTATS);
       setStats(await PlayerStatsController.loadByPlayer(data.id));
+      setGameStats(await PlayerStatsController.loadStatGameByPlayer(data.id));
     };
-
-    const dataOptions = club.options.split(";");
-    for (const option of dataOptions) {
-      const [key, value] = option.split(":");
-      if (key && value) {
-        if (key === "showFees") setShowFees(evalue(value));
-      }
-    }
 
     getData();
   }, []);
@@ -165,32 +159,11 @@ const PlayerDetail = ({ data }) => {
           </Text>
         </View>
       )}
-      {showFees ? (
-        <View className="w-full flex flex-col justify-center mt-10">
-          <Text className="font-bold mb-1 mt-4 text-danish-white text-center">
-            Calendario de Pagos
-          </Text>
-          <View className="flex flex-row flex-wrap w-full h-full px-3 gap-4 justify-center items-center">
-            {playerFees.map((pf) => (
-              <View
-                key={pf.fee_id}
-                className={`w-20 h-20 flex flex-col justify-center items-center border rounded-xl  bg-danish-dark-gray shadow-inner ${pf.paid ? "shadow-danish-gold border-danish-gold" : "shadow-danish-red border-danish-red"}  p-1`}
-              >
-                <Text className="text-xs w-full text-center font-bold text-danish-white">
-                  {pf.month}
-                </Text>
-                <View className="w-full flex-1 flex items-center justify-center">
-                  {pf.paid ? (
-                    <Entypo name="check" size={18} color="gold" />
-                  ) : (
-                    <Entypo name="cross" size={18} color="red" />
-                  )}
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-      ) : null}
+      <View className="w-full mt-2 mb-20">
+        {gameStats.map((info) => (
+          <StatsByGame key={info.date} info={info} />
+        ))}
+      </View>
     </View>
   );
 };

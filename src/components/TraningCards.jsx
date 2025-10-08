@@ -1,8 +1,9 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Feather } from "@expo/vector-icons";
 import { Text, View, TouchableOpacity, ScrollView } from "react-native";
+import React from "react";
 
-const TraningCards = ({ trainings, onSelect, onEdit, onDelete }) => {
+const TraningCards = React.memo(({ trainings, onSelect, onEdit, onDelete }) => {
   if (trainings.length === 0)
     return (
       <View className="w-full flex flex-col justify-center items-center mt-20">
@@ -50,6 +51,6 @@ const TraningCards = ({ trainings, onSelect, onEdit, onDelete }) => {
       </ScrollView>
     </View>
   );
-};
+});
 
 export default TraningCards;

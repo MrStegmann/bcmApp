@@ -1,8 +1,10 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Feather } from "@expo/vector-icons";
+import React from "react";
+import { timeFormat } from "../helpers/timeFormat";
 
-const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
+const PlayerCards = React.memo(({ players, onSelect, onEdit, onDelete }) => {
   if (players.length === 0)
     return (
       <View className="w-full flex flex-col justify-center items-center mt-20">
@@ -18,7 +20,7 @@ const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
     );
 
   return (
-    <View className="w-full h-full flex flex-col items-center">
+    <View className="w-full h-full flex flex-col items-center mb-20">
       {players.map((player) => {
         return (
           <TouchableOpacity
@@ -39,7 +41,7 @@ const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
                   <View className="flex flex-col justify-center items-center">
                     <Text className="text-danish-white text-sm">Mins</Text>
                     <Text className="text-danish-white text-sm">
-                      {`${player.total_minutes || 0}`}
+                      {`${timeFormat(player.total_minutes) || 0}`}
                     </Text>
                   </View>
                   <View className="flex flex-col justify-center items-center">
@@ -80,6 +82,6 @@ const PlayerCards = ({ players, onSelect, onEdit, onDelete }) => {
       })}
     </View>
   );
-};
+});
 
 export default PlayerCards;

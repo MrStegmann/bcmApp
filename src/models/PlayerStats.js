@@ -52,14 +52,63 @@ export const PlayerStatsModel = (dbInstance) => ({
     }
   },
   save: async (data) => {
-    const { id, game_id, player_id, ...rest } = data;
+    const {
+      id,
+      game_id,
+      player_id,
+      min,
+      t1a,
+      t1i,
+      t2a,
+      t2i,
+      t3a,
+      t3i,
+      dreb,
+      oreb,
+      asis,
+      rec,
+      per,
+      falt,
+    } = data;
     const sqlStatment = id
       ? `UPDATE players_stats SET minutes = ?, t1a = ?, t1i = ?, t2a = ?, t2i = ?, t3a = ?, t3i = ?, dreb = ?, oreb = ?, asis = ?, rec = ?, per = ?, falt = ? WHERE game_id = ? AND player_id = ?;`
       : `INSERT INTO players_stats (game_id, player_id, minutes, t1a, t1i, t2a, t2i, t3a, t3i, dreb, oreb, asis, rec, per, falt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
     const params = id
-      ? [...Object.values(rest), game_id, player_id]
-      : [game_id, player_id, ...Object.values(rest)];
+      ? [
+          min,
+          t1a,
+          t1i,
+          t2a,
+          t2i,
+          t3a,
+          t3i,
+          dreb,
+          oreb,
+          asis,
+          rec,
+          per,
+          falt,
+          game_id,
+          player_id,
+        ]
+      : [
+          game_id,
+          player_id,
+          min,
+          t1a,
+          t1i,
+          t2a,
+          t2i,
+          t3a,
+          t3i,
+          dreb,
+          oreb,
+          asis,
+          rec,
+          per,
+          falt,
+        ];
     try {
       await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {

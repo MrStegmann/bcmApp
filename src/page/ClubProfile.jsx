@@ -63,19 +63,19 @@ const ClubProfile = ({ handleReturn, handleUpdate }) => {
           icon: TopMenuEnums.CLOSE_SESION,
         },
       ];
-      const dataOptions = club.options.split(";");
-      for (const option of dataOptions) {
-        const [key, value] = option.split(":");
-        if (key && value) {
-          if (key === "showFees" && evalue(value))
-            menu.splice(1, 0, {
-              id: TopMenuEnums.CALENDAR,
-              name: "Calendario de cuotas",
-              onPress: () => onSelectOption(TopMenuEnums.CALENDAR),
-              icon: TopMenuEnums.CALENDAR,
-            });
-        }
-      }
+      // const dataOptions = club.options.split(";");
+      // for (const option of dataOptions) {
+      //   const [key, value] = option.split(":");
+      //   if (key && value) {
+      //     if (key === "showFees" && evalue(value))
+      //       menu.splice(1, 0, {
+      //         id: TopMenuEnums.CALENDAR,
+      //         name: "Calendario de cuotas",
+      //         onPress: () => onSelectOption(TopMenuEnums.CALENDAR),
+      //         icon: TopMenuEnums.CALENDAR,
+      //       });
+      //   }
+      // }
       setTopMenu(menu);
     }
   }, [option, club]);

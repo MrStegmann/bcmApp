@@ -129,7 +129,14 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-
+      getRoasterStats: async (gameId) => {
+        try {
+          return await dtos?.PlayersStatsDTO.getByRoaster(gameId);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
+        }
+      },
       addCalledup: async (data) => {
         try {
           await models?.GameRosterModel.create(data);
@@ -277,6 +284,14 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
+      loadStatGameByPlayer: async (playerId) => {
+        try {
+          return await dtos?.PlayersStatsDTO.getStatGameByPlayer(playerId);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
+        }
+      },
       save: async (data) => {
         try {
           await models?.PlayerStatsModel.save(data);
@@ -292,7 +307,7 @@ const DBProvider = ({ children }) => {
         }
       },
     };
-  }, [models]);
+  }, [models, dtos]);
 
   const FeesController = useMemo(() => {
     return {

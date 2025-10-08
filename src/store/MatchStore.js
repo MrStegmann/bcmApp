@@ -1,5 +1,28 @@
 import { create } from "zustand";
 
+const defaultMarker = {
+  c1: 0,
+  c2: 0,
+  c3: 0,
+  c4: 0,
+  extra: 0,
+};
+
+export const useMatchCronoStore = create((set) => ({
+  crono: false,
+  setCrono: (crono) => set({ crono }),
+}));
+
+export const useMatchTeamFalts = create((set) => ({
+  teamFalt: { ...defaultMarker },
+  setTeamFalt: (teamFalt) => set({ teamFalt }),
+}));
+
+export const useMatchTeamResult = create((set) => ({
+  teamResult: { ...defaultMarker },
+  setTeamResult: (teamResult) => set({ teamResult }),
+}));
+
 export const useMatchStore = create((set) => ({
   playing: false, // Atributo para el header, indicando que debe mostrar los detalles del partido.
   results: { team: 0, opponent: 0 }, // Resultado global del partido. Global. Se usa para el header

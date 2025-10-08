@@ -8,15 +8,14 @@ import useDB from "../hooks/useDB";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import { useMenuStore } from "../store/MenuStore";
 import { useAlertStore } from "../store/AlertStore";
-import { useGameStore } from "../store/GameStore";
 import GameMatch from "../components/GameMatch";
 import { useMatchStore } from "../store/MatchStore";
+import GameDetail from "../components/GameDetail";
 
 const GameList = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const matchStore = useMatchStore((state) => state);
-  const gameStore = useGameStore((state) => state);
   const { GameController } = useDB();
   const [games, setGames] = useState([]);
   const [gameSelected, setGameSelected] = useState(null);
@@ -60,19 +59,6 @@ const GameList = ({ onReturn }) => {
         icon: TopMenuEnums.GO_BACK,
       },
     ]);
-  };
-
-  const onSaveGameMatch = async (game) => {
-    await GameController.save({
-      id: game.id,
-      team_id: game.team_id,
-      round: game.round,
-      date: game.date,
-      played: true,
-    });
-    setGameSelected(null);
-    gameStore.reset();
-    getData();
   };
 
   const getData = async () => {
@@ -165,9 +151,11 @@ const GameList = ({ onReturn }) => {
         !editGame &&
         !matchGame &&
         (gameSelected ? (
-          <Text>
-            Detalles de equipo y correción de stats de jugadores convocados
-          </Text>
+          <GameDetail
+            data={gameSelected}
+            onReturn={() => setGameSelected(null)}
+            onSave={handleAfterSaveMatch}
+          />
         ) : (
           <GameCards
             games={games}
