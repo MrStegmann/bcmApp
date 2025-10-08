@@ -1,6 +1,6 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Feather } from "@expo/vector-icons";
-import { Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { Text, View, TouchableOpacity, FlatList } from "react-native";
 import React from "react";
 
 const TraningCards = React.memo(({ trainings, onSelect, onEdit, onDelete }) => {
@@ -20,35 +20,34 @@ const TraningCards = React.memo(({ trainings, onSelect, onEdit, onDelete }) => {
 
   return (
     <View className="w-full h-full flex flex-col items-center">
-      <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
-        {trainings.map((training) => (
+      <FlatList
+        data={trainings}
+        scrollEnabled={false}
+        renderItem={({ item }) => (
           <TouchableOpacity
-            key={training.id}
-            onPress={() => onSelect(training)}
+            onPress={() => onSelect(item)}
             className="my-2 active:shadow-inner shadow-danish-red bg-transparent z-10 hover:bg-danish-red active:bg-danish-red"
           >
             <View className="w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg shadow-danish-red border border-danish-red">
               <View className="w-2/3 flex flex-col">
                 <Text className="text-danish-white text-sm">
-                  Sesión {training.training_number} - {training.date}
+                  Sesión {item.training_number} - {item.date}
                 </Text>
               </View>
 
               <View className="w-1/3 flex flex-row justify-end items-center gap-3">
-                <TouchableOpacity color="blue" onPress={() => onEdit(training)}>
+                <TouchableOpacity color="blue" onPress={() => onEdit(item)}>
                   <Feather name="edit" size={18} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  color="white"
-                  onPress={() => onDelete(training)}
-                >
+                <TouchableOpacity color="white" onPress={() => onDelete(item)}>
                   <Feather name="trash" size={18} color="red" />
                 </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        )}
+        keyExtractor={(item) => item.id}
+      />
     </View>
   );
 });

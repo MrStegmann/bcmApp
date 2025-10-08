@@ -98,6 +98,7 @@ const ClubManage = () => {
                       onSubmit={handleSave}
                       onReturn={() => setCreateMode(false)}
                     />
+                    <View className="mb-20" />
                   </View>
                 ) : (
                   <View className="w-full h-full justify-center items-center flex mt-5">

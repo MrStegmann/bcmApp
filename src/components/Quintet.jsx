@@ -116,6 +116,12 @@ const Quintet = React.memo(({ quarter }) => {
 
   const handleSetQuintet = useCallback(() => {
     if (quintet.size === 0) {
+      if (toQuintet.size !== 5)
+        return addAlert({
+          msg: "Debes sacar a 5 jugadores para el quinteto",
+          lifetime: 2500,
+          id: Date.now(),
+        });
       const newBench = new Set(bench);
 
       // Quito del banquillo a los jugadores que entran

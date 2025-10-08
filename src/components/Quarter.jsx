@@ -190,7 +190,10 @@ const Quarter = React.memo(
           <Text className="text-danish-white text-xs font-bold text-center">
             {teamResultStore.teamResult[quarter]}
           </Text>
-          <TouchableOpacity onPress={handleCrono}>
+          <TouchableOpacity
+            onPress={handleCrono}
+            className="px-2 py-1 border border-danish-red rounded-3xl flex justify-center items-center bg-danish-dark-gray"
+          >
             <StopwatchTimer
               mode="timer"
               key={quarter}

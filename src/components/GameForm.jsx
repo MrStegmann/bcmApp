@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, View, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import { Text, View, TouchableOpacity, FlatList } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useClubStore } from "../store/ClubStore";
 import useDB from "../hooks/useDB";
@@ -7,6 +7,7 @@ import Input from "../framework/Input";
 import { useAlertStore } from "../store/AlertStore";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
+import { timeFormat } from "../helpers/timeFormat";
 
 const PlayerCard = ({ playerInf, onCall, isCalled }) => {
   return (
@@ -37,7 +38,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
         <View className="w-1/4 px-2 flex flex-col">
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">Mins</Text>
-            <Text className="text-danish-white">{`${playerInf.total_minutes || 0}`}</Text>
+            <Text className="text-danish-white">{`${timeFormat(playerInf.total_minutes) || 0}`}</Text>
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">PTS</Text>
@@ -189,19 +190,22 @@ const GameForm = ({ gameData, onSubmit, onCancel }) => {
             Convocatoria{" "}
             {"( " + calledup.length + " jugadores convocados de 12 )"}
           </Text>
-          <View className="w-full h-full">
-            <ScrollView>
-              {players.map((player) => (
+          <View className="w-full h-full mb-20">
+            <FlatList
+              data={players}
+              scrollEnabled={false}
+              renderItem={({ item }) => (
                 <PlayerCard
-                  key={player.id}
-                  playerInf={player}
+                  key={item.id}
+                  playerInf={item}
                   onCall={handleSetCalled}
                   isCalled={(playerId) =>
                     calledup.find((cu) => cu === playerId)
                   }
                 />
-              ))}
-            </ScrollView>
+              )}
+              keyExtractor={(item) => item.id}
+            />
           </View>
         </>
       )}

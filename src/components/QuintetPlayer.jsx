@@ -19,15 +19,20 @@ const StatCounter = React.memo(
         className={`${[StatsEnums.dreb, StatsEnums.oreb].includes(statKey) ? "w-14" : "w-12"} px-1 flex flex-row justify-center items-center`}
       >
         <TouchableOpacity
-          className="flex justify-center items-center"
+          style={{ width: 10, height: 25 }}
+          className="flex flex-row justify-center items-center rounded-full"
           onPress={() => decrement(statKey)}
         >
           <MaterialIcons name="arrow-back-ios" size={10} color="white" />
         </TouchableOpacity>
-        <Text className="text-danish-white text-sm text-center">
+        <Text className="text-danish-white text-sm text-center mr-2">
           {currentValue}
         </Text>
-        <TouchableOpacity onPress={() => increment(statKey)}>
+        <TouchableOpacity
+          onPress={() => increment(statKey)}
+          style={{ width: 10, height: 25 }}
+          className="flex flex-row justify-center items-center rounded-full"
+        >
           <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
         </TouchableOpacity>
       </View>

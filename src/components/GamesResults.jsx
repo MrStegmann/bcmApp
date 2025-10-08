@@ -65,6 +65,7 @@ const GamesResults = React.memo(({ games }) => {
       {games.length > 0 && (
         <View className="w-full h-96 flex flex-col">
           <FlatList
+            scrollEnabled={false}
             data={games}
             renderItem={({ item }) => <CardGamesResults game={item} />}
             keyExtractor={(item) => item.id}

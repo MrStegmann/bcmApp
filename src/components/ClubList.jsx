@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import DeleteModal from "../framework/DeleteModal";
 
@@ -44,26 +44,18 @@ export default function ClubList({ clubs, onSelect, onDelete }) {
         item={itemToDelete}
       />
 
-      <ScrollView
-        horizontal={false}
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={true}
-      >
-        {clubs.length ? (
-          clubs.map((c) => (
-            <TeamCard
-              key={c.id}
-              info={c}
-              onDelete={handleOpenDeleteModal}
-              onSelect={onSelect}
-            />
-          ))
-        ) : (
-          <Text className="text-center font-bold text-danish-white">
-            No hay ningún Equipo registrado
-          </Text>
+      <FlatList
+        data={clubs}
+        scrollEnabled={false}
+        renderItem={({ item }) => (
+          <TeamCard
+            info={item}
+            onDelete={handleOpenDeleteModal}
+            onSelect={onSelect}
+          />
         )}
-      </ScrollView>
+        keyExtractor={(item) => item.id}
+      />
     </View>
   );
 }

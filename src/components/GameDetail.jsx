@@ -18,18 +18,23 @@ const StatCounter = React.memo(
   ({ statKey, currentValue, increment, decrement }) => {
     return (
       <View
-        className={`${["dreb", "oreb"].includes(statKey) ? "w-14" : "w-12"} px-1 flex flex-row justify-center items-center`}
+        className={`${["dreb", "oreb"].includes(statKey) ? "w-14" : "w-12"} flex flex-row justify-center items-center`}
       >
         <TouchableOpacity
-          className="flex justify-center items-center"
+          style={{ width: 10, height: 25 }}
+          className="flex flex-row justify-center items-center rounded-full"
           onPress={() => decrement(statKey)}
         >
           <MaterialIcons name="arrow-back-ios" size={10} color="white" />
         </TouchableOpacity>
-        <Text className="text-danish-white text-sm text-center">
+        <Text className="text-danish-white text-sm text-center mr-2">
           {currentValue}
         </Text>
-        <TouchableOpacity onPress={() => increment(statKey)}>
+        <TouchableOpacity
+          onPress={() => increment(statKey)}
+          style={{ width: 10, height: 25 }}
+          className="flex flex-row justify-center items-center rounded-full"
+        >
           <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
         </TouchableOpacity>
       </View>
@@ -122,12 +127,17 @@ const PlayerStat = React.memo(({ player, setPlayers, index }) => {
       <View className="w-12 px-1 flex flex-row justify-center items-center">
         <TouchableOpacity
           onPress={() => substractStat("minutes")}
-          className="flex justify-center items-center"
+          style={{ width: 10, height: 25 }}
+          className="flex flex-row justify-center items-center rounded-full"
         >
           <MaterialIcons name="arrow-back-ios" size={10} color="white" />
         </TouchableOpacity>
         <Text className="text-danish-white text-sm text-center">{minuts}</Text>
-        <TouchableOpacity onPress={() => addStat("minutes")}>
+        <TouchableOpacity
+          onPress={() => addStat("minutes")}
+          style={{ width: 10, height: 25 }}
+          className="flex flex-row justify-center items-center rounded-full"
+        >
           <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
         </TouchableOpacity>
       </View>
@@ -525,6 +535,7 @@ const GameDetail = ({ data, onSave, onReturn }) => {
       {players ? (
         <View className="w-full mt-1 flex flex-col mb-12">
           <FlatList
+            scrollEnabled={false}
             data={toMapPlayers}
             renderItem={({ item }) => (
               <PlayerStat

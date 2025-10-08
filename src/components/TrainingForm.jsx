@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Text, View, ScrollView } from "react-native";
+import { Text, View } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import Input from "../framework/Input";
 import TopMenuEnums from "../Enums/TopMenuEnums";
@@ -147,160 +147,156 @@ const TrainingForm = ({ onSubmit, trainingData, onCancel }) => {
   };
   return (
     <View className="w-full h-full">
-      <View className="w-full h-[45rem] mb-5">
-        <ScrollView horinzontal={false} showsVerticalScrollIndicator={true}>
-          <View className="flex flex-row w-full items-center justify-between px-2">
-            <View className="w-1/3">
-              <Input
-                label={"Sesión"}
-                value={trainingNumber}
-                onChange={setTrainingNumber}
-                placeholder="Número de sesión"
-                keyboardType="numeric"
-                wrongMsg={wrongTrainingNumber}
-              />
+      <View className="flex flex-row w-full items-center justify-between px-2">
+        <View className="w-1/3">
+          <Input
+            label={"Sesión"}
+            value={trainingNumber}
+            onChange={setTrainingNumber}
+            placeholder="Número de sesión"
+            keyboardType="numeric"
+            wrongMsg={wrongTrainingNumber}
+          />
+        </View>
+        <View className="w-1/3">
+          <Input
+            label={"Fecha"}
+            value={date}
+            onChange={setDate}
+            keyboardType="numeric"
+            placeholder="DD/MM/AAAA"
+            type="date"
+            wrongMsg={wrongDate}
+          />
+        </View>
+      </View>
+      <View className="w-full flex flex-col px-2">
+        <Text className="font-bold mt-5 text-danish-light-gray px-4">
+          Entrada en calor
+        </Text>
+        <View className="w-full rounded-lg bg-danish-dark-gray border border-danish-red shadow-lg shadow-danish-red flex flex-row flex-wrap py-2 justify-center items-center">
+          {[1, 2, 3].map((key, index) => (
+            <View
+              key={key}
+              className="w-2/5 flex flex-col bg-gray-900 shadow shadow-danish-red rounded-xl mx-2 my-2 p-2"
+            >
+              <Text className="text-danish-white font-bold text-sm mb-2">
+                Calentamiento {key}
+              </Text>
+              <View className="w-full flex flex-col">
+                <Input
+                  value={warmup[`warmup${key}`]}
+                  onChange={(text) =>
+                    setWarmup((prev) => ({
+                      ...prev,
+                      [`warmup${key}`]: text,
+                    }))
+                  }
+                  placeholder="Nombre del ejercicio"
+                />
+                <Input
+                  value={warmup[`warmup${key}_explanation`]}
+                  multiline={true}
+                  numberOfLines={4}
+                  scrollEnabled={true}
+                  onChange={(text) =>
+                    setWarmup((prev) => ({
+                      ...prev,
+                      [`warmup${key}_explanation`]: text,
+                    }))
+                  }
+                  placeholder="Explicación del ejercicio"
+                />
+              </View>
             </View>
-            <View className="w-1/3">
-              <Input
-                label={"Fecha"}
-                value={date}
-                onChange={setDate}
-                keyboardType="numeric"
-                placeholder="DD/MM/AAAA"
-                type="date"
-                wrongMsg={wrongDate}
-              />
-            </View>
-          </View>
-          <View className="w-full flex flex-col px-2">
-            <Text className="font-bold mt-5 text-danish-light-gray px-4">
-              Entrada en calor
-            </Text>
-            <View className="w-full rounded-lg bg-danish-dark-gray border border-danish-red shadow-lg shadow-danish-red flex flex-row flex-wrap py-2 justify-center items-center">
-              {[1, 2, 3].map((key, index) => (
-                <View
-                  key={key}
-                  className="w-2/5 flex flex-col bg-gray-900 shadow shadow-danish-red rounded-xl mx-2 my-2 p-2"
-                >
-                  <Text className="text-danish-white font-bold text-sm mb-2">
-                    Calentamiento {key}
-                  </Text>
-                  <View className="w-full flex flex-col">
-                    <Input
-                      value={warmup[`warmup${key}`]}
-                      onChange={(text) =>
-                        setWarmup((prev) => ({
-                          ...prev,
-                          [`warmup${key}`]: text,
-                        }))
-                      }
-                      placeholder="Nombre del ejercicio"
-                    />
-                    <Input
-                      value={warmup[`warmup${key}_explanation`]}
-                      multiline={true}
-                      numberOfLines={4}
-                      scrollEnabled={true}
-                      onChange={(text) =>
-                        setWarmup((prev) => ({
-                          ...prev,
-                          [`warmup${key}_explanation`]: text,
-                        }))
-                      }
-                      placeholder="Explicación del ejercicio"
-                    />
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
+          ))}
+        </View>
+      </View>
 
-          <View className="w-full flex flex-col px-2">
-            <Text className="font-bold mt-5 text-danish-light-gray px-4">
-              Principal
-            </Text>
-            <View className="w-full rounded-lg bg-danish-dark-gray border border-danish-red shadow-lg shadow-danish-red flex flex-row flex-wrap py-2 justify-center items-center">
-              {[1, 2, 3, 4, 5, 6].map((key, index) => (
-                <View
-                  key={key}
-                  className="w-2/5 flex flex-col bg-gray-900 shadow shadow-danish-red rounded-xl mx-2 my-2 p-2"
-                >
-                  <Text className="text-danish-white font-bold text-sm mb-2">
-                    Ejercicio {key}
-                  </Text>
-                  <View className="w-full flex flex-col">
-                    <Input
-                      value={exercise[`exercise${key}`]}
-                      onChange={(text) =>
-                        setExercise((prev) => ({
-                          ...prev,
-                          [`exercise${key}`]: text,
-                        }))
-                      }
-                      placeholder="Nombre del ejercicio"
-                    />
-                    <Input
-                      value={exercise[`exercise${key}_explanation`]}
-                      multiline={true}
-                      numberOfLines={4}
-                      scrollEnabled={true}
-                      onChange={(text) =>
-                        setExercise((prev) => ({
-                          ...prev,
-                          [`exercise${key}_explanation`]: text,
-                        }))
-                      }
-                      placeholder="Explicación del ejercicio"
-                    />
-                  </View>
-                </View>
-              ))}
+      <View className="w-full flex flex-col px-2">
+        <Text className="font-bold mt-5 text-danish-light-gray px-4">
+          Principal
+        </Text>
+        <View className="w-full rounded-lg bg-danish-dark-gray border border-danish-red shadow-lg shadow-danish-red flex flex-row flex-wrap py-2 justify-center items-center">
+          {[1, 2, 3, 4, 5, 6].map((key, index) => (
+            <View
+              key={key}
+              className="w-2/5 flex flex-col bg-gray-900 shadow shadow-danish-red rounded-xl mx-2 my-2 p-2"
+            >
+              <Text className="text-danish-white font-bold text-sm mb-2">
+                Ejercicio {key}
+              </Text>
+              <View className="w-full flex flex-col">
+                <Input
+                  value={exercise[`exercise${key}`]}
+                  onChange={(text) =>
+                    setExercise((prev) => ({
+                      ...prev,
+                      [`exercise${key}`]: text,
+                    }))
+                  }
+                  placeholder="Nombre del ejercicio"
+                />
+                <Input
+                  value={exercise[`exercise${key}_explanation`]}
+                  multiline={true}
+                  numberOfLines={4}
+                  scrollEnabled={true}
+                  onChange={(text) =>
+                    setExercise((prev) => ({
+                      ...prev,
+                      [`exercise${key}_explanation`]: text,
+                    }))
+                  }
+                  placeholder="Explicación del ejercicio"
+                />
+              </View>
             </View>
-          </View>
+          ))}
+        </View>
+      </View>
 
-          <View className="w-full flex flex-col px-2">
-            <Text className="font-bold mt-5 text-danish-light-gray px-4">
-              Vuelta a la Calma
-            </Text>
-            <View className="w-full rounded-lg bg-danish-dark-gray border border-danish-red shadow-lg shadow-danish-red flex flex-row flex-wrap py-2 justify-center items-center">
-              {[1, 2].map((key, index) => (
-                <View
-                  key={key}
-                  className="w-2/5 flex flex-col bg-gray-900 shadow shadow-danish-red rounded-xl mx-2 my-2 p-2"
-                >
-                  <Text className="text-danish-white font-bold text-sm mb-2">
-                    Ejercicio {key}
-                  </Text>
-                  <View className="w-full flex flex-col">
-                    <Input
-                      value={cooldown[`cooldown${key}`]}
-                      onChange={(text) =>
-                        setCooldown((prev) => ({
-                          ...prev,
-                          [`cooldown${key}`]: text,
-                        }))
-                      }
-                      placeholder="Nombre del ejercicio"
-                    />
-                    <Input
-                      value={cooldown[`cooldown${key}_explanation`]}
-                      multiline={true}
-                      numberOfLines={4}
-                      scrollEnabled={true}
-                      onChange={(text) =>
-                        setCooldown((prev) => ({
-                          ...prev,
-                          [`cooldown${key}_explanation`]: text,
-                        }))
-                      }
-                      placeholder="Explicación del ejercicio"
-                    />
-                  </View>
-                </View>
-              ))}
+      <View className="w-full flex flex-col px-2 mb-24">
+        <Text className="font-bold mt-5 text-danish-light-gray px-4">
+          Vuelta a la Calma
+        </Text>
+        <View className="w-full rounded-lg bg-danish-dark-gray border border-danish-red shadow-lg shadow-danish-red flex flex-row flex-wrap py-2 justify-center items-center">
+          {[1, 2].map((key, index) => (
+            <View
+              key={key}
+              className="w-2/5 flex flex-col bg-gray-900 shadow shadow-danish-red rounded-xl mx-2 my-2 p-2"
+            >
+              <Text className="text-danish-white font-bold text-sm mb-2">
+                Ejercicio {key}
+              </Text>
+              <View className="w-full flex flex-col">
+                <Input
+                  value={cooldown[`cooldown${key}`]}
+                  onChange={(text) =>
+                    setCooldown((prev) => ({
+                      ...prev,
+                      [`cooldown${key}`]: text,
+                    }))
+                  }
+                  placeholder="Nombre del ejercicio"
+                />
+                <Input
+                  value={cooldown[`cooldown${key}_explanation`]}
+                  multiline={true}
+                  numberOfLines={4}
+                  scrollEnabled={true}
+                  onChange={(text) =>
+                    setCooldown((prev) => ({
+                      ...prev,
+                      [`cooldown${key}_explanation`]: text,
+                    }))
+                  }
+                  placeholder="Explicación del ejercicio"
+                />
+              </View>
             </View>
-          </View>
-        </ScrollView>
+          ))}
+        </View>
       </View>
     </View>
   );
