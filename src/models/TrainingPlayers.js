@@ -30,19 +30,6 @@ export const TrainingPlayersModel = (dbInstance) => ({
       );
     }
   },
-  getAll: async (trainingId) => {
-    try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM trainings_players WHERE training_id = ?;`,
-        [trainingId]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        "No se ha podido obtener las Asistencias a Entrenamientos"
-      );
-    }
-  },
   getAllByPlayer: async (playerId) => {
     try {
       return await dbInstance.getAllAsync(
@@ -54,18 +41,6 @@ export const TrainingPlayersModel = (dbInstance) => ({
       throw new Error(
         "No se ha podido obtener las Asistencias a Entrenamientos"
       );
-    }
-  },
-
-  create: async (data) => {
-    try {
-      await dbInstance.runAsync(
-        "INSERT INTO trainings_players (training_id, player_id, notes, assistance) VALUES (?, ?, ?, ?);",
-        [data.training_id, data.player_id, data.notes, data.assistance]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido guardar la asistencia al entrenamiento");
     }
   },
   update: async (data) => {
@@ -81,18 +56,6 @@ export const TrainingPlayersModel = (dbInstance) => ({
       console.error(error);
       throw new Error(
         "No se ha podido actualizar la asistencia al entrenamiento"
-      );
-    }
-  },
-  delete: async (id) => {
-    try {
-      await dbInstance.runAsync("DELETE FROM trainings_players WHERE id = ?;", [
-        id,
-      ]);
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        "No se ha podido eliminar la asistencia al entrenamiento"
       );
     }
   },

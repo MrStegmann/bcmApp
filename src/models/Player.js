@@ -17,20 +17,6 @@ export const PlayerModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Jugadores");
     }
   },
-  get: async (data) => {
-    const sqlStatment =
-      data?.teamId && data?.playerId
-        ? `SELECT * FROM players WHERE team_id = ? AND id = ?;`
-        : `SELECT * FROM players WHERE team_id = ?;`;
-    const params =
-      data?.teamId && data?.playerId ? Object.entries(data) : [data.teamId];
-    try {
-      return await dbInstance.getAllAsync(sqlStatment, params);
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener a los Jugadores");
-    }
-  },
   save: async (data) => {
     const sqlStatment = data?.id
       ? `UPDATE players SET team_id = ?, first_name = ?, last_name = ?, number= ?  WHERE id = ?;`

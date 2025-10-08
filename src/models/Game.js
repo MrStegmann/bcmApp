@@ -19,17 +19,6 @@ export const GameModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de los Partidos");
     }
   },
-  getAll: async (teamId) => {
-    try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM games WHERE team_id = ?;`,
-        [teamId]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido crear los Partidos");
-    }
-  },
   save: async (data) => {
     const sqlStatment = data?.id
       ? `UPDATE games SET team_id = ?, opponent = ?, round = ?, date = ?, played = ? WHERE id = ?;`

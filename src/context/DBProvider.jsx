@@ -6,13 +6,10 @@ import { PlayerModel } from "../models/Player";
 import { GameModel } from "../models/Game";
 import { GameRosterModel } from "../models/GameRoster";
 import { PlayerStatsModel } from "../models/PlayerStats";
-import { FeeModel } from "../models/Fee";
 import { TrainingsModel } from "../models/Training";
 import { TrainingPlayersModel } from "../models/TrainingPlayers";
-import { GamePlayerDTO } from "../dtos/GamePlayerDTO";
 import { PlayersStatsDTO } from "../dtos/PlayersStatsDTO";
 import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
-import { PlayerFeeDTO } from "../dtos/PlayerFeeDTO";
 import { useAlertStore } from "../store/AlertStore";
 import { GameResults } from "../models/GameResults";
 import { GameResultsOpponent } from "../models/GameResultsOpponent";
@@ -41,7 +38,6 @@ const DBProvider = ({ children }) => {
         await GameResults(dbInstance).createTable();
         await GameResultsOpponent(dbInstance).createTable();
         await PlayerStatsModel(dbInstance).createTable();
-        await FeeModel(dbInstance).createTable();
         await TrainingsModel(dbInstance).createTable();
         await TrainingPlayersModel(dbInstance).createTable();
 
@@ -53,7 +49,6 @@ const DBProvider = ({ children }) => {
           GameResults: GameResults(dbInstance),
           GameResultsOpponent: GameResultsOpponent(dbInstance),
           PlayerStatsModel: PlayerStatsModel(dbInstance),
-          FeeModel: FeeModel(dbInstance),
           TrainingsModel: TrainingsModel(dbInstance),
           TrainingPlayersModel: TrainingPlayersModel(dbInstance),
         };
@@ -63,10 +58,8 @@ const DBProvider = ({ children }) => {
         setModels(models);
 
         setDTOs({
-          GamePlayerDTO: GamePlayerDTO(dbInstance),
           PlayersStatsDTO: PlayersStatsDTO(dbInstance),
           TrainingPlayerDTO: TrainingPlayerDTO(dbInstance),
-          PlayerFeeDTO: PlayerFeeDTO(dbInstance),
           GameResultsDTO: GameResultsDTO(dbInstance),
         });
       } catch (error) {
@@ -105,14 +98,6 @@ const DBProvider = ({ children }) => {
 
   const GameController = useMemo(() => {
     return {
-      load: async (teamId) => {
-        try {
-          return await models?.GameModel.getAll(teamId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
       loadCalledup: async (gameId) => {
         try {
           return await models?.GameRosterModel.getAllByCalled(gameId);
@@ -145,13 +130,6 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-      addCalledup: async (data) => {
-        try {
-          await models?.GameRosterModel.create(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
       save: async (data) => {
         try {
           await models?.GameModel.save(data);
@@ -180,30 +158,10 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      editGameResult: async (data) => {
-        try {
-          await models?.GameResults.update(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      editGameResultOpponent: async (data) => {
-        try {
-          await models?.GameResultsOpponent.update(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
+
       remove: async (id) => {
         try {
           await models?.GameModel.delete(id);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      removeCalledupByGame: async (gameId) => {
-        try {
-          await models?.GameRosterModel.deleteByGame(gameId);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -213,36 +171,9 @@ const DBProvider = ({ children }) => {
 
   const PlayerController = useMemo(() => {
     return {
-      load: async (teamId, playerId) => {
-        try {
-          return await models?.PlayerModel.get({ teamId, playerId });
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
-      loadFees: async (playerId) => {
-        try {
-          return await dtos?.PlayerFeeDTO.getPlayerFees(playerId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
       loadStats: async (playerId) => {
         try {
           return await dtos?.PlayersStatsDTO.getTotalByPlayer(playerId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
-      loadPlayerStats: async (playerId, gameId) => {
-        try {
-          return await dtos?.PlayersStatsDTO.getByGameAndPlayer(
-            playerId,
-            gameId
-          );
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
           return [];
@@ -276,14 +207,6 @@ const DBProvider = ({ children }) => {
 
   const PlayerStatsController = useMemo(() => {
     return {
-      load: async (gameId) => {
-        try {
-          return await models?.PlayerStatsModel.getAll(gameId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
       loadByPlayer: async (playerId) => {
         try {
           return await models?.PlayerStatsModel.getAllByPlayer(playerId);
@@ -303,62 +226,6 @@ const DBProvider = ({ children }) => {
       save: async (data) => {
         try {
           await models?.PlayerStatsModel.save(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      remove: async (id) => {
-        try {
-          await models?.PlayerStatsModel.delete(id);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-    };
-  }, [models, dtos]);
-
-  const FeesController = useMemo(() => {
-    return {
-      load: async (teamId) => {
-        try {
-          return await models?.FeeModel.getAll(teamId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
-      loadFeesByGame: async (teamId) => {
-        try {
-          return await dtos?.PlayerFeeDTO.getTeamFees(teamId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
-      add: async (team_id, player_id, season, month) => {
-        try {
-          await models?.FeeModel.create({ team_id, season, month, player_id });
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      edit: async (id, team_id, player_id, season, month, paid) => {
-        try {
-          await models?.FeeModel.update({
-            id,
-            team_id,
-            player_id,
-            season,
-            month,
-            paid,
-          });
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      remove: async (id) => {
-        try {
-          await models?.FeeModel.delete(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -403,14 +270,6 @@ const DBProvider = ({ children }) => {
 
   const TraningPlayersController = useMemo(() => {
     return {
-      load: async (trainingId) => {
-        try {
-          return await models?.TrainingPlayersModel.getAll(trainingId);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-          return [];
-        }
-      },
       loadByPlayer: async (playerId) => {
         try {
           return await models?.TrainingPlayersModel.getAllByPlayer(playerId);
@@ -419,23 +278,9 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
-      add: async (data) => {
-        try {
-          await models?.TrainingPlayersModel.create(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
       edit: async (data) => {
         try {
           await models?.TrainingPlayersModel.update(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      remove: async (id) => {
-        try {
-          await models?.TrainingPlayersModel.delete(id);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
@@ -450,7 +295,6 @@ const DBProvider = ({ children }) => {
         GameController,
         PlayerController,
         PlayerStatsController,
-        FeesController,
         TrainingController,
         TraningPlayersController,
       }}

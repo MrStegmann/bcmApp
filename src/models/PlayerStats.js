@@ -29,17 +29,6 @@ export const PlayerStatsModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Estadísticas");
     }
   },
-  getAll: async (gameId) => {
-    try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM players_stats WHERE game_id = ?;`,
-        [gameId]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener las Estadísticas");
-    }
-  },
   getAllByPlayer: async (playerId) => {
     try {
       return await dbInstance.getAllAsync(
@@ -113,16 +102,6 @@ export const PlayerStatsModel = (dbInstance) => ({
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido guardar las estadísticas del jugador");
-    }
-  },
-  delete: async (id) => {
-    try {
-      await dbInstance.runAsync("DELETE FROM players_stats WHERE id = ?;", [
-        [id],
-      ]);
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido eliminar las estadísticas del jugador");
     }
   },
 });

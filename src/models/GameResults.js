@@ -30,17 +30,6 @@ export const GameResults = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de resultados");
     }
   },
-  getAll: async (gameId) => {
-    try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM game_results WHERE game_id = ?;`,
-        [gameId]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido crear los Partidos");
-    }
-  },
   save: async (data) => {
     const sqlStatment = data.id
       ? `UPDATE game_results SET game_id = ?, result_c1 = ?, result_c2 = ?, result_c3 = ?, result_c4 = ?, result_extra = ?, falts_c1 = ?, falts_c2 = ?, falts_c3 = ?, falts_c4 = ?, falts_extra = ? WHERE id = ?;`
@@ -57,17 +46,6 @@ export const GameResults = (dbInstance) => ({
       console.error(error);
       throw new Error(
         `Ha ocurrido un error al intentar guardar el partido contra ${data.opponent}`
-      );
-    }
-  },
-
-  delete: async (id) => {
-    try {
-      await dbInstance.runAsync(`DELETE FROM game_results WHERE id = ?;`, [id]);
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Ha ocurrido un error al intentar eliminar los resultados del partido`
       );
     }
   },

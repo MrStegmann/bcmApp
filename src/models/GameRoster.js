@@ -27,17 +27,6 @@ export const GameRosterModel = (dbInstance) => ({
       throw new Error("No se ha podido crear la tabla de Convocatorias");
     }
   },
-  getAll: async (gameId) => {
-    try {
-      return await dbInstance.getAllAsync(
-        `SELECT * FROM game_roster WHERE game_id = ?;`,
-        [gameId]
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error("No se ha podido obtener las Convocatorias");
-    }
-  },
   getAllByCalled: async (gameId) => {
     try {
       return await dbInstance.getAllAsync(
@@ -57,30 +46,6 @@ export const GameRosterModel = (dbInstance) => ({
       throw new Error("No se ha podido obtener las Convocatorias");
     }
   },
-  create: async (data) => {
-    try {
-      let query = "";
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) query += "(?, ?, ?)";
-        else query += ",(?, ?, ?)";
-      }
-
-      const params = [];
-      for (const player of data) {
-        params.push(player.game_id);
-        params.push(player.player_id);
-      }
-      await dbInstance.runAsync(
-        `INSERT INTO game_roster (game_id, player_id, called) VALUES ${query};`,
-        params
-      );
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Ha ocurrido un error al intentar guardar la convocatoria`
-      );
-    }
-  },
   update: async (data) => {
     try {
       await dbInstance.runAsync(
@@ -91,16 +56,6 @@ export const GameRosterModel = (dbInstance) => ({
       console.error(error);
       throw new Error(
         `Ha ocurrido un error al intentar actualizar la convocatoria`
-      );
-    }
-  },
-  delete: async (id) => {
-    try {
-      await dbInstance.runAsync(`DELETE FROM game_roster WHERE id = ?;`, [id]);
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Ha ocurrido un error al intentar eliminar la convocatoria`
       );
     }
   },
