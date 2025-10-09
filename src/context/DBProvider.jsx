@@ -14,8 +14,6 @@ import { useAlertStore } from "../store/AlertStore";
 import { GameResults } from "../models/GameResults";
 import { GameResultsOpponent } from "../models/GameResultsOpponent";
 import { GameResultsDTO } from "../dtos/GameResultsDTO";
-import { dropAllTables } from "../test/dropTables";
-import { CreaTeam } from "../test/CreateTeam";
 
 const DBContext = createContext();
 
@@ -28,8 +26,6 @@ const DBProvider = ({ children }) => {
     const initDb = async () => {
       try {
         const dbInstance = await SQLite.openDatabaseAsync("bcm.app.db");
-
-        await dropAllTables(dbInstance);
 
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
