@@ -30,11 +30,9 @@ export function TeamModel(dbInstance) {
     },
     save: async (data) => {
       const sqlStatment = data?.id
-        ? `UPDATE teams SET name = ?, options = ? WHERE id = ?;`
+        ? `UPDATE teams SET name = ? WHERE id = ?;`
         : `INSERT INTO teams (name) VALUES (?);`;
-      const params = data?.id
-        ? [data.name, data.options, data.id]
-        : Object.values(data);
+      const params = data?.id ? [data.name, data.id] : [data.name];
       try {
         await dbInstance.runAsync(sqlStatment, params);
       } catch (error) {

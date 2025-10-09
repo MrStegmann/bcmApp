@@ -23,10 +23,10 @@ export const GameModel = (dbInstance) => ({
     const sqlStatment = data?.id
       ? `UPDATE games SET team_id = ?, opponent = ?, round = ?, date = ?, played = ? WHERE id = ?;`
       : `INSERT INTO games (team_id, opponent, round, date) VALUES (?, ?, ?, ?);`;
-    const { id, ...rest } = data;
+    const { id, team_id, opponent, round, date, played } = data;
     const params = data?.id
-      ? [...Object.values(rest), data.id]
-      : Object.values(rest);
+      ? [team_id, opponent, round, date, played, id]
+      : [team_id, opponent, round, date];
     try {
       await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {

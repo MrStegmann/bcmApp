@@ -67,7 +67,6 @@ const GameList = ({ onReturn }) => {
   };
 
   const handleSaveGame = async (data) => {
-    setGames([]);
     await GameController.save(data);
     setCreateGame(false);
     setGameSelected(null);

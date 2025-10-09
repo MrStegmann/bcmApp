@@ -37,10 +37,48 @@ export const GameResultsOpponent = (dbInstance) => ({
       ? `UPDATE game_results_opponent SET game_id = ?, result_c1_opponent = ?, result_c2_opponent = ?, result_c3_opponent = ?, result_c4_opponent = ?, result_extra_opponent = ?,falts_c1_opponent = ?, falts_c2_opponent = ?, falts_c3_opponent = ?, falts_c4_opponent = ?, falts_extra_opponent = ? WHERE id = ?;`
       : `INSERT INTO game_results_opponent (game_id, result_c1_opponent, result_c2_opponent, result_c3_opponent, result_c4_opponent, result_extra_opponent, falts_c1_opponent, falts_c2_opponent, falts_c3_opponent, falts_c4_opponent, falts_extra_opponent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-    const { id, ...rest } = data;
+    const {
+      id,
+      game_id,
+      result_c1_opponent,
+      result_c2_opponent,
+      result_c3_opponent,
+      result_c4_opponent,
+      result_extra_opponent,
+      falts_c1_opponent,
+      falts_c2_opponent,
+      falts_c3_opponent,
+      falts_c4_opponent,
+      falts_extra_opponent,
+    } = data;
     const params = data?.id
-      ? [...Object.values(rest), data.id]
-      : Object.values(rest);
+      ? [
+          game_id,
+          result_c1_opponent,
+          result_c2_opponent,
+          result_c3_opponent,
+          result_c4_opponent,
+          result_extra_opponent,
+          falts_c1_opponent,
+          falts_c2_opponent,
+          falts_c3_opponent,
+          falts_c4_opponent,
+          falts_extra_opponent,
+          id,
+        ]
+      : [
+          game_id,
+          result_c1_opponent,
+          result_c2_opponent,
+          result_c3_opponent,
+          result_c4_opponent,
+          result_extra_opponent,
+          falts_c1_opponent,
+          falts_c2_opponent,
+          falts_c3_opponent,
+          falts_c4_opponent,
+          falts_extra_opponent,
+        ];
 
     try {
       await dbInstance.runAsync(sqlStatment, params);

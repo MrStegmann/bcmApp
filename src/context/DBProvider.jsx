@@ -53,8 +53,6 @@ const DBProvider = ({ children }) => {
           TrainingPlayersModel: TrainingPlayersModel(dbInstance),
         };
 
-        await CreaTeam(models);
-
         setModels(models);
 
         setDTOs({

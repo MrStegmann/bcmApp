@@ -2,7 +2,7 @@
   "expo": {
     "name": "Basket Club Manager",
     "slug": "bcmApp",
-    "version": "1.0.0",
+    "version": "Beta-1.2.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

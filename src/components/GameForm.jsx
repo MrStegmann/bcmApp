@@ -42,7 +42,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">PTS</Text>
-            <Text className="text-danish-white">{`${playerInf.total_pts}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_pts || 0}`}</Text>
           </View>
           <View className="w-full flex flex-row justify-between">
             <Text className="text-danish-white">Faltas</Text>
@@ -52,7 +52,7 @@ const PlayerCard = ({ playerInf, onCall, isCalled }) => {
         <View className="w-1/4">
           <View className="w-full flex flex-col justify-center items-center">
             <Text className="text-danish-white">Val</Text>
-            <Text className="text-danish-white">{`${playerInf.total_val}`}</Text>
+            <Text className="text-danish-white">{`${playerInf.total_val || 0}`}</Text>
           </View>
         </View>
       </View>
@@ -96,6 +96,7 @@ const GameForm = ({ gameData, onSubmit, onCancel }) => {
     }, 25);
     return () => clearTimeout(timeout);
   }, [opponent, round, date, calledup]);
+
   useEffect(() => {
     if (gameData) {
       setOpponent(gameData.opponent);
@@ -122,13 +123,13 @@ const GameForm = ({ gameData, onSubmit, onCancel }) => {
     if (date === "") setWrongDate("Debe instroducir la fecha del partido");
     if (round === "") setWrongRound("Debe instroducir la jornada del partido");
     if ([opponent, date, round].includes("")) return;
-
     onSubmit({
       ...(gameData?.id != null && { id: gameData?.id }),
       team_id: club.id,
       opponent,
       round,
       date,
+      played: gameData?.played,
     });
   };
 

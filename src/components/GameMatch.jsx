@@ -154,9 +154,22 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     await Promise.all(
       newPlayers.map((player) =>
         PlayerStatsController.save({
+          ...(player?.statId != null && { id: player?.statId }),
           game_id: data.id,
           player_id: player.player_id,
-          ...player,
+          minutes: player.minutes,
+          asis: player.asis,
+          dreb: player.dreb,
+          falt: player.falt,
+          oreb: player.oreb,
+          per: player.per,
+          rec: player.rec,
+          t1a: player.t1a,
+          t1i: player.t1i,
+          t2a: player.t2a,
+          t2i: player.t2i,
+          t3a: player.t3a,
+          t3i: player.t3i,
         })
       )
     );

@@ -148,7 +148,7 @@ const PlayerStat = React.memo(({ player, setPlayers, index }) => {
         <StatCounter
           key={key}
           statKey={key}
-          currentValue={player[key]}
+          currentValue={player[key] || 0}
           increment={addStat}
           decrement={substractStat}
         />
@@ -357,6 +357,7 @@ const GameDetail = ({ data, onSave, onReturn }) => {
       opponent: data.opponent,
       round: data.round,
       date: data.date,
+      played: data.played,
     });
     await GameController.saveResults({
       id: data.result_id,
@@ -393,10 +394,22 @@ const GameDetail = ({ data, onSave, onReturn }) => {
     await Promise.all(
       newPlayers.map((player) =>
         PlayerStatsController.save({
-          id: player.statId,
+          ...(player?.statId != null && { id: player?.statId }),
           game_id: data.id,
           player_id: player.player_id,
-          ...player,
+          minutes: player.minutes,
+          asis: player.asis,
+          dreb: player.dreb,
+          falt: player.falt,
+          oreb: player.oreb,
+          per: player.per,
+          rec: player.rec,
+          t1a: player.t1a,
+          t1i: player.t1i,
+          t2a: player.t2a,
+          t2i: player.t2i,
+          t3a: player.t3a,
+          t3i: player.t3i,
         })
       )
     );

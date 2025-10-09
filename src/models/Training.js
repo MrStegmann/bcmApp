@@ -110,7 +110,33 @@ export const TrainingsModel = (dbInstance) => ({
           data.cooldown2_explanation,
           data.id,
         ]
-      : Object.values(data);
+      : [
+          data.team_id,
+          data.training_number,
+          data.date,
+          data.warmup1,
+          data.warmup1_explanation,
+          data.warmup2,
+          data.warmup2_explanation,
+          data.warmup3,
+          data.warmup3_explanation,
+          data.exercise1,
+          data.exercise1_explanation,
+          data.exercise2,
+          data.exercise2_explanation,
+          data.exercise3,
+          data.exercise3_explanation,
+          data.exercise4,
+          data.exercise4_explanation,
+          data.exercise5,
+          data.exercise5_explanation,
+          data.exercise6,
+          data.exercise6_explanation,
+          data.cooldown1,
+          data.cooldown1_explanation,
+          data.cooldown2,
+          data.cooldown2_explanation,
+        ];
     try {
       await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {

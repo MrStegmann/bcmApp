@@ -57,7 +57,7 @@ const GamesResults = React.memo(({ games }) => {
             size={30}
             color="gray"
           />
-          <Text className="text-lg font-bold text-danish-light-gray px-16">
+          <Text className="text-lg text-center font-bold text-danish-light-gray px-16">
             Parece que no hay registros recientes que mostrar...
           </Text>
         </View>

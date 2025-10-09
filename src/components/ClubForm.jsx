@@ -51,7 +51,7 @@ export default function ClubForm({ onSubmit, clubData, onReturn }) {
   };
 
   return (
-    <View className="w-full h-full px-2 gap-5">
+    <View className="w-full flex-1 h-full px-2 gap-5">
       <Input
         placeholder="Nombre del Equipo"
         value={name}

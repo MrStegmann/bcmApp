@@ -1,6 +1,6 @@
 {
   "name": "bcmapp",
-  "version": "BETA-1.2.1",
+  "version": "Beta-1.2.4",
   "main": "index.js",
   "scripts": {
     "start": "npx expo start -c",

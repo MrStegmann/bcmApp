@@ -35,10 +35,48 @@ export const GameResults = (dbInstance) => ({
       ? `UPDATE game_results SET game_id = ?, result_c1 = ?, result_c2 = ?, result_c3 = ?, result_c4 = ?, result_extra = ?, falts_c1 = ?, falts_c2 = ?, falts_c3 = ?, falts_c4 = ?, falts_extra = ? WHERE id = ?;`
       : `INSERT INTO game_results (game_id, result_c1, result_c2, result_c3, result_c4, result_extra, falts_c1, falts_c2, falts_c3, falts_c4, falts_extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-    const { id, ...rest } = data;
+    const {
+      id,
+      game_id,
+      result_c1,
+      result_c2,
+      result_c3,
+      result_c4,
+      result_extra,
+      falts_c1,
+      falts_c2,
+      falts_c3,
+      falts_c4,
+      falts_extra,
+    } = data;
     const params = data?.id
-      ? [...Object.values(rest), data.id]
-      : Object.values(rest);
+      ? [
+          game_id,
+          result_c1,
+          result_c2,
+          result_c3,
+          result_c4,
+          result_extra,
+          falts_c1,
+          falts_c2,
+          falts_c3,
+          falts_c4,
+          falts_extra,
+          id,
+        ]
+      : [
+          game_id,
+          result_c1,
+          result_c2,
+          result_c3,
+          result_c4,
+          result_extra,
+          falts_c1,
+          falts_c2,
+          falts_c3,
+          falts_c4,
+          falts_extra,
+        ];
 
     try {
       await dbInstance.runAsync(sqlStatment, params);

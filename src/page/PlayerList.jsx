@@ -24,6 +24,7 @@ const PlayerList = ({ onReturn }) => {
 
   useEffect(() => {
     setMainMenu();
+    getData();
   }, []);
 
   useEffect(() => {
