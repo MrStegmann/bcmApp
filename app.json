@@ -16,6 +16,11 @@
       "supportsTablet": true
     },
     "android": {
+      "icon": "./assets/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "edgeToEdgeEnabled": true,
       "package": "com.patrickjs.bcmApp"
     },

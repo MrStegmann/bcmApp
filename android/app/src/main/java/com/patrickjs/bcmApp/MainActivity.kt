@@ -1,4 +1,4 @@
-package com.basketclubmanager
+package com.patrickjs.bcmApp
 
 import android.os.Build
 import android.os.Bundle
