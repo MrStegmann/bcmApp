@@ -3,21 +3,9 @@ import { View, Text, FlatList } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const CardGamesResults = ({ game }) => {
-  const result =
-    game.result_c1 +
-    game.result_c2 +
-    game.result_c3 +
-    game.result_c4 +
-    game.result_extra;
-  const resultOpponent =
-    game.result_c1_opponent +
-    game.result_c2_opponent +
-    game.result_c3_opponent +
-    game.result_c4_opponent +
-    game.result_extra_opponent;
   return (
     <View
-      className={`w-full my-1 px-2 py-3 flex flex-row justify-between items-center rounded-lg shadow-inner border-2 bg-danish-dark-gray ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+      className={`w-full my-1 px-2 py-3 flex flex-row justify-between items-center rounded-lg shadow-inner border-2 bg-danish-dark-gray ${game.total_result > game.total_result_opponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
     >
       <View className="w-1/3 flex flex-col justify-center items-center">
         <Text className="text-center text-xs text-danish-white">
@@ -33,11 +21,11 @@ const CardGamesResults = ({ game }) => {
 
       <View className="w-1/3 flex-row justify-center items-center">
         <Text className="font-bold text-sm text-danish-white">
-          {`${result}`}
+          {`${game.total_result}`}
         </Text>
         <Text className="mx-2 font-bold text-sm text-danish-white">-</Text>
         <Text className="font-bold text-sm text-danish-white">
-          {`${resultOpponent}`}
+          {`${game.total_result_opponent}`}
         </Text>
       </View>
     </View>

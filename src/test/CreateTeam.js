@@ -50,6 +50,24 @@ export async function CreaTeam(models) {
       date: "10/10/2025",
       played: true,
     });
+    for (let i = 1; i < 6; i++) {
+      await models.QuarterResultsModel.save([
+        {
+          game_id: 1,
+          is_opponent: 0,
+          quarter_num: i,
+          result: 20,
+          falts: 3,
+        },
+        {
+          game_id: 1,
+          is_opponent: 1,
+          quarter_num: i,
+          result: 15,
+          falts: 4,
+        },
+      ]);
+    }
     for (let i = 1; i < 11; i++) {
       await models.GameRosterModel.update({
         called: true,
@@ -82,6 +100,24 @@ export async function CreaTeam(models) {
       date: "15/10/2025",
       played: true,
     });
+    for (let i = 1; i < 6; i++) {
+      await models.QuarterResultsModel.save([
+        {
+          game_id: 2,
+          is_opponent: 0,
+          quarter_num: i,
+          result: 20,
+          falts: 3,
+        },
+        {
+          game_id: 2,
+          is_opponent: 1,
+          quarter_num: i,
+          result: 15,
+          falts: 4,
+        },
+      ]);
+    }
     for (let i = 1; i < 11; i++) {
       await models.GameRosterModel.update({
         called: true,

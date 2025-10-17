@@ -3,45 +3,32 @@ export const GameResultsDTO = (dbInstance) => ({
     try {
       return await dbInstance.getAllAsync(
         `
-            SELECT
-                g.*,
-                gr.id AS result_id,
-                gr.result_c1, 
-                gr.result_c2, 
-                gr.result_c3,
-                gr.result_c4,
-                gr.result_extra,
-                gr.falts_c1,
-                gr.falts_c2,
-                gr.falts_c3,
-                gr.falts_c4,
-                gr.falts_extra,
-                gro.id AS result_id_opponent,
-                gro.result_c1_opponent, 
-                gro.result_c2_opponent, 
-                gro.result_c3_opponent,
-                gro.result_c4_opponent,
-                gro.result_extra_opponent,
-                gro.falts_c1_opponent,
-                gro.falts_c2_opponent,
-                gro.falts_c3_opponent,
-                gro.falts_c4_opponent,
-                gro.falts_extra_opponent
-            FROM
-                games g
-            JOIN
-                game_results gr ON g.id = gr.game_id
-            JOIN
-                game_results_opponent gro ON g.id = gro.game_id
-            WHERE
-                g.team_id = ?;
-            `,
+          SELECT
+            g.*,
+            
+            -- Tu Equipo (is_opponent = 0)
+            SUM(CASE WHEN qs.is_opponent = 0 THEN qs.result ELSE 0 END) AS total_result,
+            SUM(CASE WHEN qs.is_opponent = 0 THEN qs.falts ELSE 0 END) AS total_falts,
+            
+            -- Oponente (is_opponent = 1)
+            SUM(CASE WHEN qs.is_opponent = 1 THEN qs.result ELSE 0 END) AS total_result_opponent,
+            SUM(CASE WHEN qs.is_opponent = 1 THEN qs.falts ELSE 0 END) AS total_falts_opponent
+            
+          FROM
+            games g
+          LEFT JOIN
+            quarter_results qs ON g.id = qs.game_id
+          WHERE
+            g.team_id = ?
+          GROUP BY
+            g.id, g.team_id, g.opponent, g.round, g.date, g.played;
+      `,
         [teamId]
       );
     } catch (error) {
       console.error(error);
       throw new Error(
-        "No se ha podido obtener la información del jugador y su convocación"
+        "No se ha podido obtener la información de los resultados del partido."
       );
     }
   },
@@ -49,48 +36,35 @@ export const GameResultsDTO = (dbInstance) => ({
     try {
       return await dbInstance.getAllAsync(
         `
-        SELECT
+          SELECT
             g.*,
-            gr.id AS result_id,
-            gr.result_c1, 
-            gr.result_c2, 
-            gr.result_c3,
-            gr.result_c4,
-            gr.result_extra,
-            gr.falts_c1,
-            gr.falts_c2,
-            gr.falts_c3,
-            gr.falts_c4,
-            gr.falts_extra,
-            gro.id AS result_id_opponent,
-            gro.result_c1_opponent, 
-            gro.result_c2_opponent, 
-            gro.result_c3_opponent,
-            gro.result_c4_opponent,
-            gro.result_extra_opponent,
-            gro.falts_c1_opponent,
-            gro.falts_c2_opponent,
-            gro.falts_c3_opponent,
-            gro.falts_c4_opponent,
-            gro.falts_extra_opponent
-        FROM
+            
+            -- Tu Equipo (is_opponent = 0)
+            SUM(CASE WHEN qs.is_opponent = 0 THEN qs.result ELSE 0 END) AS total_result,
+            SUM(CASE WHEN qs.is_opponent = 0 THEN qs.falts ELSE 0 END) AS total_falts,
+            
+            -- Oponente (is_opponent = 1)
+            SUM(CASE WHEN qs.is_opponent = 1 THEN qs.result ELSE 0 END) AS total_result_opponent,
+            SUM(CASE WHEN qs.is_opponent = 1 THEN qs.falts ELSE 0 END) AS total_falts_opponent
+            
+          FROM
             games g
-        JOIN
-            game_results gr ON g.id = gr.game_id
-        JOIN
-            game_results_opponent gro ON g.id = gro.game_id
-        WHERE
+          LEFT JOIN
+            quarter_results qs ON g.id = qs.game_id
+          WHERE
             g.team_id = ?
-        ORDER BY
+          GROUP BY
+            g.id, g.team_id, g.opponent, g.round, g.date, g.played 
+          ORDER BY
             g.date DESC
-        LIMIT 3;
+          LIMIT 3;
       `,
         [teamId]
       );
     } catch (error) {
       console.error(error);
       throw new Error(
-        "No se ha podido obtener la información del jugador y su convocación"
+        "No se ha podido obtener la información de los últimos resultados."
       );
     }
   },

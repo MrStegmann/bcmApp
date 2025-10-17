@@ -3,6 +3,13 @@
     "version": ">= 3.19.2"
   },
   "build": {
+    "local": {
+      "distribution": "internal",
+      "developmentClient": false,
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "preview": {
       "distribution": "internal",
       "android": {
@@ -16,6 +23,7 @@
       }
     }
   },
+
   "submit": {
     "production": {}
   }

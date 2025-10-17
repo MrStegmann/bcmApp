@@ -11,6 +11,7 @@ import { timeFormat } from "../helpers/timeFormat";
 import StatsEnums from "../Enums/StatsEnums";
 import QuartersEnums from "../Enums/QuartersEnums";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { createDefaultMarker } from "../helpers/CreateDefaultMarket";
 
 // --- Componente Auxiliar para Contadores Genéricos (Rebotes, Asistencias, Pérdidas) ---
 
@@ -57,15 +58,6 @@ const STATS_CONFIG = [
   StatsEnums.rec,
   StatsEnums.per,
 ];
-
-const marker = { team: 0, opponent: 0 };
-const defaultMarker = {
-  c1: { ...marker },
-  c2: { ...marker },
-  c3: { ...marker },
-  c4: { ...marker },
-  extra: { ...marker },
-};
 
 const quarters = [...Object.values(QuartersEnums)];
 
@@ -283,8 +275,8 @@ const GameDetail = ({ data, onSave, onReturn }) => {
   const { GameController, PlayerStatsController } = useDB();
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
-  const [result, setResult] = useState(defaultMarker);
-  const [teamFalt, setTeamFalt] = useState(defaultMarker);
+  const [result, setResult] = useState(createDefaultMarker());
+  const [teamFalt, setTeamFalt] = useState(createDefaultMarker());
   const [players, setPlayers] = useState(null);
 
   useEffect(() => {
@@ -300,23 +292,34 @@ const GameDetail = ({ data, onSave, onReturn }) => {
   }, []);
 
   useEffect(() => {
-    setResult({
-      c1: { team: data.result_c1, opponent: data.result_c1_opponent },
-      c2: { team: data.result_c2, opponent: data.result_c2_opponent },
-      c3: { team: data.result_c3, opponent: data.result_c3_opponent },
-      c4: { team: data.result_c4, opponent: data.result_c4_opponent },
-      extra: {
-        team: data.result_extra,
-        opponent: data.result_extra_opponent,
-      },
-    });
-    setTeamFalt({
-      c1: { team: data.falts_c1, opponent: data.falts_c1_opponent },
-      c2: { team: data.falts_c2, opponent: data.falts_c2_opponent },
-      c3: { team: data.falts_c3, opponent: data.falts_c3_opponent },
-      c4: { team: data.falts_c4, opponent: data.falts_c4_opponent },
-      extra: { team: data.falts_extra, opponent: data.falts_extra_opponent },
-    });
+    async function getQuarterResults() {
+      const newResult = createDefaultMarker();
+      const newTeamFalts = createDefaultMarker();
+      const quartersData = await GameController.getQuarters(data.id);
+
+      const setQuarter = (quarter, isOpponent, resultValue, faltValue) => {
+        if (isOpponent === 0) {
+          newResult[quarter].team = resultValue;
+          newTeamFalts[quarter].team = faltValue;
+        } else {
+          newResult[quarter].opponent = resultValue;
+          newTeamFalts[quarter].opponent = faltValue;
+        }
+      };
+      for (const quarter of quartersData) {
+        setQuarter(
+          quarter.quarter_num === 5
+            ? QuartersEnums.extra
+            : `c${quarter.quarter_num}`,
+          quarter.is_opponent,
+          quarter.result,
+          quarter.falts
+        );
+      }
+      setResult(newResult);
+      setTeamFalt(newTeamFalts);
+    }
+    getQuarterResults();
 
     getRoaster();
   }, [data]);
@@ -359,34 +362,79 @@ const GameDetail = ({ data, onSave, onReturn }) => {
       date: data.date,
       played: data.played,
     });
-    await GameController.saveResults({
-      id: data.result_id,
-      game_id: data.id,
-      result_c1: result.c1.team,
-      result_c2: result.c2.team,
-      result_c3: result.c3.team,
-      result_c4: result.c4.team,
-      result_extra: result.extra.team,
-      falts_c1: teamFalt.c1.team,
-      falts_c2: teamFalt.c2.team,
-      falts_c3: teamFalt.c3.team,
-      falts_c4: teamFalt.c4.team,
-      falts_extra: teamFalt.extra.team,
-    });
-    await GameController.saveOpponentResults({
-      id: data.result_id_opponent,
-      game_id: data.id,
-      result_c1_opponent: result.c1.opponent,
-      result_c2_opponent: result.c2.opponent,
-      result_c3_opponent: result.c3.opponent,
-      result_c4_opponent: result.c4.opponent,
-      result_extra_opponent: result.extra.opponent,
-      falts_c1_opponent: teamFalt.c1.opponent,
-      falts_c2_opponent: teamFalt.c2.opponent,
-      falts_c3_opponent: teamFalt.c3.opponent,
-      falts_c4_opponent: teamFalt.c4.opponent,
-      falts_extra_opponent: teamFalt.extra.opponent,
-    });
+    await GameController.saveQuarter([
+      {
+        game_id: data.id,
+        is_opponent: 0,
+        quarter_num: 1,
+        result: result.c1.team,
+        falts: teamFalt.c1.team,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 0,
+        quarter_num: 2,
+        result: result.c2.team,
+        falts: teamFalt.c2.team,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 0,
+        quarter_num: 3,
+        result: result.c3.team,
+        falts: teamFalt.c3.team,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 0,
+        quarter_num: 4,
+        result: result.c4.team,
+        falts: teamFalt.c4.team,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 0,
+        quarter_num: 5,
+        result: result.extra.team,
+        falts: teamFalt.extra.team,
+      },
+
+      {
+        game_id: data.id,
+        is_opponent: 1,
+        quarter_num: 1,
+        result: result.c1.opponent,
+        falts: teamFalt.c1.opponent,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 1,
+        quarter_num: 2,
+        result: result.c2.opponent,
+        falts: teamFalt.c2.opponent,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 1,
+        quarter_num: 3,
+        result: result.c3.opponent,
+        falts: teamFalt.c3.opponent,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 1,
+        quarter_num: 4,
+        result: result.c4.opponent,
+        falts: teamFalt.c4.opponent,
+      },
+      {
+        game_id: data.id,
+        is_opponent: 1,
+        quarter_num: 5,
+        result: result.extra.opponent,
+        falts: teamFalt.extra.opponent,
+      },
+    ]);
 
     const newPlayers = [...Object.values(players)];
 

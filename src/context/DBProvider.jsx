@@ -11,28 +11,43 @@ import { TrainingPlayersModel } from "../models/TrainingPlayers";
 import { PlayersStatsDTO } from "../dtos/PlayersStatsDTO";
 import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
 import { useAlertStore } from "../store/AlertStore";
-import { GameResults } from "../models/GameResults";
-import { GameResultsOpponent } from "../models/GameResultsOpponent";
 import { GameResultsDTO } from "../dtos/GameResultsDTO";
+import { dropAllTables } from "../test/dropTables";
+import { CreaTeam } from "../test/CreateTeam";
+import { QuarterResults } from "../models/QuarterResults";
 
 const DBContext = createContext();
+
+let dbInstance = null;
+
+export const getDb = async () => {
+  if (dbInstance) return dbInstance;
+
+  dbInstance = await SQLite.openDatabaseAsync("bcm.app.db");
+  return dbInstance;
+};
 
 const DBProvider = ({ children }) => {
   const addAlert = useAlertStore((state) => state.addAlert);
   const [models, setModels] = useState(null);
   const [dtos, setDTOs] = useState(null);
 
+  let initialized = false;
+
   useEffect(() => {
-    const initDb = async () => {
+    const initDB = async () => {
       try {
-        const dbInstance = await SQLite.openDatabaseAsync("bcm.app.db");
+        if (models && dtos) return; // evita reejecución
+
+        const dbInstance = await getDb();
+
+        await dropAllTables(dbInstance);
 
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
         await GameModel(dbInstance).createTable();
         await GameRosterModel(dbInstance).createTable();
-        await GameResults(dbInstance).createTable();
-        await GameResultsOpponent(dbInstance).createTable();
+        await QuarterResults(dbInstance).createTable();
         await PlayerStatsModel(dbInstance).createTable();
         await TrainingsModel(dbInstance).createTable();
         await TrainingPlayersModel(dbInstance).createTable();
@@ -42,8 +57,7 @@ const DBProvider = ({ children }) => {
           PlayerModel: PlayerModel(dbInstance),
           GameModel: GameModel(dbInstance),
           GameRosterModel: GameRosterModel(dbInstance),
-          GameResults: GameResults(dbInstance),
-          GameResultsOpponent: GameResultsOpponent(dbInstance),
+          QuarterResultsModel: QuarterResults(dbInstance),
           PlayerStatsModel: PlayerStatsModel(dbInstance),
           TrainingsModel: TrainingsModel(dbInstance),
           TrainingPlayersModel: TrainingPlayersModel(dbInstance),
@@ -60,7 +74,13 @@ const DBProvider = ({ children }) => {
         addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
       }
     };
-    initDb();
+
+    const start = async () => {
+      if (initialized) return;
+      initialized = true;
+      await initDB();
+    };
+    start();
   }, []);
 
   const TeamController = useMemo(() => {
@@ -116,6 +136,14 @@ const DBProvider = ({ children }) => {
           return [];
         }
       },
+      getQuarters: async (gameId) => {
+        try {
+          return await models?.QuarterResultsModel.getByGameId(gameId);
+        } catch (error) {
+          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
+          return [];
+        }
+      },
       getRoasterStats: async (gameId) => {
         try {
           return await dtos?.PlayersStatsDTO.getByRoaster(gameId);
@@ -131,16 +159,9 @@ const DBProvider = ({ children }) => {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }
       },
-      saveResults: async (data) => {
+      saveQuarter: async (data) => {
         try {
-          await models?.GameResults.save(data);
-        } catch (error) {
-          addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
-        }
-      },
-      saveOpponentResults: async (data) => {
-        try {
-          await models?.GameResultsOpponent.save(data);
+          await models?.QuarterResultsModel.save(data);
         } catch (error) {
           addAlert({ msg: error.message, lifetime: 2500, id: Date.now() });
         }

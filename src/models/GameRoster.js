@@ -12,16 +12,18 @@ export const GameRosterModel = (dbInstance) => ({
         );`);
 
       await dbInstance.execAsync(`CREATE TRIGGER IF NOT EXISTS create_game_roster
-        AFTER INSERT ON games
-        FOR EACH ROW
-        BEGIN
-          INSERT INTO game_roster (game_id, player_id)
-            SELECT
-                NEW.id,
-                p.id
-            FROM players p
-            WHERE p.team_id = NEW.team_id;
-        END;`);
+      AFTER INSERT ON games
+      FOR EACH ROW
+      BEGIN
+        INSERT INTO game_roster (game_id, player_id)
+          SELECT NEW.id, p.id
+          FROM players p
+          WHERE p.team_id = NEW.team_id
+            AND NOT EXISTS (
+              SELECT 1 FROM game_roster
+              WHERE game_id = NEW.id AND player_id = p.id
+            );
+      END;`);
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido crear la tabla de Convocatorias");

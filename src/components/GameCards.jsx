@@ -2,18 +2,6 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, View, TouchableOpacity, FlatList } from "react-native";
 
 const Cards = ({ game, onSelect, onEdit, onDelete, onPlay }) => {
-  const result =
-    game.result_c1 +
-    game.result_c2 +
-    game.result_c3 +
-    game.result_c4 +
-    game.result_extra;
-  const resultOpponent =
-    game.result_c1_opponent +
-    game.result_c2_opponent +
-    game.result_c3_opponent +
-    game.result_c4_opponent +
-    game.result_extra_opponent;
   return (
     <TouchableOpacity
       key={game.id}
@@ -21,7 +9,7 @@ const Cards = ({ game, onSelect, onEdit, onDelete, onPlay }) => {
       className="my-2 active:shadow-inner shadow-danish-red bg-transparent z-10 hover:bg-danish-red active:bg-danish-red"
     >
       <View
-        className={`w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg  border ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+        className={`w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg  border ${game.total_result > game.total_result_opponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
       >
         <View className="w-[75%] flex flex-row justify-between items-center">
           <View className="flex flex-col">
@@ -39,7 +27,7 @@ const Cards = ({ game, onSelect, onEdit, onDelete, onPlay }) => {
           </View>
           <View className="flex flex-col">
             <Text className="text-xs text-danish-white text-center">
-              {result} - {resultOpponent}
+              {game.total_result || 0} - {game.total_result_opponent || 0}
             </Text>
           </View>
         </View>
