@@ -6,7 +6,7 @@ import { useAlertStore } from "../store/AlertStore";
 import { Entypo } from "@expo/vector-icons";
 import useDB from "../hooks/useDB";
 
-const playerStats = {
+const playerStats = () => ({
   t1a: 0,
   t1i: 0,
   t2a: 0,
@@ -20,14 +20,15 @@ const playerStats = {
   rec: 0,
   per: 0,
   minutes: 0,
-};
+});
+
 const SHOTS_KEY = ["1a", "1i", "2a", "2i", "3a", "3i"];
 
 const BenchPlayer = React.memo(({ playerInf, isInToQuintet, onSelect }) => {
   return (
     <TouchableOpacity
       className={`border rounded-lg w-22 py-1 px-2 ${isInToQuintet() ? "border-danish-gold" : "border-danish-red"}`}
-      onPress={() => onSelect(playerInf.id)}
+      onPress={() => onSelect(playerInf.player_id)}
     >
       <Text className="text-danish-white text-center text-xs">
         {`${playerInf.number} - ${playerInf.first_name}`}
@@ -57,11 +58,11 @@ const Quintet = React.memo(({ quarter }) => {
       matchStore.gameId
     );
 
-    // Crear objeto de jugadores con sus nombres, numeros, id y añadir stats y propiedad booleana de bench, para que el componente sepa si está jugando o no.
+    // Crear objeto de jugadores con sus nombres, numeros, id y añadir stats
     const players = {};
     for (const player of RESULT_CALLEDUP) {
       const { called, ...rest } = player;
-      const playerData = { stats: { ...playerStats }, ...rest };
+      const playerData = { stats: playerStats(), ...rest };
       players[playerData.player_id] = playerData;
     }
 
@@ -180,7 +181,7 @@ const Quintet = React.memo(({ quarter }) => {
   const actualQuintet = [...quintet.values()];
 
   return (
-    <View className="flex-1 h-full w-full flex flex-col justify-start items-start mt-3 relative">
+    <View className="flex-1 h-full w-full flex flex-col justify-start items-start mt-2 relative">
       <View
         className="w-full px-5 flex justify-start absolute"
         style={{ top: -30 }}
@@ -192,38 +193,38 @@ const Quintet = React.memo(({ quarter }) => {
           <Entypo name="swap" size={13} color="white" />
         </TouchableOpacity>
       </View>
-      <View className="w-[94%] mt-1 flex flex-row border-b border-danish-light-gray gap-1">
+      <View className="w-[94%] flex flex-row border-b border-danish-light-gray gap-1">
         <View className="w-28 px-1">
-          <Text className="text-danish-white text-sm">Nº - Nombre</Text>
+          <Text className="text-danish-white text-xs">Nº - Nombre</Text>
         </View>
         <View className="w-12 px-1">
-          <Text className="text-danish-white text-sm text-center">Mins</Text>
+          <Text className="text-danish-white text-xs text-center">Mins</Text>
         </View>
         <View className="w-12 px-1">
-          <Text className="text-danish-white text-sm text-center">Pts</Text>
+          <Text className="text-danish-white text-xs text-center">Pts</Text>
         </View>
         {SHOTS_KEY.map((t) => (
           <View key={`header-t${t}`} className="w-12 px-1">
-            <Text className="text-danish-white text-sm text-center">{`t${t}`}</Text>
+            <Text className="text-danish-white text-xs text-center">{`t${t}`}</Text>
           </View>
         ))}
         <View className="w-12 px-1">
-          <Text className="text-danish-white text-sm text-center">Falt</Text>
+          <Text className="text-danish-white text-xs text-center">Falt</Text>
         </View>
         <View className="w-14 px-px-1">
-          <Text className="text-danish-white text-sm text-center">DReb</Text>
+          <Text className="text-danish-white text-xs text-center">DReb</Text>
         </View>
         <View className="w-14 px-px-1">
-          <Text className="text-danish-white text-sm text-center">OReb</Text>
+          <Text className="text-danish-white text-xs text-center">OReb</Text>
         </View>
         <View className="w-12 px-px-1">
-          <Text className="text-danish-white text-sm text-center">Asis</Text>
+          <Text className="text-danish-white text-xs text-center">Asis</Text>
         </View>
         <View className="w-12 px-px-1">
-          <Text className="text-danish-white text-sm text-center">Rec</Text>
+          <Text className="text-danish-white text-xs text-center">Rec</Text>
         </View>
         <View className="w-12 px-px-1">
-          <Text className="text-danish-white text-sm text-center">Per</Text>
+          <Text className="text-danish-white text-xs text-center">Per</Text>
         </View>
       </View>
       <View className="w-[94%] my-1 flex flex-col">
@@ -237,7 +238,7 @@ const Quintet = React.memo(({ quarter }) => {
           />
         ))}
       </View>
-      <View className="w-[94%] my-1 flex flex-row">
+      <View className="w-[94%] flex flex-row">
         <FlatList
           data={actualBench}
           renderItem={({ item }) => (

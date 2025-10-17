@@ -185,7 +185,7 @@ const Quarter = React.memo(
           </TouchableOpacity>
         </View>
         {/* Resultado Parcial + Crono + Faltas de Equipo  */}
-        <View className="w-1/2 flex flex-row justify-between items-center mt-2">
+        <View className="w-1/2 flex flex-row justify-between items-center mt-1">
           <VisualFalts falts={teamFaltsStore.teamFalt[quarter]} />
           <Text className="text-danish-white text-xs font-bold text-center">
             {teamResultStore.teamResult[quarter]}
