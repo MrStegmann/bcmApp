@@ -65,6 +65,7 @@ const IconButton = ({ value, alt }) => {
       TopMenuEnums.ADD_NEW_TEAM,
       TopMenuEnums.EDIT_TEAM,
       TopMenuEnums.ADD_NEW_SESSION,
+      TopMenuEnums.ROTATE_SCREEN,
       "timer",
     ].includes(value)
   )

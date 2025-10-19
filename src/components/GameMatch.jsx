@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import * as NavigationBar from "expo-navigation-bar";
@@ -11,12 +11,13 @@ import {
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import useDB from "../hooks/useDB";
-import Quarter from "./Quarter";
 import QuartersEnums from "../Enums/QuartersEnums";
+import CronoMatch from "./Match/CronoMatch";
+import Quintet from "./Match/Quintet";
+import OpponentOptions from "./Match/OpponentOptions";
 
 const quarters = [...Object.values(QuartersEnums)];
-const quarterTimes = 10 * 60 * 1000;
-const extraTime = 5 * 60 * 1000;
+const getQuarterTime = (min) => min * 60 * 1000; // 10 minutos en milisegundos
 
 const GameMatch = ({ data, onReturn, onSave }) => {
   const { GameController, PlayerStatsController } = useDB();
@@ -45,12 +46,13 @@ const GameMatch = ({ data, onReturn, onSave }) => {
 
   const [time, setTime] = useState({
     // Contendrá los tiempos de cada parcial en milisegundos
-    c1: quarterTimes,
-    c2: quarterTimes,
-    c3: quarterTimes,
-    c4: quarterTimes,
-    extra: extraTime,
+    c1: getQuarterTime(10),
+    c2: getQuarterTime(10),
+    c3: getQuarterTime(10),
+    c4: getQuarterTime(10),
+    extra: getQuarterTime(5),
   });
+  const [lastTimeLeft, setLastTimeLeft] = useState(time.c1);
 
   // Cambia la orientación del móvil a apaisado y oculta la barra de navegación. Devuelve el estado retrato y la visibilidad de la barra de navegación cuando se desmonta el componente.
   // Carga los botones del menú
@@ -95,8 +97,30 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     onSave,
   ]);
 
+  const setFullScreen = async () => {
+    const orientation = await ScreenOrientation.getOrientationAsync();
+    if (
+      orientation !== ScreenOrientation.Orientation.LANDSCAPE_LEFT ||
+      orientation !== ScreenOrientation.Orientation.LANDSCAPE_RIGHT
+    ) {
+      // Si está en retrato, cambiar a apaisado
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.LANDSCAPE
+      );
+    }
+    if ((await NavigationBar.getVisibilityAsync()) === "visible") {
+      await NavigationBar.setVisibilityAsync("hidden");
+    }
+  };
+
   const mainMenu = () => {
     setTopMenu([
+      {
+        id: TopMenuEnums.ROTATE_SCREEN,
+        name: "Rotar pantalla",
+        onPress: setFullScreen,
+        icon: TopMenuEnums.ROTATE_SCREEN,
+      },
       {
         id: TopMenuEnums.SAVE,
         name: "Guardar",
@@ -254,7 +278,7 @@ const GameMatch = ({ data, onReturn, onSave }) => {
   return (
     <View className="flex-1 px-2 h-full w-full flex flex-col justify-center items-center">
       {/* Selección de parciales */}
-      <View className="w-full flex flex-row justify-center items-center">
+      <View className="w-full flex flex-row justify-start items-center relative">
         {quarters.map((q) => (
           <TouchableOpacity
             className={`p-1 w-10 border border-danish-red ${quarter === q ? "bg-danish-red" : "bg-danish-dark-gray"}`}
@@ -266,15 +290,29 @@ const GameMatch = ({ data, onReturn, onSave }) => {
             </Text>
           </TouchableOpacity>
         ))}
+        {/* Resultado Parcial + Crono + Faltas de Equipo  */}
+        <CronoMatch
+          time={time}
+          opponentResult={opponentResult}
+          setOpponentResult={setOpponentResult}
+          opponentFalts={opponentFalts}
+          setOpponentFalts={setOpponentFalts}
+          quarter={quarter}
+          setTime={handleSetTime}
+        />
+        <OpponentOptions
+          opponentResult={opponentResult}
+          setOpponentResult={setOpponentResult}
+          opponentFalts={opponentFalts}
+          setOpponentFalts={setOpponentFalts}
+          quarter={quarter}
+        />
       </View>
-      <Quarter
-        time={time}
-        opponentResult={opponentResult}
-        setOpponentResult={setOpponentResult}
-        opponentFalts={opponentFalts}
-        setOpponentFalts={setOpponentFalts}
+      <Quintet
         quarter={quarter}
-        setTime={handleSetTime}
+        time={time}
+        lastTimeLeft={lastTimeLeft}
+        setLastTimeLeft={setLastTimeLeft}
       />
     </View>
   );

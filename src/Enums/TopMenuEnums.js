@@ -13,4 +13,5 @@ export default {
   ADD_NEW_GAME: "basketball",
   SAVE: "save",
   CREATE: "CREATE",
+  ROTATE_SCREEN: "screen-rotation",
 };

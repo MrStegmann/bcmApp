@@ -1,9 +1,6 @@
 export function timeFormat(ms) {
-  if (ms >= 60000) {
-    const minutos = (ms / 60000).toFixed(0); // dos decimales, por ejemplo "1.25 min"
-    return `${minutos}'`;
-  } else {
-    const segundos = (ms / 1000).toFixed(0);
-    return `${segundos}"`;
-  }
+  const minuts = Math.floor(ms / 60000).toFixed(0);
+  const seconds = Math.floor((ms % 60000) / 1000).toFixed(1);
+
+  return `${minuts}:${seconds}`;
 }
