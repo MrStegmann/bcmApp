@@ -61,7 +61,7 @@ const Quintet = React.memo(
       matchPlayers.setPlayers(newplayers);
 
       setLastTimeLeft(time[quarter]);
-    }, [time, quarter]);
+    }, [time]);
 
     const getRoaster = async () => {
       const RESULT_CALLEDUP = await GameController.loadCalledup(

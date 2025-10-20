@@ -124,23 +124,6 @@ export async function CreaTeam(models) {
         game_id: 2,
         player_id: i,
       });
-      await models.PlayerStatsModel.save({
-        game_id: 2,
-        player_id: i,
-        minutes: 15 * 60 * 1000,
-        t1a: 2,
-        t1i: 4,
-        t2a: 3,
-        t2i: 4,
-        t3a: 4,
-        t3i: 8,
-        dreb: 4,
-        oreb: 1,
-        asis: 4,
-        rec: 2,
-        per: 4,
-        falt: 3,
-      });
     }
 
     await models.TrainingsModel.save({

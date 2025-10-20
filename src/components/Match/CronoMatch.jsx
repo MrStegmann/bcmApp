@@ -60,6 +60,11 @@ const CronoMatch = ({
       play();
     }
   };
+
+  const handleSetFinishCrono = () => {
+    setCrono(false);
+    setTime({ ...time, [quarter]: 0 });
+  };
   return (
     <View className="w-1/2 flex flex-row justify-between items-center mt-1 ml-5">
       <VisualFalts falts={teamFaltsStore.teamFalt[quarter]} />
@@ -77,7 +82,7 @@ const CronoMatch = ({
           initialTimeInMs={time[quarter]}
           animationDelay={0}
           animationDuration={0}
-          onFinish={setTime}
+          onFinish={handleSetFinishCrono}
           containerStyle={{
             display: "flex",
             justifyContent: "center",

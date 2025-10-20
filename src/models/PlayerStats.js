@@ -19,7 +19,8 @@ export const PlayerStatsModel = (dbInstance) => ({
         per INTEGER DEFAULT 0,
         falt INTEGER DEFAULT 0,
         FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE,
-        FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
+        FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE,
+        UNIQUE (game_id, player_id)
       );`);
       await dbInstance.execAsync(
         `CREATE INDEX IF NOT EXISTS idx_stats_player_id ON players_stats(player_id);`
@@ -41,6 +42,7 @@ export const PlayerStatsModel = (dbInstance) => ({
     }
   },
   save: async (data) => {
+    console.log(data);
     const {
       id,
       game_id,
@@ -99,6 +101,41 @@ export const PlayerStatsModel = (dbInstance) => ({
         ];
     try {
       await dbInstance.runAsync(sqlStatment, params);
+    } catch (error) {
+      console.error(error);
+      throw new Error("No se ha podido guardar las estadísticas del jugador");
+    }
+  },
+
+  saveMultiple: async (dataArray) => {
+    const sqlStatement = `
+        INSERT INTO players_stats (game_id, player_id, minutes, t1a, t1i, t2a, t2i, t3a, t3i, dreb, oreb, asis, rec, per, falt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(game_id, player_id) 
+        DO UPDATE SET minutes = excluded.minutes, t1a = excluded.t1a, t1i = excluded.t1i, t2a = excluded.t2a, t2i = excluded.t2i, t3a = excluded.t3a, t3i = excluded.t3i, dreb = excluded.dreb, oreb = excluded.oreb, asis = excluded.asis, rec = excluded.rec, per = excluded.per, falt = excluded.falt;
+    `;
+
+    try {
+      for (const data of dataArray) {
+        const params = [
+          data.game_id,
+          data.player_id,
+          data.minutes,
+          data.t1a,
+          data.t1i,
+          data.t2a,
+          data.t2i,
+          data.t3a,
+          data.t3i,
+          data.dreb,
+          data.oreb,
+          data.asis,
+          data.rec,
+          data.per,
+          data.falt,
+        ];
+        await dbInstance.runAsync(sqlStatement, params);
+      }
     } catch (error) {
       console.error(error);
       throw new Error("No se ha podido guardar las estadísticas del jugador");

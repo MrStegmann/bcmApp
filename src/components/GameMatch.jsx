@@ -46,7 +46,7 @@ const GameMatch = ({ data, onReturn, onSave }) => {
 
   const [time, setTime] = useState({
     // Contendrá los tiempos de cada parcial en milisegundos
-    c1: getQuarterTime(10),
+    c1: getQuarterTime(1),
     c2: getQuarterTime(10),
     c3: getQuarterTime(10),
     c4: getQuarterTime(10),
@@ -74,6 +74,10 @@ const GameMatch = ({ data, onReturn, onSave }) => {
       NavigationBar.setVisibilityAsync("visible");
     };
   }, []);
+
+  useEffect(() => {
+    setLastTimeLeft(time[quarter]);
+  }, [quarter]);
 
   useEffect(() => {
     const pts =
@@ -218,58 +222,16 @@ const GameMatch = ({ data, onReturn, onSave }) => {
         falts: opponentFalts.extra,
       },
     ]);
-    // await GameController.saveResults({
-    //   id: data.result_id,
-    //   game_id: data.id,
-    //   result_c1: teamResultStore.teamResult.c1,
-    //   result_c2: teamResultStore.teamResult.c2,
-    //   result_c3: teamResultStore.teamResult.c3,
-    //   result_c4: teamResultStore.teamResult.c4,
-    //   result_extra: teamResultStore.teamResult.extra,
-    //   falts_c1: teamFaltsStore.teamFalt.c1,
-    //   falts_c2: teamFaltsStore.teamFalt.c2,
-    //   falts_c3: teamFaltsStore.teamFalt.c3,
-    //   falts_c4: teamFaltsStore.teamFalt.c4,
-    //   falts_extra: teamFaltsStore.teamFalt.extra,
-    // });
-    // await GameController.saveOpponentResults({
-    //   id: data.result_id_opponent,
-    //   game_id: data.id,
-    //   result_c1_opponent: opponentResult.c1,
-    //   result_c2_opponent: opponentResult.c2,
-    //   result_c3_opponent: opponentResult.c3,
-    //   result_c4_opponent: opponentResult.c4,
-    //   result_extra_opponent: opponentResult.extra,
-    //   falts_c1_opponent: opponentFalts.c1,
-    //   falts_c2_opponent: opponentFalts.c2,
-    //   falts_c3_opponent: opponentFalts.c3,
-    //   falts_c4_opponent: opponentFalts.c4,
-    //   falts_extra_opponent: opponentFalts.extra,
-    // });
     const newPlayers = [...Object.values(matchPlayer.players)];
-    // Usar Promise.all para guardar en paralelo si la BBDD lo soporta
-    await Promise.all(
-      newPlayers.map((player) =>
-        PlayerStatsController.save({
-          ...(player?.statId != null && { id: player?.statId }),
-          game_id: data.id,
-          player_id: player.player_id,
-          minutes: player.minutes,
-          asis: player.asis,
-          dreb: player.dreb,
-          falt: player.falt,
-          oreb: player.oreb,
-          per: player.per,
-          rec: player.rec,
-          t1a: player.t1a,
-          t1i: player.t1i,
-          t2a: player.t2a,
-          t2i: player.t2i,
-          t3a: player.t3a,
-          t3i: player.t3i,
-        })
-      )
-    );
+
+    const statsToSave = newPlayers.map((player) => ({
+      ...(player?.statId != null && { id: player?.statId }),
+      game_id: data.id,
+      player_id: player.player_id,
+      ...player.stats,
+    }));
+
+    await PlayerStatsController.saveMultiple(statsToSave);
     onSave();
   };
 
