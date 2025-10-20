@@ -48,7 +48,6 @@ const TrainingDetail = ({ data }) => {
         title={`Asistencia`}
         information={
           <FlatList
-            scrollEnabled={false}
             data={trainingPlayers}
             renderItem={({ item }) => (
               <TrainingPlayer

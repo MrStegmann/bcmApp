@@ -41,8 +41,6 @@ const DBProvider = ({ children }) => {
 
         const dbInstance = await getDb();
 
-        await dropAllTables(dbInstance); // Sólo para desarrollo, elimina todas las tablas existentes.
-
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
         await GameModel(dbInstance).createTable();
@@ -64,8 +62,6 @@ const DBProvider = ({ children }) => {
         };
 
         await CreaTeam(models); // Sólo para desarrollo, crea un equipo de prueba.
-
-        setModels(models);
 
         setDTOs({
           PlayersStatsDTO: PlayersStatsDTO(dbInstance),
