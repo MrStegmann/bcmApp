@@ -12,8 +12,6 @@ import { PlayersStatsDTO } from "../dtos/PlayersStatsDTO";
 import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
 import { useAlertStore } from "../store/AlertStore";
 import { GameResultsDTO } from "../dtos/GameResultsDTO";
-import { dropAllTables } from "../test/dropTables";
-import { CreaTeam } from "../test/CreateTeam";
 import { QuarterResults } from "../models/QuarterResults";
 
 const DBContext = createContext();
@@ -41,8 +39,6 @@ const DBProvider = ({ children }) => {
 
         const dbInstance = await getDb();
 
-        await dropAllTables(dbInstance); // Sólo para desarrollo, elimina todas las tablas existentes.
-
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
         await GameModel(dbInstance).createTable();
@@ -62,8 +58,6 @@ const DBProvider = ({ children }) => {
           TrainingsModel: TrainingsModel(dbInstance),
           TrainingPlayersModel: TrainingPlayersModel(dbInstance),
         };
-
-        await CreaTeam(models); // Sólo para desarrollo, crea un equipo de prueba.
 
         setModels(models);
 
