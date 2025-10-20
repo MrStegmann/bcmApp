@@ -46,7 +46,7 @@ const GameMatch = ({ data, onReturn, onSave }) => {
 
   const [time, setTime] = useState({
     // Contendrá los tiempos de cada parcial en milisegundos
-    c1: getQuarterTime(1),
+    c1: getQuarterTime(10),
     c2: getQuarterTime(10),
     c3: getQuarterTime(10),
     c4: getQuarterTime(10),
