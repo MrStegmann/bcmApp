@@ -109,6 +109,18 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
     setPlayers((bef) => ({ ...bef, [index]: newPlayer }));
   };
 
+  const onChangeTime = (pickedDuration) => {
+    const totalMillis =
+      pickedDuration.minutes * 60000 + pickedDuration.seconds * 1000;
+    const newPlayer = { ...player, minutes: totalMillis };
+    setPlayers((bef) => ({ ...bef, [index]: newPlayer }));
+    setTime({
+      minutes: pickedDuration.minutes,
+      seconds: pickedDuration.seconds,
+    });
+    setShowPicker(false);
+  };
+
   const pts =
     (player.t1i || 0) * 1 + (player.t2i || 0) * 2 + (player.t3i || 0) * 3;
 
@@ -119,13 +131,7 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
         setIsVisible={setShowPicker}
         hideHours
         hideDays
-        onConfirm={(pickedDuration) => {
-          setTime({
-            minutes: pickedDuration.minutes,
-            seconds: pickedDuration.seconds,
-          });
-          setShowPicker(false);
-        }}
+        onConfirm={onChangeTime}
         onCancel={() => setShowPicker(false)}
         closeOnOverlayPress
         styles={{
