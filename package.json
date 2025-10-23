@@ -6,7 +6,8 @@
     "start": "npx expo start -c",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build": "npx eas build -p android --profile local"
   },
   "dependencies": {
     "expo": "54.0.13",
