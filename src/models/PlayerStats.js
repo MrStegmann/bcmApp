@@ -42,7 +42,6 @@ export const PlayerStatsModel = (dbInstance) => ({
     }
   },
   save: async (data) => {
-    console.log(data);
     const {
       id,
       game_id,

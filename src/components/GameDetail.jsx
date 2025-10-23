@@ -1,275 +1,17 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import useDB from "../hooks/useDB";
 import { useClubStore } from "../store/ClubStore";
-import { MaterialIcons } from "@expo/vector-icons";
-import * as ScreenOrientation from "expo-screen-orientation";
-import * as NavigationBar from "expo-navigation-bar";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import { timeFormat } from "../helpers/timeFormat";
-import StatsEnums from "../Enums/StatsEnums";
 import QuartersEnums from "../Enums/QuartersEnums";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { createDefaultMarker } from "../helpers/CreateDefaultMarket";
-
-// --- Componente Auxiliar para Contadores Genéricos (Rebotes, Asistencias, Pérdidas) ---
-
-const StatCounter = React.memo(
-  ({ statKey, currentValue, increment, decrement }) => {
-    return (
-      <View
-        className={`${["dreb", "oreb"].includes(statKey) ? "w-14" : "w-12"} flex flex-row justify-center items-center`}
-      >
-        <TouchableOpacity
-          style={{ width: 10, height: 25 }}
-          className="flex flex-row justify-center items-center rounded-full"
-          onPress={() => decrement(statKey)}
-        >
-          <MaterialIcons name="arrow-back-ios" size={10} color="white" />
-        </TouchableOpacity>
-        <Text className="text-danish-white text-sm text-center mr-2">
-          {currentValue}
-        </Text>
-        <TouchableOpacity
-          onPress={() => increment(statKey)}
-          style={{ width: 10, height: 25 }}
-          className="flex flex-row justify-center items-center rounded-full"
-        >
-          <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
-        </TouchableOpacity>
-      </View>
-    );
-  }
-);
-
-// --- Configuración de Estadísticas para mapeo ---
-const STATS_CONFIG = [
-  StatsEnums.t1a,
-  StatsEnums.t1i,
-  StatsEnums.t2a,
-  StatsEnums.t2i,
-  StatsEnums.t3a,
-  StatsEnums.t3i,
-  StatsEnums.falt,
-  StatsEnums.dreb,
-  StatsEnums.oreb,
-  StatsEnums.asis,
-  StatsEnums.rec,
-  StatsEnums.per,
-];
+import Marker from "./gamedetail/Marker";
+import PlayerStat from "./gamedetail/PlayerStat";
 
 const quarters = [...Object.values(QuartersEnums)];
-
-const PlayerStat = React.memo(({ player, setPlayers, index }) => {
-  if (!player) return null;
-
-  const addStat = (stat) => {
-    const newPlayer = { ...player };
-    const prev = newPlayer[stat];
-    if ([StatsEnums.t1a, StatsEnums.t2a, StatsEnums.t3a].includes(stat)) {
-      const shotI =
-        stat === StatsEnums.t1a
-          ? StatsEnums.t1i
-          : stat === StatsEnums.t2a
-            ? StatsEnums.t2i
-            : StatsEnums.t3i;
-      const prevI = newPlayer[shotI];
-      newPlayer[shotI] = prevI + 1;
-    }
-    if (stat === StatsEnums.minutes) {
-      newPlayer[stat] = prev < 60000 ? 60000 : prev + 60000;
-    } else {
-      newPlayer[stat] = prev + 1;
-    }
-
-    setPlayers((bef) => ({ ...bef, [index]: newPlayer }));
-  };
-  const substractStat = (stat) => {
-    const newPlayer = { ...player };
-    const prev = newPlayer[stat];
-    if ([StatsEnums.t1a, StatsEnums.t2a, StatsEnums.t3a].includes(stat)) {
-      const shotI =
-        stat === StatsEnums.t1a
-          ? StatsEnums.t1i
-          : stat === StatsEnums.t2a
-            ? StatsEnums.t2i
-            : StatsEnums.t3i;
-      const prevI = newPlayer[shotI];
-      newPlayer[shotI] = prevI - 1 < 0 ? 0 : prevI - 1;
-    }
-    if (stat === StatsEnums.minutes) {
-      newPlayer[stat] = prev - 60000 < 0 ? 0 : prev - 60000;
-    } else {
-      newPlayer[stat] = prev - 1 < 0 ? 0 : prev - 1;
-    }
-
-    setPlayers((bef) => ({ ...bef, [index]: newPlayer }));
-  };
-
-  const pts = player.t1a + player.t2a * 2 + player.t3a * 3;
-  const minuts = timeFormat(player.minutes);
-  return (
-    <View className="w-full my-1 flex flex-row items-center border-b border-danish-light-gray gap-1">
-      <View className="w-28 px-1">
-        <Text className={`text-sm text-danish-white`}>
-          {`${player.number} - ${player.first_name}`}
-        </Text>
-      </View>
-      <View className="w-12 px-1 flex flex-row justify-center items-center">
-        <TouchableOpacity
-          onPress={() => substractStat("minutes")}
-          style={{ width: 10, height: 25 }}
-          className="flex flex-row justify-center items-center rounded-full"
-        >
-          <MaterialIcons name="arrow-back-ios" size={10} color="white" />
-        </TouchableOpacity>
-        <Text className="text-danish-white text-sm text-center">{minuts}</Text>
-        <TouchableOpacity
-          onPress={() => addStat("minutes")}
-          style={{ width: 10, height: 25 }}
-          className="flex flex-row justify-center items-center rounded-full"
-        >
-          <MaterialIcons name="arrow-forward-ios" size={10} color="white" />
-        </TouchableOpacity>
-      </View>
-      <View className="w-12 px-1">
-        <Text className="text-danish-white text-sm text-center">{pts}</Text>
-      </View>
-      {STATS_CONFIG.map((key) => (
-        <StatCounter
-          key={key}
-          statKey={key}
-          currentValue={player[key] || 0}
-          increment={addStat}
-          decrement={substractStat}
-        />
-      ))}
-    </View>
-  );
-});
-
-const Marker = React.memo(({ quarter, result, setResult }) => {
-  const addResult = (team) => {
-    const newResult = { ...result };
-    const prev = newResult[quarter][team];
-    newResult[quarter][team] = prev + 1;
-
-    setResult(newResult);
-  };
-
-  const substractResult = (team) => {
-    const newResult = { ...result };
-    const prev = newResult[quarter][team];
-    newResult[quarter][team] = prev - 1 < 0 ? 0 : prev - 1;
-
-    setResult(newResult);
-  };
-  return (
-    <View className="flex flex-col w-full items-center mb-1">
-      <View className="w-full flex flex-row">
-        <View className="w-1/3 flex flex-row justify-center">
-          <TouchableOpacity
-            onPress={() => substractResult("team")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">-</Text>
-          </TouchableOpacity>
-          <Text className="text-danish-white text-sm mx-5">
-            {result[quarter].team}
-          </Text>
-          <TouchableOpacity
-            onPress={() => addResult("team")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">+</Text>
-          </TouchableOpacity>
-        </View>
-        <Text className="text-danish-white capitalize text-xs w-1/3 text-center">
-          {quarter}
-        </Text>
-        <View className="w-1/3 flex flex-row justify-center">
-          <TouchableOpacity
-            onPress={() => substractResult("opponent")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">-</Text>
-          </TouchableOpacity>
-          <Text className="text-danish-white text-sm mx-5">
-            {result[quarter].opponent}
-          </Text>
-          <TouchableOpacity
-            onPress={() => addResult("opponent")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">+</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-});
-
-const Falts = React.memo(({ quarter, result, setResult }) => {
-  const addResult = (team) => {
-    const newResult = { ...result };
-    const prev = newResult[quarter][team];
-    newResult[quarter][team] = prev + 1;
-
-    setResult(newResult);
-  };
-
-  const substractResult = (team) => {
-    const newResult = { ...result };
-    const prev = newResult[quarter][team];
-    newResult[quarter][team] = prev - 1 < 0 ? 0 : prev - 1;
-
-    setResult(newResult);
-  };
-  return (
-    <View className="flex flex-col w-full items-center mb-1">
-      <View className="w-full flex flex-row">
-        <View className="w-1/3 flex flex-row justify-center">
-          <TouchableOpacity
-            onPress={() => substractResult("team")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">-</Text>
-          </TouchableOpacity>
-          <Text className="text-danish-white text-sm mx-5">
-            {result[quarter].team}
-          </Text>
-          <TouchableOpacity
-            onPress={() => addResult("team")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">+</Text>
-          </TouchableOpacity>
-        </View>
-        <Text className="text-danish-white capitalize text-xs w-1/3 text-center">
-          {quarter}
-        </Text>
-        <View className="w-1/3 flex flex-row justify-center">
-          <TouchableOpacity
-            onPress={() => substractResult("opponent")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">-</Text>
-          </TouchableOpacity>
-          <Text className="text-danish-white text-sm mx-5">
-            {result[quarter].opponent}
-          </Text>
-          <TouchableOpacity
-            onPress={() => addResult("opponent")}
-            className="px-2 w-10 border border-danish-red bg-danish-dark-gray flex items-center justify-center"
-          >
-            <Text className="text-danish-white">+</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-});
 
 const GameDetail = ({ data, onSave, onReturn }) => {
   const { GameController, PlayerStatsController } = useDB();
@@ -278,18 +20,7 @@ const GameDetail = ({ data, onSave, onReturn }) => {
   const [result, setResult] = useState(createDefaultMarker());
   const [teamFalt, setTeamFalt] = useState(createDefaultMarker());
   const [players, setPlayers] = useState(null);
-
-  useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    NavigationBar.setVisibilityAsync("hidden");
-
-    mainMenu();
-
-    return () => {
-      ScreenOrientation.unlockAsync();
-      NavigationBar.setVisibilityAsync("visible");
-    };
-  }, []);
+  const [playerSelected, setPlayerSelected] = useState(null);
 
   useEffect(() => {
     async function getQuarterResults() {
@@ -435,32 +166,28 @@ const GameDetail = ({ data, onSave, onReturn }) => {
         falts: teamFalt.extra.opponent,
       },
     ]);
-
     const newPlayers = [...Object.values(players)];
 
-    // Usar Promise.all para guardar en paralelo si la BBDD lo soporta
-    await Promise.all(
-      newPlayers.map((player) =>
-        PlayerStatsController.save({
-          ...(player?.statId != null && { id: player?.statId }),
-          game_id: data.id,
-          player_id: player.player_id,
-          minutes: player.minutes,
-          asis: player.asis,
-          dreb: player.dreb,
-          falt: player.falt,
-          oreb: player.oreb,
-          per: player.per,
-          rec: player.rec,
-          t1a: player.t1a,
-          t1i: player.t1i,
-          t2a: player.t2a,
-          t2i: player.t2i,
-          t3a: player.t3a,
-          t3i: player.t3i,
-        })
-      )
-    );
+    const statsToSave = newPlayers.map((player) => ({
+      ...(player?.statId != null && { id: player?.statId }),
+      game_id: player.game_id,
+      player_id: player.player_id,
+      minutes: player.minutes,
+      t1a: player.t1a,
+      t1i: player.t1i,
+      t2a: player.t2a,
+      t2i: player.t2i,
+      t3a: player.t3a,
+      t3i: player.t3i,
+      dreb: player.dreb,
+      oreb: player.oreb,
+      asis: player.asis,
+      rec: player.rec,
+      per: player.per,
+      falt: player.falt,
+    }));
+
+    await PlayerStatsController.saveMultiple(statsToSave);
     onSave();
   };
 
@@ -488,122 +215,76 @@ const GameDetail = ({ data, onSave, onReturn }) => {
     result.c4.opponent +
     result.extra.opponent;
 
-  const totalFaltsTeam =
-    teamFalt.c1.team +
-    teamFalt.c2.team +
-    teamFalt.c3.team +
-    teamFalt.c4.team +
-    teamFalt.extra.team;
-
-  const totalFaltsOpponent =
-    teamFalt.c1.opponent +
-    teamFalt.c2.opponent +
-    teamFalt.c3.opponent +
-    teamFalt.c4.opponent +
-    teamFalt.extra.opponent;
-
   const toMapPlayers = players ? [...Object.entries(players)] : [];
   return (
-    <View className="flex-1 px-2 h-full w-full flex flex-col justify-center items-center">
-      <View className="w-full justify-between flex flex-row">
-        <View className="w-1/2 flex flex-col mb-5">
-          <View className="w-full flex flex-row justify-between">
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              {club.name}
-            </Text>
-            <Text className="text-danish-white text-xs w-1/3 text-center">
-              vs
-            </Text>
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              {data.opponent}
-            </Text>
-          </View>
-
-          {quarters.map((q) => (
-            <Marker key={q} quarter={q} result={result} setResult={setResult} />
-          ))}
-
-          <View className="w-full flex flex-row justify-between mt-5">
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              {totalTeam}
-            </Text>
-            <Text className="text-danish-white text-xs w-1/3 text-center">
-              -
-            </Text>
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              {totalOpponent}
-            </Text>
-          </View>
+    <View className="flex-1 px-2 h-full w-full flex flex-col justify-center items-center relative">
+      {playerSelected && (
+        <PlayerStat
+          player={players[playerSelected]}
+          index={playerSelected}
+          setPlayers={setPlayers}
+          onClose={() => setPlayerSelected(null)}
+        />
+      )}
+      <View className="w-full flex flex-col justify-center items-center">
+        <View className="w-full flex flex-row justify-between">
+          <Text className="text-danish-white text-sm w-1/3 text-center">
+            {club.name}
+          </Text>
+          <Text className="text-danish-white text-xs w-1/3 text-center">
+            vs
+          </Text>
+          <Text className="text-danish-white text-sm w-1/3 text-center">
+            {data.opponent}
+          </Text>
         </View>
-        <View className="w-1/2 flex flex-col mb-5">
-          <View className="w-full flex flex-row justify-between">
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              Faltas {club.name}
-            </Text>
-            <Text className="text-danish-white text-xs w-1/3 text-center">
-              -
-            </Text>
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              Faltas {data.opponent}
-            </Text>
-          </View>
 
-          {quarters.map((q) => (
-            <Falts
-              key={q}
-              quarter={q}
-              result={teamFalt}
-              setResult={setTeamFalt}
-            />
-          ))}
+        {quarters.map((q) => (
+          <Marker
+            key={q}
+            quarter={q}
+            result={result}
+            setResult={setResult}
+            teamFalt={teamFalt}
+            setTeamFalt={setTeamFalt}
+          />
+        ))}
 
-          <View className="w-full flex flex-row justify-between mt-5">
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              {totalFaltsTeam}
-            </Text>
-            <Text className="text-danish-white text-xs w-1/3 text-center">
-              -
-            </Text>
-            <Text className="text-danish-white text-sm w-1/3 text-center">
-              {totalFaltsOpponent}
-            </Text>
-          </View>
+        <View className="w-full flex flex-row justify-between mt-5">
+          <Text className="text-danish-white text-sm w-1/3 text-center">
+            {totalTeam}
+          </Text>
+          <Text className="text-danish-white text-xs w-1/3 text-center">-</Text>
+          <Text className="text-danish-white text-sm w-1/3 text-center">
+            {totalOpponent}
+          </Text>
         </View>
       </View>
 
       {/* Stats de jugadores */}
-      <View className="w-full mt-1 flex flex-row border-b border-danish-light-gray gap-1">
-        <View className="w-28 px-1">
-          <Text className="text-danish-white text-sm">Nº - Nombre</Text>
-        </View>
-        <View className="w-12 px-1">
-          <Text className="text-danish-white text-sm text-center">Mins</Text>
-        </View>
-        <View className="w-12 px-1">
-          <Text className="text-danish-white text-sm text-center">Pts</Text>
-        </View>
-        {STATS_CONFIG.map((t) => (
-          <View
-            key={`header-${t}`}
-            className={`${[StatsEnums.dreb, StatsEnums.oreb].includes(t) ? "w-14" : "w-12"} px-1`}
-          >
-            <Text className="text-danish-white text-sm text-center capitalize">
-              {t}
-            </Text>
-          </View>
-        ))}
-      </View>
       {players ? (
-        <View className="w-full mt-1 flex flex-col mb-12">
+        <View className="w-full mt-1 flex flex-row flex-wrap mb-24">
           <FlatList
             scrollEnabled={false}
             data={toMapPlayers}
             renderItem={({ item }) => (
-              <PlayerStat
-                player={item[1]}
-                index={item[0]}
-                setPlayers={setPlayers}
-              />
+              <TouchableOpacity
+                onPress={() => setPlayerSelected(item[0])}
+                className="my-2 flex flex-row justify-between px-2 py-1 border border-danish-red rounded-xl"
+              >
+                <Text className="text-danish-white">
+                  {item[1].number + " - " + item[1].first_name}
+                </Text>
+                <Text className="text-danish-white">
+                  {(item[1].t1i || 0) * 1 +
+                    (item[1].t2i || 0) * 2 +
+                    (item[1].t3i || 0) * 3 +
+                    " pts"}
+                </Text>
+                <Text className="text-danish-white">
+                  {timeFormat(item[1].minutes)} mins
+                </Text>
+              </TouchableOpacity>
             )}
             keyExtractor={(item) => item[0]}
           />
