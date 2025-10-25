@@ -122,7 +122,7 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
   };
 
   const pts =
-    (player.t1i || 0) * 1 + (player.t2i || 0) * 2 + (player.t3i || 0) * 3;
+    (player.t1a || 0) * 1 + (player.t2a || 0) * 2 + (player.t3a || 0) * 3;
 
   return (
     <View className="w-full flex-1 bg-danish-dark-gray z-10 my-1 flex flex-col items-center absolute border border-danish-red rounded-xl">

@@ -102,7 +102,9 @@ export const PlayerStatsModel = (dbInstance) => ({
       await dbInstance.runAsync(sqlStatment, params);
     } catch (error) {
       console.error(error);
-      throw new Error("No se ha podido guardar las estadísticas del jugador");
+      throw new Error(
+        "No se ha podido guardar las estadísticas del jugador: " + error
+      );
     }
   },
 
@@ -137,7 +139,9 @@ export const PlayerStatsModel = (dbInstance) => ({
       }
     } catch (error) {
       console.error(error);
-      throw new Error("No se ha podido guardar las estadísticas del jugador");
+      throw new Error(
+        "No se ha podido guardar las estadísticas del jugador: " + error
+      );
     }
   },
 });
