@@ -276,9 +276,9 @@ const GameDetail = ({ data, onSave, onReturn }) => {
                   {item[1].number + " - " + item[1].first_name}
                 </Text>
                 <Text className="text-danish-white">
-                  {(item[1].t1i || 0) * 1 +
-                    (item[1].t2i || 0) * 2 +
-                    (item[1].t3i || 0) * 3 +
+                  {(item[1].t1a || 0) * 1 +
+                    (item[1].t2a || 0) * 2 +
+                    (item[1].t3a || 0) * 3 +
                     " pts"}
                 </Text>
                 <Text className="text-danish-white">
