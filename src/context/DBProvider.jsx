@@ -41,8 +41,6 @@ const DBProvider = ({ children }) => {
 
         const dbInstance = await getDb();
 
-        await dropAllTables(dbInstance);
-
         await TeamModel(dbInstance).createTable();
         await PlayerModel(dbInstance).createTable();
         await GameModel(dbInstance).createTable();
