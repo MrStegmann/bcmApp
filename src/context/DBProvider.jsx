@@ -13,6 +13,8 @@ import { TrainingPlayerDTO } from "../dtos/TrainingPlayerDTO";
 import { useAlertStore } from "../store/AlertStore";
 import { GameResultsDTO } from "../dtos/GameResultsDTO";
 import { QuarterResults } from "../models/QuarterResults";
+import { dropAllTables } from "../test/dropTables";
+import { CreaTeam } from "../test/CreateTeam";
 
 const DBContext = createContext();
 

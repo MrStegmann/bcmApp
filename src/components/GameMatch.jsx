@@ -69,6 +69,10 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     //indico de que el partido se está jugando
     matchStore.setPlaying(true);
 
+    teamFaltsStore.resetTeamFalt();
+    teamResultStore.resetTeamResult();
+    matchStore.setResults({ team: 0, opponent: 0 });
+
     return () => {
       ScreenOrientation.unlockAsync();
       NavigationBar.setVisibilityAsync("visible");
@@ -232,6 +236,9 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     }));
 
     await PlayerStatsController.saveMultiple(statsToSave);
+    teamFaltsStore.resetTeamFalt();
+    teamResultStore.resetTeamResult();
+    matchStore.setResults({ team: 0, opponent: 0 });
     onSave();
   };
 

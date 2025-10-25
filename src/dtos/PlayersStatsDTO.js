@@ -165,7 +165,7 @@ export const PlayersStatsDTO = (dbInstance) => ({
             LEFT JOIN
               players p ON gr.player_id = p.id
             LEFT JOIN
-              players_stats ps ON gr.player_id = ps.player_id
+              players_stats ps ON gr.player_id = ps.player_id AND ps.game_id = gr.game_id
             WHERE
               gr.game_id = ? AND gr.called = 1;
             `,

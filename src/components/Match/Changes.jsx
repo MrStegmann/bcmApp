@@ -20,6 +20,7 @@ const Changes = ({ toBench, toQuintet, matchPlayers }) => {
       <View className="w-1/3">
         <FlatList
           data={benching}
+          scrollEnabled={false}
           contentContainerStyle={{
             justifyContent: "center",
             alignItems: "center", // centra los ítems
@@ -40,6 +41,7 @@ const Changes = ({ toBench, toQuintet, matchPlayers }) => {
       <View className="w-1/3">
         <FlatList
           data={quinteting}
+          scrollEnabled={false}
           contentContainerStyle={{
             justifyContent: "center",
             alignItems: "center", // centra los ítems

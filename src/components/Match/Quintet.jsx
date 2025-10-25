@@ -227,6 +227,7 @@ const Quintet = React.memo(
             </TouchableOpacity>
             <FlatList
               data={actualQuintet}
+              scrollEnabled={false}
               renderItem={({ item }) => (
                 <QuintetPlayers
                   playerInf={matchPlayers.players[item]}

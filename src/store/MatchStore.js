@@ -1,12 +1,6 @@
 import { create } from "zustand";
 
-const defaultMarker = {
-  c1: 0,
-  c2: 0,
-  c3: 0,
-  c4: 0,
-  extra: 0,
-};
+const setDefaultMarker = () => ({ c1: 0, c2: 0, c3: 0, c4: 0, extra: 0 });
 
 export const useMatchCronoStore = create((set) => ({
   crono: false,
@@ -14,13 +8,15 @@ export const useMatchCronoStore = create((set) => ({
 }));
 
 export const useMatchTeamFalts = create((set) => ({
-  teamFalt: { ...defaultMarker },
+  teamFalt: setDefaultMarker(),
   setTeamFalt: (teamFalt) => set({ teamFalt }),
+  resetTeamFalt: () => set({ teamFalt: setDefaultMarker() }),
 }));
 
 export const useMatchTeamResult = create((set) => ({
-  teamResult: { ...defaultMarker },
+  teamResult: setDefaultMarker(),
   setTeamResult: (teamResult) => set({ teamResult }),
+  resetTeamResult: () => set({ teamResult: setDefaultMarker() }),
 }));
 
 export const useMatchStore = create((set) => ({
