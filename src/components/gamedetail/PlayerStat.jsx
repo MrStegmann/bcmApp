@@ -165,7 +165,7 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
         </Text>
       </View>
 
-      <View className="w-full px-2 py-3 flex justify-center items-centere">
+      <View className="w-full px-2 py-3 flex flex-row justify-center items-centere">
         <View className="w-16 h-16 p-2 flex flex-col justify-center items-center">
           <Text className="text-danish-white text-sm text-center mb-1">
             Pts
