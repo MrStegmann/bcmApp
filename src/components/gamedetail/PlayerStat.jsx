@@ -121,8 +121,7 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
     setShowPicker(false);
   };
 
-  const pts =
-    (player.t1a || 0) * 1 + (player.t2a || 0) * 2 + (player.t3a || 0) * 3;
+  const pts = (player.t1a || 0) + (player.t2a || 0) * 2 + (player.t3a || 0) * 3;
 
   const val =
     player.t1a +
