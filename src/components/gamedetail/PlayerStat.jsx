@@ -124,6 +124,20 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
   const pts =
     (player.t1a || 0) * 1 + (player.t2a || 0) * 2 + (player.t3a || 0) * 3;
 
+  const val =
+    player.t1a +
+    player.t2a +
+    player.t3a +
+    player.asis +
+    player.rec +
+    player.dreb +
+    player.oreb -
+    player.per -
+    player.falt -
+    (player.t1i - player.t1a) -
+    (player.t2i - player.t2a) -
+    (player.t3i - player.t3a);
+
   return (
     <View className="w-full flex-1 bg-danish-dark-gray z-10 my-1 flex flex-col items-center absolute border border-danish-red rounded-xl">
       <TimerPickerModal
@@ -152,9 +166,20 @@ const PlayerStat = React.memo(({ player, setPlayers, index, onClose }) => {
         </Text>
       </View>
 
-      <View className="w-16 h-16 p-2 flex flex-col justify-center items-center">
-        <Text className="text-danish-white text-sm text-center mb-1">Pts</Text>
-        <Text className="text-danish-white text-sm text-center">{pts}</Text>
+      <View className="w-full px-2 py-3 flex justify-center items-centere">
+        <View className="w-16 h-16 p-2 flex flex-col justify-center items-center">
+          <Text className="text-danish-white text-sm text-center mb-1">
+            Pts
+          </Text>
+          <Text className="text-danish-white text-sm text-center">{pts}</Text>
+        </View>
+
+        <View className="w-16 h-16 p-2 flex flex-col justify-center items-center">
+          <Text className="text-danish-white text-sm text-center mb-1">
+            Val
+          </Text>
+          <Text className="text-danish-white text-sm text-center">{val}</Text>
+        </View>
       </View>
 
       <View className="w-full flex flex-row flex-wrap justify-between p-2 gap-2">
