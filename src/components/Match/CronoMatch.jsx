@@ -47,7 +47,7 @@ const CronoMatch = ({
   const pause = useCallback(() => stopwatchTimerRef.current?.pause(), []);
   const getTime = useCallback(
     () => stopwatchTimerRef.current?.getSnapshot(),
-    []
+    [],
   );
 
   const handleCrono = () => {

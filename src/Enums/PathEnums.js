@@ -1,0 +1,27 @@
+export default {
+  LOGIN: "Login",
+  REGISTER: "Register",
+  RECOVER: "Recover",
+  VERIFY: "Verify",
+  HOME: "Home",
+  STAFFS: "Staffs",
+  STAFFFORM: "StaffForm",
+  TEAMS: "Teams",
+  TEAMFORM: "TeamForm",
+  PROFILE: "Profile",
+  TEAMSLIST: "TeamsList",
+  TEAMMANAGER: "TeamManager",
+  PLAYERS: "Players",
+  PLAYERFORM: "PlayerForm",
+  PLAYERDETAILS: "PlayerDetails",
+  MATCHES: "Matches",
+  MATCHFORM: "MatchForm",
+  MATCHPLAY: "MathPlay",
+  MATCHDETAILS: "MatchDetails",
+
+  TRAININGS: "Trainings",
+
+  EXERCICES: "Exercices",
+  EXERCICESFORM: "ExercicesForm",
+  EXERCICEDETAILS: "ExerciceDetails",
+};

@@ -55,7 +55,7 @@ const GameStats = React.memo(({ stats }) => {
               </Text>
               <Text className="text-danish-white">{`${stats[`${stat}`] || 0}`}</Text>
             </View>
-          )
+          ),
         )}
       </View>
     </View>
@@ -110,7 +110,7 @@ const PlayerCard = React.memo(({ playerInf }) => {
               </Text>
               <Text className="text-danish-white">{`${playerInf[`total_${stat}`] || 0}`}</Text>
             </View>
-          )
+          ),
         )}
       </View>
     </View>
@@ -130,11 +130,11 @@ const PlayerDetail = ({ data }) => {
   useEffect(() => {
     const getData = async () => {
       const TOTAL_TRAININGS = await TraningPlayersController.loadByPlayer(
-        data.id
+        data.id,
       );
       setTotalTrainings(TOTAL_TRAININGS.length);
       setTotalTrainingsAssis(
-        TOTAL_TRAININGS.filter((tp) => tp.assistance).length
+        TOTAL_TRAININGS.filter((tp) => tp.assistance).length,
       );
 
       const RESULT_PLAYERALLSTATS = await PlayerController.loadStats(data.id);

@@ -65,7 +65,7 @@ const Quintet = React.memo(
 
     const getRoaster = async () => {
       const RESULT_CALLEDUP = await GameController.loadCalledup(
-        matchStore.gameId
+        matchStore.gameId,
       );
 
       // Crear objeto de jugadores con sus nombres, numeros, id y añadir stats
@@ -279,7 +279,7 @@ const Quintet = React.memo(
         </View>
       </View>
     );
-  }
+  },
 );
 
 export default Quintet;

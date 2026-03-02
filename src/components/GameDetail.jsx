@@ -44,7 +44,7 @@ const GameDetail = ({ data, onSave, onReturn }) => {
             : `c${quarter.quarter_num}`,
           quarter.is_opponent,
           quarter.result,
-          quarter.falts
+          quarter.falts,
         );
       }
       setResult(newResult);

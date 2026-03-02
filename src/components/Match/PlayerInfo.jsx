@@ -119,7 +119,7 @@ const PlayerStats = React.memo(
         </View>
       </View>
     );
-  }
+  },
 );
 
 const PlayerInfo = ({ first_name, last_name, number, stats }) => {

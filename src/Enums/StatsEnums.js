@@ -1,12 +1,11 @@
 export default {
-  minutes: "minutes",
   t1a: "t1a",
   t1i: "t1i",
   t2a: "t2a",
   t2i: "t2i",
   t3a: "t3a",
   t3i: "t3i",
-  falt: "falt",
+  foult: "foult",
   dreb: "dreb",
   oreb: "oreb",
   asis: "asis",

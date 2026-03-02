@@ -113,7 +113,7 @@ const GameMatch = ({ data, onReturn, onSave }) => {
     ) {
       // Si está en retrato, cambiar a apaisado
       await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.LANDSCAPE
+        ScreenOrientation.OrientationLock.LANDSCAPE,
       );
     }
     if ((await NavigationBar.getVisibilityAsync()) === "visible") {

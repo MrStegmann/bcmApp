@@ -33,7 +33,7 @@ const StatCounter = React.memo(
         </View>
       </View>
     );
-  }
+  },
 );
 
 // --- Configuración de Estadísticas para mapeo ---

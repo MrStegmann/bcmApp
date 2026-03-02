@@ -1,0 +1,4 @@
+export default {
+  LOGIN_STORAGE: "LOGIN_STORAGE",
+  QUINTET_STORAGE: "QUINTET_STORAGE",
+};

@@ -60,7 +60,7 @@ const Marker = React.memo(
         </View>
       </View>
     );
-  }
+  },
 );
 
 export default Marker;
