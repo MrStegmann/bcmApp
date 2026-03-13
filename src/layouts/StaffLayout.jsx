@@ -6,13 +6,13 @@ import TeamNav from "../components/nav/TeamNav";
 const StaffLayout = ({ children }) => {
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right"]}>
-      <KeyboardAwareScrollView
+      {/* <KeyboardAwareScrollView
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.contentContainer}
-      >
-        {children}
-      </KeyboardAwareScrollView>
+      > */}
+      {children}
+      {/* </KeyboardAwareScrollView> */}
       <TeamNav />
     </SafeAreaView>
   );

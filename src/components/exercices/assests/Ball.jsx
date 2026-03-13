@@ -1,11 +1,4 @@
-import Svg, {
-  Rect,
-  Line,
-  G,
-  Circle,
-  Text as SvgText,
-  Path,
-} from "react-native-svg";
+import Svg, { G, Path } from "react-native-svg";
 
 const Ball = () => {
   return (

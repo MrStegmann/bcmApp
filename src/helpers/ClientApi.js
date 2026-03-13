@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const MOBILE_API_URL = "http://192.168.1.39:8080/api/v1.0";
+const MOBILE_API_URL = "http://192.168.1.38:8080/api/v1.0";
 const WEB_API_URL = "http://localhost:8080/api/v1.0";
 
 const clientApi = axios.create({

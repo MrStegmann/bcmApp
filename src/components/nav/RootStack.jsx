@@ -25,6 +25,7 @@ import MatchDetails from "../matches/MatchDetails";
 import Trainings from "../../page/staff/Trainings";
 import ExercicesForm from "../exercices/ExercicesForm";
 import Exercices from "../../page/staff/Exercices";
+import ExerciseDetails from "../exercices/ExerciseDetails";
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,10 @@ export default function RootStack() {
         <Stack.Screen
           name={PathEnums.EXERCICESFORM}
           component={ExercicesForm}
+        />
+        <Stack.Screen
+          name={PathEnums.EXERCICEDETAILS}
+          component={ExerciseDetails}
         />
 
         <Stack.Screen name={PathEnums.MATCHES} component={Matches} />

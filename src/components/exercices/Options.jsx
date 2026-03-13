@@ -1,18 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import Input from "../../framework/Input";
+import { Text, View, TextInput, ScrollView } from "react-native";
 import CheckBoxInput from "../../framework/CheckBoxInput";
-import { usePlaybookStore } from "../../store/PlaybookStore";
-import { useNavigation } from "@react-navigation/native";
-import SaveButton from "../../framework/SaveButton";
-import { errorAlert } from "../../helpers/AlertHelper";
 
 const exerciseCategories = [
   { label: "Juego de pies", value: "footwork", category: "technique" },
@@ -102,7 +89,7 @@ const Options = ({
         />
 
         <View className="w-full border-b">
-          <Text className="text-xl font-bold">Ejercicios</Text>
+          <Text className="text-xl font-bold">Tipo de ejercicio</Text>
         </View>
         <View className="w-full flex flex-col">
           <Text className="font-bold text-lg">Otros</Text>

@@ -15,6 +15,7 @@ import DefensivePlayer from "./assests/DefensivePlayer";
 import Ball from "./assests/Ball";
 import HandByHand from "./assests/HandByHand";
 import SaveButton from "../../framework/SaveButton";
+import Cone from "./assests/Cone";
 
 const tokens = Object.keys(TokenEnums).map((key) => ({
   key,
@@ -30,9 +31,7 @@ const IconToolbar = ({ value }) => {
     case TokenEnums.BALL:
       return <Ball />;
     case TokenEnums.CONE:
-      return (
-        <MaterialCommunityIcons name="traffic-cone" size={24} color="#e04000" />
-      );
+      return <Cone />;
     case TokenEnums.MOVEMENT_LINE:
       return <SvgPathIcons path="run" />;
     case TokenEnums.PASS_LINE:
@@ -43,6 +42,14 @@ const IconToolbar = ({ value }) => {
       return <SvgPathIcons path="block" />;
     case TokenEnums.HAND_BY_HAND:
       return <HandByHand />;
+    case TokenEnums.SELECT_OBJECT:
+      return (
+        <MaterialCommunityIcons
+          name="cursor-default-click"
+          size={24}
+          color="black"
+        />
+      );
     default:
       return <MaterialCommunityIcons name="tools" size={24} color="black" />;
   }
@@ -72,7 +79,7 @@ const Toolbar = ({
           key={token.key}
           className={`w-10 h-10 flex justify-center items-center ${activeTool === token.value ? "border border-blue-500 rounded" : ""}`}
           onPress={() => {
-            setActiveTool(token.value);
+            setActiveTool(activeTool === token.value ? "" : token.value);
             setSelectedObject(null);
           }}
         >

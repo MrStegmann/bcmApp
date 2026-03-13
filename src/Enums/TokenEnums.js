@@ -8,4 +8,5 @@ export default {
   DRIBBLING_LINE: "dribblingLine",
   BLOCK_LINE: "blockLine",
   HAND_BY_HAND: "handByHand",
+  SELECT_OBJECT: "selectObject",
 };

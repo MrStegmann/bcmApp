@@ -10,7 +10,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useNavigation } from "@react-navigation/native";
 
 const ExercicesForm = ({ route }) => {
-  const { onGoBack, exercice } = route.params;
+  const { onGoBack, exercise } = route.params;
   const [showOptions, setShowOptions] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -29,8 +29,25 @@ const ExercicesForm = ({ route }) => {
   const selectedObject = usePlaybookStore((state) => state.selectedObject);
   const savePlaybook = usePlaybookStore((state) => state.savePlaybook);
   const halfCourt = usePlaybookStore((state) => state.halfCourt);
+  const setHalfCourt = usePlaybookStore((state) => state.setHalfCourt);
+  const setActiveTool = usePlaybookStore((state) => state.setActiveTool);
 
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (exercise) {
+      setTitle(exercise.title);
+      setDescription(exercise.description);
+      setFlags(exercise.flags);
+      setStages(exercise.stages);
+
+      setPlayers(exercise.stages[0].players);
+      setItems(exercise.stages[0].items);
+      setLines(exercise.stages[0].lines);
+
+      setHalfCourt(exercise.halfCourt);
+    }
+  }, []);
 
   useEffect(() => {
     const newStages = [...stages];
@@ -67,7 +84,23 @@ const ExercicesForm = ({ route }) => {
 
   const handleSubmit = async () => {
     try {
+      if (
+        !title ||
+        title.trim() === "" ||
+        !description ||
+        description.trim() === ""
+      ) {
+        setShowOptions(true);
+        throw new Error("El ejercicio debe tener un título y una descripción");
+      }
+      if (!flags || flags.trim() === "") {
+        setShowOptions(true);
+        throw new Error(
+          "El ejercicio debe tener al menos un tipo de ejercicio seleccionado",
+        );
+      }
       await savePlaybook({
+        ...(exercise?.id != null && { id: exercise?.id }),
         title,
         description,
         flags,
@@ -75,12 +108,27 @@ const ExercicesForm = ({ route }) => {
         halfCourt,
       });
 
+      onReset();
       navigation.goBack();
-      onGoBack();
+      await onGoBack();
       infoAlert("Ejercicio guardado correctamente");
     } catch (error) {
       errorAlert(error.message);
     }
+  };
+
+  const onReset = () => {
+    setTitle("");
+    setDescription("");
+    setFlags("");
+    setPlayers([]);
+    setItems([]);
+    setLines([]);
+    setStages([]);
+    setIndexStage(1);
+    setHalfCourt(false);
+    setSelectedObject(null);
+    setActiveTool("");
   };
 
   const deleteToken = () => {

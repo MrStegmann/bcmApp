@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 
 const TeamManager = () => {
   return (
-    <View>
+    <View className="w-full flex-1 flex-col justify-center items-center">
       <Text>Manager</Text>
     </View>
   );

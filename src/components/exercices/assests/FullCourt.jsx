@@ -13,12 +13,7 @@ const CENTER_Y = VB_HEIGHT / 2;
 
 const FullCourt = () => {
   return (
-    <Svg
-      viewBox={`0 0 ${VB_WIDTH} ${VB_HEIGHT}`}
-      width="100%"
-      height="100%"
-      preserveAspectRatio="xMidYMid meet"
-    >
+    <Svg width="100%" height="100%">
       {/* Background */}
       <Rect width={VB_WIDTH} height={VB_HEIGHT} fill="#8dbee0" />
 

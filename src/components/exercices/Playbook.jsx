@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import {
   Gesture,
@@ -8,6 +8,7 @@ import {
 import Animated, {
   useSharedValue,
   useAnimatedProps,
+  useAnimatedStyle,
   runOnJS,
 } from "react-native-reanimated";
 import HalfCourt from "./assests/HalfCourt";
@@ -18,6 +19,20 @@ import TokenEnums from "../../Enums/TokenEnums";
 import DraggableItems from "./DraggableItems";
 import DraggablePlayer from "./DraggablePlayer";
 import Svg, { Path } from "react-native-svg";
+import getDistance from "../../helpers/getDistance";
+import getSvgOffset from "../../helpers/getSvgOffset";
+
+const VB_WIDTH = 384;
+const VB_HEIGHT = 540;
+
+const PLAYER_TOOLS = [TokenEnums.OFFENSIVE, TokenEnums.DEFENSIVE];
+const ITEM_TOOLS = [TokenEnums.BALL, TokenEnums.CONE, TokenEnums.HAND_BY_HAND];
+const LINE_TOOLS = [
+  TokenEnums.MOVEMENT_LINE,
+  TokenEnums.PASS_LINE,
+  TokenEnums.BLOCK_LINE,
+  TokenEnums.DRIBBLING_LINE,
+];
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -39,135 +54,72 @@ const Playbook = ({
 
   const halfCourt = usePlaybookStore((state) => state.halfCourt);
 
-  // Gestor principal
-  const gesture = React.useMemo(
-    () =>
-      Gesture.Tap().onEnd((e) => {
-        if (selectedObject) return;
-        if ([TokenEnums.OFFENSIVE, TokenEnums.DEFENSIVE].includes(activeTool)) {
-          runOnJS(setPlayers)([
-            ...players,
-            {
-              id: Date.now().toString(),
-              type: activeTool,
-              x: e.x,
-              y: e.y,
-              label: `${players.filter((p) => p.type === activeTool).length + 1}`,
-            },
-          ]);
-        }
+  const [layout, setLayout] = React.useState({ width: 1, height: 1 });
 
-        if (
-          [TokenEnums.BALL, TokenEnums.CONE, TokenEnums.HAND_BY_HAND].includes(
-            activeTool,
-          )
-        ) {
-          runOnJS(setItems)([
-            ...items,
-            {
-              id: Date.now().toString(),
-              type: activeTool,
-              x: e.x,
-              y: e.y,
-            },
-          ]);
-        }
-        if (
-          [
-            TokenEnums.MOVEMENT_LINE,
-            TokenEnums.PASS_LINE,
-            TokenEnums.BLOCK_LINE,
-            TokenEnums.DRIBBLING_LINE,
-          ].includes(activeTool)
-        ) {
-          if (currentPoints.value.length < 2) {
-            currentPoints.value = [];
-            return;
-          }
+  const dragX = useSharedValue(0);
+  const dragY = useSharedValue(0);
+  const dragStartX = useSharedValue(0);
+  const dragStartY = useSharedValue(0);
 
-          runOnJS(setLines)([
-            ...lines,
-            {
-              id: Date.now().toString(),
-              type: activeTool,
-              points: currentPoints.value,
-            },
-          ]);
-        }
-
-        currentPoints.value = [];
-      }),
-    [
-      activeTool,
-      items,
-      setItems,
-      players,
-      setPlayers,
-      setLines,
-      lines,
-      selectedObject,
-    ],
-  );
-
-  const panGesture = Gesture.Pan()
-    .onBegin((e) => {
-      if (
-        [
-          TokenEnums.MOVEMENT_LINE,
-          TokenEnums.PASS_LINE,
-          TokenEnums.BLOCK_LINE,
-          TokenEnums.DRIBBLING_LINE,
-        ].includes(activeTool) &&
-        !selectedObject
-      ) {
-        currentPoints.value = [{ x: e.x, y: e.y }];
-      }
-    })
-    .onUpdate((e) => {
-      if (
-        [
-          TokenEnums.BLOCK_LINE,
-          TokenEnums.DRIBBLING_LINE,
-          TokenEnums.MOVEMENT_LINE,
-        ].includes(activeTool)
-      ) {
-        const last = currentPoints.value.at(-1);
-        if (!last) return;
-
-        const dx = e.x - last.x;
-        const dy = e.y - last.y;
-
-        // evita exceso de puntos
-        if (Math.hypot(dx, dy) > 8) {
-          currentPoints.value = [...currentPoints.value, { x: e.x, y: e.y }];
-        }
+  const principalGesture = Gesture.Tap()
+    .maxDuration(250)
+    .runOnJS(true)
+    .onStart((e) => {
+      setSelectedObject(null);
+      if (activeTool === TokenEnums.SELECT_OBJECT) {
+        handleSelection(e.x, e.y);
+        return;
       }
 
-      if (activeTool === TokenEnums.PASS_LINE) {
-        if (currentPoints.value.length === 0) return;
+      const { offsetX, offsetY, scale } = getSvgOffset(
+        layout,
+        VB_WIDTH,
+        VB_HEIGHT,
+        halfCourt,
+      );
 
-        // solo guardamos el último punto como fin
-        currentPoints.value = [currentPoints.value[0], { x: e.x, y: e.y }];
+      const svgX = (e.x - offsetX) / scale;
+      const svgY = (e.y - offsetY) / scale;
+
+      const id = Date.now().toString();
+
+      if (PLAYER_TOOLS.includes(activeTool)) {
+        setPlayers((prev) => [
+          ...prev,
+          {
+            id,
+            type: activeTool,
+            x: svgX,
+            y: svgY,
+            label: `${prev.filter((p) => p.type === activeTool).length + 1}`,
+          },
+        ]);
+        return;
       }
-    })
-    .onEnd(() => {
-      if (
-        [
-          TokenEnums.MOVEMENT_LINE,
-          TokenEnums.PASS_LINE,
-          TokenEnums.BLOCK_LINE,
-          TokenEnums.DRIBBLING_LINE,
-        ].includes(activeTool)
-      ) {
+
+      if (ITEM_TOOLS.includes(activeTool)) {
+        setItems((prev) => [
+          ...prev,
+          {
+            id,
+            type: activeTool,
+            x: svgX,
+            y: svgY,
+          },
+        ]);
+        return;
+      }
+
+      if (LINE_TOOLS.includes(activeTool)) {
         if (currentPoints.value.length < 2) {
           currentPoints.value = [];
           return;
         }
 
-        runOnJS(setLines)([
-          ...lines,
+        setLines((prev) => [
+          ...prev,
           {
-            id: Date.now().toString(),
+            id,
             type: activeTool,
             points: currentPoints.value,
           },
@@ -177,10 +129,113 @@ const Playbook = ({
       currentPoints.value = [];
     });
 
-  // Gestos para seleccionar lineas
-  const tapGesture = Gesture.Tap()
-    .maxDuration(250)
-    .onEnd((e) => runOnJS(handleLineSelection)(e.x, e.y));
+  const draggingGesture = Gesture.Pan()
+    .minDistance(10)
+    .runOnJS(true)
+    .onBegin(() => {
+      if (!selectedObject) return;
+      dragStartX.value = selectedObject.x;
+      dragStartY.value = selectedObject.y;
+    })
+    .onUpdate((e) => {
+      if (!selectedObject) return;
+      const { scale } = getSvgOffset(layout, VB_WIDTH, VB_HEIGHT, halfCourt);
+
+      dragX.value = dragStartX.value + e.translationX / scale;
+      dragY.value = dragStartY.value + e.translationY / scale;
+    })
+    .onEnd(() => {
+      if (!selectedObject) return;
+
+      const newX = dragX.value;
+      const newY = dragY.value;
+
+      if (PLAYER_TOOLS.includes(selectedObject.type)) {
+        setPlayers((prev) =>
+          prev.map((p) =>
+            p.id === selectedObject.id ? { ...p, x: newX, y: newY } : p,
+          ),
+        );
+      }
+
+      if (ITEM_TOOLS.includes(selectedObject.type)) {
+        setItems((prev) =>
+          prev.map((p) =>
+            p.id === selectedObject.id ? { ...p, x: newX, y: newY } : p,
+          ),
+        );
+      }
+
+      setSelectedObject({
+        ...selectedObject,
+        x: newX,
+        y: newY,
+      });
+    });
+
+  function handleSelection(x, y) {
+    const selected = detectObjectAtPosition(x, y);
+    if (selected) {
+      dragStartX.value = selected.x;
+      dragStartY.value = selected.y;
+
+      dragX.value = selected.x;
+      dragY.value = selected.y;
+      setSelectedObject(selected);
+    }
+  }
+
+  function detectObjectAtPosition(x, y) {
+    const tokenThreshold = 12;
+
+    const { offsetX, offsetY, scale } = getSvgOffset(
+      layout,
+      VB_WIDTH,
+      VB_HEIGHT,
+      halfCourt,
+    );
+
+    const touch = { x: (x - offsetX) / scale, y: (y - offsetY) / scale };
+
+    // Buscar jugadores
+    for (let player of players) {
+      const playerPos = { x: player.x + 20, y: player.y + 20 };
+
+      const dist = getDistance(touch, playerPos);
+
+      if (dist < tokenThreshold) {
+        return player;
+      }
+    }
+
+    for (let item of items) {
+      const itemPos = { x: item.x + 20, y: item.y + 20 };
+
+      const dist = getDistance(touch, itemPos);
+
+      if (dist < tokenThreshold) {
+        return item;
+      }
+    }
+
+    return null;
+  }
+
+  function distancePointToSegment(p, v, w) {
+    const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+
+    if (l2 === 0) return getDistance(p, v);
+
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+
+    const projection = {
+      x: v.x + t * (w.x - v.x),
+      y: v.y + t * (w.y - v.y),
+    };
+
+    return getDistance(p, projection);
+  }
 
   const animatedProps = useAnimatedProps(() => {
     if (currentPoints.value.length === 0) return { d: "" };
@@ -192,57 +247,46 @@ const Playbook = ({
     return { d };
   });
 
-  // Funciones de selección de lineas: detecta si el toque está cerca de alguna línea y la selecciona
-  function distancePointToSegment(p, v, w) {
-    const l2 = (w.x - v.x) * (w.x - v.x) + (w.y - v.y) * (w.y - v.y);
+  const composedGesture = Gesture.Race(principalGesture, draggingGesture);
 
-    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
-
-    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-
-    t = Math.max(0, Math.min(1, t));
-
-    const projection = {
-      x: v.x + t * (w.x - v.x),
-      y: v.y + t * (w.y - v.y),
-    };
-
-    return Math.hypot(p.x - projection.x, p.y - projection.y);
-  }
-  function handleLineSelection(x, y) {
-    const threshold = 10; // sensibilidad táctil
-
-    for (let line of lines) {
-      const pts = line.points;
-
-      for (let i = 0; i < pts.length - 1; i++) {
-        const dist = distancePointToSegment({ x, y }, pts[i], pts[i + 1]);
-
-        if (dist < threshold) {
-          setSelectedObject(line);
-          setActiveTool("");
-          return;
-        }
-      }
-    }
-  }
-
-  const composedGesture = Gesture.Simultaneous(tapGesture, gesture, panGesture);
+  useEffect(() => console.log(selectedObject), [selectedObject]);
 
   return (
     <GestureHandlerRootView>
       <GestureDetector gesture={composedGesture}>
-        <View className="relative flex-1">
-          {halfCourt ? <HalfCourt /> : <FullCourt />}
+        <View
+          className="relative flex-1"
+          onLayout={(e) => {
+            const { width, height } = e.nativeEvent.layout;
+            setLayout({ width, height });
+          }}
+        >
+          <Svg
+            viewBox={`0 0 ${VB_WIDTH} ${halfCourt ? VB_HEIGHT / 2 : VB_HEIGHT}`}
+            width="100%"
+            height="100%"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            {halfCourt ? <HalfCourt /> : <FullCourt />}
+            {players.map((p) => (
+              <DraggablePlayer
+                key={p.id}
+                data={p}
+                dragX={dragX}
+                dragY={dragY}
+              />
+            ))}
+            {items.map((item) => (
+              <DraggableItems
+                key={item.id}
+                data={item}
+                dragX={dragX}
+                dragY={dragY}
+              />
+            ))}
+          </Svg>
 
-          {players.map((p) => (
-            <DraggablePlayer
-              key={p.id}
-              data={p}
-              setPlayers={setPlayers}
-              players={players}
-            />
-          ))}
+          {/* 
           {items.map((item) => (
             <DraggableItems
               key={item.id}
@@ -255,7 +299,6 @@ const Playbook = ({
             <LinesLayer key={line.id} line={line} />
           ))}
 
-          {/* preview */}
           <Svg
             style={{
               position: "absolute",
@@ -270,7 +313,7 @@ const Playbook = ({
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </Svg>
+          </Svg> */}
         </View>
       </GestureDetector>
     </GestureHandlerRootView>
