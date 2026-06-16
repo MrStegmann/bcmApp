@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View } from "react-native-web";
 import ClubForm from "../components/ClubForm";
 import ClubList from "../components/ClubList";
 import ClubProfile from "./ClubProfile";

@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Text, View } from "react-native-web";
 import React from "react";
 import { timeFormat } from "../../helpers/timeFormat";
 import StatsEnums from "../../Enums/StatsEnums";

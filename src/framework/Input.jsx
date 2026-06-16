@@ -1,5 +1,5 @@
 import Feather from "@expo/vector-icons/Feather";
-import { View, TextInput, Text } from "react-native";
+import { View, TextInput, Text } from "react-native-web";
 
 const Input = ({
   value,

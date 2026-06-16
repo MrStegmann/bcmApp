@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native-web";
 
 const PlayerItem = ({ player, onSelect, onDelete, onEdit }) => (
   <View className="w-full p-4 border border-gray-300 rounded-lg mb-2 flex flex-row justify-between items-center">

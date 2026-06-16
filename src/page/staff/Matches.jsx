@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Modal, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native-web";
 import { delAlert, errorAlert } from "../../helpers/AlertHelper";
 import { useMatchStore } from "../../store/MatchStore";
 import { useNavigation } from "@react-navigation/native";

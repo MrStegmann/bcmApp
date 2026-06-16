@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View, Alert } from "react-native";
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native-web";
 import { useAuthStore } from "../../store/AuthStore";
 import { useStaffStore } from "../../store/StaffStore";
 import Entypo from "@expo/vector-icons/Entypo";

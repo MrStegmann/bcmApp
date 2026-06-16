@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import { Text, View, TouchableOpacity, FlatList } from "react-native-web";
 import { useMatchPlayerStore, useMatchStore } from "../../store/MatchStore";
 import { useAlertStore } from "../../store/AlertStore";
 import { Entypo } from "@expo/vector-icons";

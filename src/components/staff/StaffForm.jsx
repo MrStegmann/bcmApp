@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native-web";
 import { useStaffStore } from "../../store/StaffStore";
 import CheckBoxInput from "../../framework/CheckBoxInput";
 import SelectInput from "../../framework/SelectInput";

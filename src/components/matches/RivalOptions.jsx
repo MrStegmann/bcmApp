@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native-web";
 import { useCronoStore, useMarketStore } from "../../store/MatchStore";
 import React from "react";
 

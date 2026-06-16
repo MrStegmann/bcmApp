@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Text, View, ScrollView, TouchableOpacity, Modal } from "react-native";
+import {
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+} from "react-native-web";
 import { TimerPickerModal } from "react-native-timer-picker";
 import StatsEnums from "../../Enums/StatsEnums";
 import { MaterialIcons } from "@expo/vector-icons";

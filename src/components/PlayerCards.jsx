@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native-web";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Feather } from "@expo/vector-icons";
 import React from "react";

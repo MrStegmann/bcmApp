@@ -1,5 +1,5 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import { Text, View, TouchableOpacity, FlatList } from "react-native-web";
 
 const Cards = ({ game, onSelect, onEdit, onDelete, onPlay }) => {
   return (

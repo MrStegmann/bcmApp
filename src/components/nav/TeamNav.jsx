@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native-web";
 import { useNavigation } from "@react-navigation/native";
 import IconButton from "../../framework/IconButton";
 import IconsEnums from "../../Enums/IconsEnums";

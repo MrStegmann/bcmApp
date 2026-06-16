@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, TextInput, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, TouchableOpacity } from "react-native-web";
 import { useAuthStore } from "../../store/AuthStore";
 import { useNavigation } from "@react-navigation/native";
 import { errorAlert } from "../../helpers/AlertHelper";

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native-web";
 import { useTeamStore } from "../../store/TeamStore";
 import SelectInput from "../../framework/SelectInput";
 import { useAuthStore } from "../../store/AuthStore";

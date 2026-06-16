@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, FlatList } from "react-native";
+import { Text, View, FlatList } from "react-native-web";
 import { Entypo } from "@expo/vector-icons";
 import {
   useBenchAndQuintetStore,

@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useMemo } from "react";
 import * as SQLite from "expo-sqlite";
-import { Text, View } from "react-native";
+import { Text, View } from "react-native-web";
 import { TeamModel } from "../models/Team";
 import { PlayerModel } from "../models/Player";
 import { GameModel } from "../models/Game";

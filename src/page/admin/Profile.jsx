@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native-web";
 import { useStaffStore } from "../../store/StaffStore";
 import { useAuthStore } from "../../store/AuthStore";
 import { errorAlert } from "../../helpers/AlertHelper";

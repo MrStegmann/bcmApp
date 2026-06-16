@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-} from "react-native";
+} from "react-native-web";
 import { errorAlert } from "../../helpers/AlertHelper";
 import { useMatchStore } from "../../store/MatchStore";
 import GameStats from "./GameStats";

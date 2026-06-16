@@ -1,4 +1,4 @@
-import { Text, View, TextInput, ScrollView } from "react-native";
+import { Text, View, TextInput, ScrollView } from "react-native-web";
 import CheckBoxInput from "../../framework/CheckBoxInput";
 
 const exerciseCategories = [

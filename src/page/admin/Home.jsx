@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Text, View } from "react-native";
+import { Text, View } from "react-native-web";
 import { useAuthStore } from "../../store/AuthStore";
 
 const Home = () => {

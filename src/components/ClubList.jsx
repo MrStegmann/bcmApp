@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native-web";
 import { Feather } from "@expo/vector-icons";
 import DeleteModal from "../framework/DeleteModal";
 

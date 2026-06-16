@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, TouchableOpacity } from "react-native";
+import { Text, View, TextInput, TouchableOpacity } from "react-native-web";
 import { useTeamStore } from "../../store/TeamStore";
 import { errorAlert, infoAlert } from "../../helpers/AlertHelper";
 import { usePlayerStore } from "../../store/PlayerStore";

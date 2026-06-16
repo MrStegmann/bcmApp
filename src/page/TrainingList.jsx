@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View } from "react-native-web";
 import { useClubStore } from "../store/ClubStore";
 import TrainingForm from "../components/TrainingForm";
 import TrainingDetail from "../components/TrainingDetail";

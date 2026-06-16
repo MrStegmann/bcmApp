@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native-web";
 import Toolbar from "./Toolbar";
 import Playbook from "./Playbook";
 import { usePlaybookStore } from "../../store/PlaybookStore";

@@ -1,6 +1,6 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Feather } from "@expo/vector-icons";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import { Text, View, TouchableOpacity, FlatList } from "react-native-web";
 import React from "react";
 
 const TraningCards = React.memo(({ trainings, onSelect, onEdit, onDelete }) => {

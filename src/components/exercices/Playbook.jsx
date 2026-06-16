@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
+import { View } from "react-native-web";
 import {
   Gesture,
   GestureDetector,
@@ -284,36 +284,30 @@ const Playbook = ({
                 dragY={dragY}
               />
             ))}
+
+            <Svg
+              style={{
+                position: "absolute",
+                inset: 0,
+              }}
+            >
+              <AnimatedPath
+                animatedProps={animatedProps}
+                stroke="#111"
+                strokeWidth={3}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
           </Svg>
 
           {/* 
-          {items.map((item) => (
-            <DraggableItems
-              key={item.id}
-              data={item}
-              setItems={setItems}
-              items={items}
-            />
-          ))}
           {lines.map((line) => (
             <LinesLayer key={line.id} line={line} />
           ))}
 
-          <Svg
-            style={{
-              position: "absolute",
-              inset: 0,
-            }}
-          >
-            <AnimatedPath
-              animatedProps={animatedProps}
-              stroke="#111"
-              strokeWidth={3}
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg> */}
+      */}
         </View>
       </GestureDetector>
     </GestureHandlerRootView>

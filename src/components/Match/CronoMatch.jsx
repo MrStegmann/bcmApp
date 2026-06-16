@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native-web";
 import StopwatchTimer from "react-native-animated-stopwatch-timer";
 import {
   useMatchCronoStore,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import { Text, View, TouchableOpacity, FlatList } from "react-native-web";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useClubStore } from "../store/ClubStore";
 import useDB from "../hooks/useDB";

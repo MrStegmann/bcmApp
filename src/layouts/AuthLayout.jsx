@@ -1,5 +1,5 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
+import { StyleSheet } from "react-native-web";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const AuthLayout = ({ children }) => {

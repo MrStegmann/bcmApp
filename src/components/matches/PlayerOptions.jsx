@@ -1,5 +1,11 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { View, Text, TouchableOpacity, Modal, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+} from "react-native-web";
 import {
   useBenchAndQuintetStore,
   useCronoStore,

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, TouchableOpacity, View, FlatList } from "react-native";
+import { Text, TouchableOpacity, View, FlatList } from "react-native-web";
 import {
   usePlayPlayersStore,
   useBenchAndQuintetStore,

@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View } from "react-native-web";
 import HalfCourt from "./assests/HalfCourt";
 import FullCourt from "./assests/FullCourt";
 import Animated, {

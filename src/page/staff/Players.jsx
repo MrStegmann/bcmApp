@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native-web";
 import { delAlert, errorAlert } from "../../helpers/AlertHelper";
 import { usePlayerStore } from "../../store/PlayerStore";
 import PlayerItem from "../../components/players/PlayerItem";

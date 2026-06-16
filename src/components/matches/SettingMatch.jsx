@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, FlatList } from "react-native";
+import { View, TouchableOpacity, Text, FlatList } from "react-native-web";
 import StorageEnums from "../../Enums/StorageEnums";
 import { errorAlert, infoAlert } from "../../helpers/AlertHelper";
 import { usePlayPlayersStore } from "../../store/MatchStore";

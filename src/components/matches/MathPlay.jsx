@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { Alert, TouchableOpacity, View } from "react-native-web";
 import {
   useBenchAndQuintetStore,
   useCronoStore,

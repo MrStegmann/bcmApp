@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { ImageBackground, Text, TouchableOpacity, View } from "react-native";
+import {
+  ImageBackground,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native-web";
 import useDB from "../hooks/useDB";
 import jersey from "../../assets/jersey.png";
 import { timeFormat } from "../helpers/timeFormat";

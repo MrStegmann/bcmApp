@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native-web";
 
 const ExerciseItem = ({ exercise, onSelect, onDelete, onEdit }) => {
   const others = exercise.flags

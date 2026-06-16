@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native-web";
 import Input from "../framework/Input";
 
 const TrainingPlayer = ({ tp, updateTrainingPlayer }) => {

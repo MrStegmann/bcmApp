@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import { Text, View } from "react-native-web";
 import { useClubStore } from "../store/ClubStore";
 import Input from "../framework/Input";
 import TopMenuEnums from "../Enums/TopMenuEnums";

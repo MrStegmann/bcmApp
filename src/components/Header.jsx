@@ -1,4 +1,4 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native-web";
 import { useAuthStore } from "../store/AuthStore";
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";

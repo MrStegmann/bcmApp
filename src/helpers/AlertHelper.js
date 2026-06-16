@@ -1,4 +1,4 @@
-import { Alert } from "react-native";
+import { Alert } from "react-native-web";
 
 export const delAlert = (itemName, onPress) => {
   Alert.alert(

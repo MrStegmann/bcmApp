@@ -1,4 +1,4 @@
-import { View, Text, PanResponder } from "react-native";
+import { View, Text, PanResponder } from "react-native-web";
 import { useRef, useEffect } from "react";
 import TokenEnums from "../../Enums/TokenEnums";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";

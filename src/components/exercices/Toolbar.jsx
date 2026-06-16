@@ -1,5 +1,5 @@
 import TokenEnums from "../../Enums/TokenEnums";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native-web";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";

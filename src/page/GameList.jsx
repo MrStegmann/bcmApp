@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View } from "react-native-web";
 import { useClubStore } from "../store/ClubStore";
 import GameCards from "../components/GameCards";
 import DeleteModal from "../framework/DeleteModal";

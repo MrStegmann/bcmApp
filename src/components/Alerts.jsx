@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Text, View } from "react-native-web";
 import { useAlertStore } from "../store/AlertStore";
 
 const Alerts = () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, View } from "react-native-web";
 import { useMarketStore } from "../../store/MatchStore";
 
 const Foults = React.memo(({ foults }) => {

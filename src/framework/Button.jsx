@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native-web";
 
 const Button = ({ onPress, title }) => {
   return (

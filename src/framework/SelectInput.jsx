@@ -1,6 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native-web";
 
 const SelectInput = ({ cb, options, defaultOption }) => {
   const [showOptions, setShowOptions] = useState(false);

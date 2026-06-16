@@ -1,4 +1,4 @@
-import { Text, View, FlatList } from "react-native";
+import { Text, View, FlatList } from "react-native-web";
 import React from "react";
 import { Entypo } from "@expo/vector-icons";
 

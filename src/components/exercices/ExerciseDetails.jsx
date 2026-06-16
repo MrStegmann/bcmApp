@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native-web";
 import HalfCourt from "./assests/HalfCourt";
 import FullCourt from "./assests/FullCourt";
 import Svg, { G, Path } from "react-native-svg";

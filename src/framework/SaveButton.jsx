@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Animated, Easing, TouchableOpacity } from "react-native";
+import { Animated, Easing, TouchableOpacity } from "react-native-web";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 

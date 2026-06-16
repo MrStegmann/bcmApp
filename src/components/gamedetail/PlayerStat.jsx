@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native-web";
 import { TimerPickerModal } from "react-native-timer-picker";
 import StatsEnums from "../../Enums/StatsEnums";
 import { MaterialIcons } from "@expo/vector-icons";

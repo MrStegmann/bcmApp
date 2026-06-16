@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList } from "react-native-web";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const CardGamesResults = ({ game }) => {

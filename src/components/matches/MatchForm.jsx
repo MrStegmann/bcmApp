@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
+} from "react-native-web";
 import { errorAlert, infoAlert } from "../../helpers/AlertHelper";
 import { useTeamStore } from "../../store/TeamStore";
 import { useNavigation } from "@react-navigation/native";

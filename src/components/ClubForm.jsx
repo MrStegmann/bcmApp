@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View } from "react-native-web";
 import Input from "../framework/Input";
 import { useMenuStore } from "../store/MenuStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";

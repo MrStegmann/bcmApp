@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text } from "react-native-web";
 import CustomTooltip from "../../framework/CustomTooltip";
 
 const GameStats = ({ players, quarters }) => {

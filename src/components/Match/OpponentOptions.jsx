@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native-web";
 import { useMatchStore } from "../../store/MatchStore";
 
 const OpponentOptions = ({

@@ -1,4 +1,4 @@
-import { Text, View, TextInput } from "react-native";
+import { Text, View, TextInput } from "react-native-web";
 import React from "react";
 
 const Marker = React.memo(
