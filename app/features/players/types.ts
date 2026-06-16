@@ -14,7 +14,7 @@ export interface Player {
 
 export interface PlayerStats {
   playerId: string;
-  matchId?: string | null; // Optional, as stats can be aggregated across matches
+  gameId?: string | null; // Optional, as stats can be aggregated across matches
   minutes: number;
   t1a: number; // Free throw made
   t1i: number; // Free throws attemps

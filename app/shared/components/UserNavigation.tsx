@@ -7,6 +7,9 @@ const UserNavigation = () => {
   const { navigate } = useAppNavigation();
 
   const navigationItems = useNavigator((state) => state.navigationItems);
+  const isNavVisible = useNavigator((state) => state.isNavVisible);
+
+  if (!isNavVisible) return null;
 
   return (
     <View className="h-14 w-full flex-row items-center justify-between bg-gray-200 px-5">

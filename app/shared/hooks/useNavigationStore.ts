@@ -15,6 +15,8 @@ interface NavigationState {
   pendingParams: any;
   setPendingRoute: (route: keyof typeof AppRoutes, params?: any) => void;
   clearPendingRoute: () => void;
+  isNavVisible: boolean;
+  setNavVisible: (visible: boolean) => void;
 }
 
 const useNavigationStore = create<NavigationState>((set) => ({
@@ -24,6 +26,8 @@ const useNavigationStore = create<NavigationState>((set) => ({
   pendingParams: undefined,
   setPendingRoute: (route, params) => set({ pendingRoute: route, pendingParams: params }),
   clearPendingRoute: () => set({ pendingRoute: null, pendingParams: undefined }),
+  isNavVisible: true,
+  setNavVisible: (visible) => set({ isNavVisible: visible }),
 }));
 
 export { useNavigationStore };

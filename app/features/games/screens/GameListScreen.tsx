@@ -96,6 +96,29 @@ const GameListScreen = ({ navigation }: GamesListScreenProps) => {
     [loadGames],
   );
 
+  const handlePlayGame = async (game: Game) => {
+    try {
+      setIsLoading(true);
+      const roster = await import("../api").then((m) => m.getGameRoster(game.id));
+      if (!roster || !roster.playerIds || roster.playerIds.length === 0) {
+        showAlert({
+          title: "Plantilla incompleta",
+          message: "No has seleccionado la plantilla para este partido",
+        });
+        return;
+      }
+      navigation.navigate(AppRoutes.GamePlayMatch, { gameId: game.id });
+    } catch (error) {
+      // If it throws an error (e.g. 404 Not Found), it means no roster exists
+      showAlert({
+        title: "Plantilla incompleta",
+        message: "No has seleccionado la plantilla para este partido",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView edges={["left", "right"]} style={styles.safeArea}>
       <View style={styles.container}>
@@ -159,6 +182,14 @@ const GameListScreen = ({ navigation }: GamesListScreenProps) => {
                     style={styles.startButton}
                   >
                     <FontAwesome name="users" size={16} color="black" />
+                  </Pressable>
+
+                  <Pressable
+                    disabled={isLoading}
+                    onPress={() => handlePlayGame(game)}
+                    style={styles.playMatchButton}
+                  >
+                    <Ionicons name="play" size={16} color="black" />
                   </Pressable>
 
                   <Pressable

@@ -23,6 +23,7 @@ export const AppRoutes = {
   GameForm: "GameForm",
   GameDetail: "GameDetail",
   GameRoster: "GameRoster",
+  GamePlayMatch: "GamePlayMatch",
 } as const;
 
 export type AppStackParamList = {
@@ -72,6 +73,9 @@ export type AppStackParamList = {
     game: Game;
   };
   [AppRoutes.GameRoster]: {
+    gameId: string;
+  };
+  [AppRoutes.GamePlayMatch]: {
     gameId: string;
   };
 };

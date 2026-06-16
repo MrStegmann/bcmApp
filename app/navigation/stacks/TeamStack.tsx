@@ -15,7 +15,7 @@ import {
   NavigationItem,
 } from "../../shared/hooks/useNavigationStore";
 import { useAppNavigation, useProcessPendingNavigation } from "../../shared/hooks/useAppNavigation";
-import { GameListScreen, GameDetailScreen, GameFormScreen, GameRosterScreen } from "../../features/games";
+import { GameListScreen, GameDetailScreen, GameFormScreen, GameRosterScreen, GamePlayMatchScreen } from "../../features/games";
 
 import { useRoute } from "@react-navigation/native";
 
@@ -92,6 +92,7 @@ const TeamStack = () => {
       <Stack.Screen component={GameDetailScreen} name={AppRoutes.GameDetail} />
       <Stack.Screen component={GameFormScreen} name={AppRoutes.GameForm} />
       <Stack.Screen component={GameRosterScreen} name={AppRoutes.GameRoster} />
+      <Stack.Screen component={GamePlayMatchScreen} name={AppRoutes.GamePlayMatch} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };
