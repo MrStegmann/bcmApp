@@ -43,6 +43,33 @@ const INITIAL_STATE: GamePlayState = {
   playerStats: {},
 };
 
+const HELP_DATA: Record<string, { title: string; description: string }> = {
+  timer: {
+    title: "Reloj / Cronómetro",
+    description: "Botón pulsable. Al pulsarlo, el tiempo comenzará a correr o se pausará. Si mantienes pulsado sobre él (o tocas en el icono de reinicio en web) durante un cuarto extra (EX), el reloj volverá a 5:00."
+  },
+  quarters: {
+    title: "Selector de Cuartos",
+    description: "Botones pulsables. Te permiten moverte entre los distintos cuartos del partido (Q1 a Q4, o EX). Al cambiar, se guarda el tiempo pero el marcador parcial comienza de cero."
+  },
+  rival: {
+    title: "Equipo Rival",
+    description: "Botón pulsable. Al hacer clic, se abre una ventana donde puedes sumar puntos (+1, +2, +3) de forma rápida al equipo contrario, o sumarle una falta de equipo."
+  },
+  bench: {
+    title: "Jugadores en el Banquillo",
+    description: "Botones pulsables de sustitución. Al pulsar sobre la camiseta de un jugador del banquillo, queda seleccionado (rojo). Si luego pulsas sobre un jugador en la pista, entrará por él."
+  },
+  court_player: {
+    title: "Jugadores en Pista",
+    description: "Botones pulsables de acción. Representan a tu quinteto. Al pulsar sobre uno, quedará seleccionado (naranja) y podrás asignarle estadísticas."
+  },
+  stats_toolbar: {
+    title: "Barra de Estadísticas",
+    description: "Botones de acción. Primero selecciona un jugador en la pista. Luego pulsa sobre cualquiera de estos botones para registrar la estadística a su nombre."
+  }
+};
+
 type ShotModalState = {
   visible: boolean;
   points: 1 | 2 | 3 | null;
@@ -60,6 +87,9 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [rosterPlayers, setRosterPlayers] = useState<Player[]>([]);
   const [matchState, setMatchState] = useState<GamePlayState>({ ...INITIAL_STATE, gameId });
+
+  const [isHelpModeActive, setIsHelpModeActive] = useState(false);
+  const [activeHelpItem, setActiveHelpItem] = useState<{title: string, description: string} | null>(null);
 
   // UI States
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -128,7 +158,6 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
           setIsModalVisible(true);
         }
       } else if (availablePlayers.length > 0) {
-        // First time
         setIsModalVisible(true);
       }
     } catch (e) {
@@ -153,7 +182,6 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
           const newTime = prevT - 1;
           const isDone = newTime <= 0;
           
-          // Aumentar 1000ms a la estadística 'minutes' de los jugadores en pista
           const newPlayerStats = { ...(prev.playerStats || {}) };
           prev.courtPlayerIds.forEach(playerId => {
             const stats = newPlayerStats[playerId] || {
@@ -183,8 +211,6 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
     return () => clearInterval(interval);
   }, [isTimerRunning, matchState.quarter, matchState.timeRemainingByQuarter?.[matchState.quarter]]);
 
-  // Optionally, save the time to local storage periodically or when paused.
-  // We save it when the user pauses.
   useEffect(() => {
     if (!isTimerRunning) {
       updateState({ timeRemainingByQuarter: matchState.timeRemainingByQuarter });
@@ -217,33 +243,6 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
         playerStats: {
           ...(prev.playerStats || {}),
           [playerId]: { ...stats, [statKey]: (stats[statKey] as number) + value }
-        }
-      };
-    });
-  };
-
-  const updatePlayerMultiStats = (playerId: string, updatesMap: Partial<PlayerStats>, globalUpdates?: (prev: GamePlayState) => Partial<GamePlayState>) => {
-    updateState(prev => {
-      const stats = prev.playerStats?.[playerId] || {
-        playerId,
-        gameId: prev.gameId,
-        minutes: 0,
-        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
-        dreb: 0, oreb: 0, asis: 0, rec: 0, per: 0, falt: 0
-      };
-
-      const updatedStats = { ...stats };
-      for (const key in updatesMap) {
-        (updatedStats as any)[key] = (((updatedStats as any)[key] as number) || 0) + ((updatesMap as any)[key] as number);
-      }
-
-      const extras = globalUpdates ? globalUpdates(prev) : {};
-
-      return {
-        ...extras,
-        playerStats: {
-          ...(prev.playerStats || {}),
-          [playerId]: updatedStats
         }
       };
     });
@@ -306,14 +305,21 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
     const sId = shotModal.shooterId;
 
     if (made) {
-      updatePlayerMultiStats(
-        sId,
-        { [`t${pts}a`]: 1, [`t${pts}i`]: 1 } as any,
-        (prev) => ({
+      updateState(prev => {
+        const stats = prev.playerStats?.[sId] || {
+          playerId: sId, gameId: prev.gameId, minutes: 0,
+          t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+          dreb: 0, oreb: 0, asis: 0, rec: 0, per: 0, falt: 0
+        };
+        const updatedStats = { ...stats, [`t${pts}a`]: (stats[`t${pts}a` as keyof PlayerStats] as number) + 1, [`t${pts}i`]: (stats[`t${pts}i` as keyof PlayerStats] as number) + 1 };
+        
+        return {
+          ...prev,
           teamScore: prev.teamScore + pts,
-          quarterTeamScore: prev.quarterTeamScore + pts
-        })
-      );
+          quarterTeamScore: prev.quarterTeamScore + pts,
+          playerStats: { ...(prev.playerStats || {}), [sId]: updatedStats }
+        };
+      });
       if (pts === 1) {
         setShotModal({ visible: false, points: null, step: "outcome", shooterId: null });
         setSelectedPlayerId(null);
@@ -395,10 +401,41 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
     return (matchState.rivalFoulsByQuarter || {})[q] || 0;
   };
 
+  const HelpWrapper = ({ children, helpKey, style }: { children: React.ReactNode, helpKey: keyof typeof HELP_DATA, style?: any }) => (
+    <View style={[{ position: "relative" }, style]}>
+      {children}
+      {isHelpModeActive && (
+        <Pressable
+          style={{
+            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(59, 130, 246, 0.2)",
+            borderRadius: 8,
+            justifyContent: "center", alignItems: "center", zIndex: 100
+          }}
+          onPress={() => setActiveHelpItem(HELP_DATA[helpKey])}
+        >
+          <Ionicons name="information-circle" size={32} color="#3B82F6" />
+        </Pressable>
+      )}
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom", "left", "right"]}>
       <View style={styles.container}>
-        {/* Header */}
+        {/* Floating Help Button */}
+        <Pressable 
+          style={{
+            position: "absolute", top: 16, right: 16, width: 32, height: 32, borderRadius: 16,
+            backgroundColor: isHelpModeActive ? "#EF4444" : "rgba(31, 41, 55, 0.7)",
+            borderWidth: 1, borderColor: isHelpModeActive ? "#DC2626" : "#3B82F6",
+            justifyContent: "center", alignItems: "center", zIndex: 200,
+          }}
+          onPress={() => setIsHelpModeActive(!isHelpModeActive)}
+        >
+          <Ionicons name={isHelpModeActive ? "close" : "information"} size={18} color={isHelpModeActive ? "#FFF" : "#3B82F6"} />
+        </Pressable>
+
         <View style={styles.header}>
           <View style={[styles.headerLeft, { position: "relative", justifyContent: "center", alignItems: "center" }]}>
             <Pressable onPress={() => goBack()} style={{ position: "absolute", top: -4, left: -4, padding: 8, zIndex: 10 }}>
@@ -415,76 +452,71 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
             <Text style={styles.quarterScoreText}>
               {matchState.quarterTeamScore} {matchState.quarter === 5 ? "EX" : `Q${matchState.quarter}`} {matchState.quarterRivalScore}
             </Text>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 4 }}>
-              <Pressable 
-                onPress={() => setIsTimerRunning(!isTimerRunning)}
-                onLongPress={() => {
-                  if (matchState.quarter === 5 && Platform.OS !== 'web') {
-                    setIsTimerRunning(false);
-                    updateState(prev => ({
-                      timeRemainingByQuarter: { ...(prev.timeRemainingByQuarter || {}), 5: 300 }
-                    }));
-                    showToast("Cronómetro de Prórroga reiniciado");
-                  }
-                }}
-                delayLongPress={800}
-              >
-                <Text style={[styles.timeText, isTimerRunning && { color: "#10B981" }]}>
-                  {formatTime(matchState.timeRemainingByQuarter?.[matchState.quarter] ?? (matchState.quarter === 5 ? 300 : 600))}
-                </Text>
-              </Pressable>
-              {matchState.quarter === 5 && Platform.OS === 'web' && (
-                <Pressable
-                  onPress={() => {
-                    setIsTimerRunning(false);
-                    updateState(prev => ({
-                      timeRemainingByQuarter: { ...(prev.timeRemainingByQuarter || {}), 5: 300 }
-                    }));
-                    showToast("Cronómetro de Prórroga reiniciado");
+            <HelpWrapper helpKey="timer">
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 4 }}>
+                <Pressable 
+                  onPress={() => setIsTimerRunning(!isTimerRunning)}
+                  onLongPress={() => {
+                    if (matchState.quarter === 5 && Platform.OS !== 'web') {
+                      setIsTimerRunning(false);
+                      updateState(prev => ({
+                        timeRemainingByQuarter: { ...(prev.timeRemainingByQuarter || {}), 5: 300 }
+                      }));
+                      showToast("Cronómetro de Prórroga reiniciado");
+                    }
                   }}
-                  style={{ padding: 6, backgroundColor: "#374151", borderRadius: 16 }}
+                  delayLongPress={800}
                 >
-                  <Ionicons name="refresh" size={18} color="#D1D5DB" />
+                  <Text style={[styles.timeText, isTimerRunning && { color: "#10B981" }]}>
+                    {formatTime(matchState.timeRemainingByQuarter?.[matchState.quarter] ?? (matchState.quarter === 5 ? 300 : 600))}
+                  </Text>
                 </Pressable>
-              )}
-            </View>
+                {matchState.quarter === 5 && Platform.OS === 'web' && (
+                  <Pressable
+                    onPress={() => {
+                      setIsTimerRunning(false);
+                      updateState(prev => ({
+                        timeRemainingByQuarter: { ...(prev.timeRemainingByQuarter || {}), 5: 300 }
+                      }));
+                      showToast("Cronómetro de Prórroga reiniciado");
+                    }}
+                    style={{ padding: 6, backgroundColor: "#374151", borderRadius: 16 }}
+                  >
+                    <Ionicons name="refresh" size={18} color="#D1D5DB" />
+                  </Pressable>
+                )}
+              </View>
+            </HelpWrapper>
           </View>
 
-          <Pressable style={[styles.headerRight, { position: "relative", justifyContent: "center", alignItems: "center" }]} onPress={() => setIsRivalModalVisible(true)}>
-            <Text style={[styles.rivalName, { textAlign: "center" }]}>Rival</Text>
-            <View style={{ position: "absolute", bottom: -4 }}>
-              <FoulIndicator fouls={getRivalFouls()} />
-            </View>
-          </Pressable>
+          <HelpWrapper helpKey="rival" style={styles.headerRight}>
+            <Pressable style={[{ flex: 1, position: "relative", justifyContent: "center", alignItems: "center" }]} onPress={() => setIsRivalModalVisible(true)}>
+              <Text style={[styles.rivalName, { textAlign: "center" }]}>Rival</Text>
+              <View style={{ position: "absolute", bottom: -4 }}>
+                <FoulIndicator fouls={getRivalFouls()} />
+              </View>
+            </Pressable>
+          </HelpWrapper>
         </View>
 
-        {/* Controls and Bench */}
         <View style={styles.benchContainer}>
-          {/* Row 1: Quarters */}
-          <View style={styles.quartersRow}>
-            {[1, 2, 3, 4, 5].map(q => (
-              <Pressable
-                key={q}
-                onPress={() => {
-                  setIsTimerRunning(false);
-                  updateState({ quarter: q, quarterTeamScore: 0, quarterRivalScore: 0 });
-                }}
-                onLongPress={() => {
-                  if (q === 5) {
-                     updateState(prev => ({
-                       timeRemainingByQuarter: { ...(prev.timeRemainingByQuarter || {}), 5: 300 }
-                     }));
-                     showToast("Cronómetro de Prórroga reiniciado");
-                  }
-                }}
-                style={[styles.quarterButton, matchState.quarter === q && styles.quarterButtonActive]}
-              >
-                <Text style={[styles.quarterButtonText, matchState.quarter === q && styles.quarterButtonTextActive]}>{q === 5 ? "EX" : `Q${q}`}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <HelpWrapper helpKey="quarters">
+            <View style={styles.quartersRow}>
+              {[1, 2, 3, 4, 5].map(q => (
+                <Pressable
+                  key={q}
+                  onPress={() => {
+                    setIsTimerRunning(false);
+                    updateState({ quarter: q, quarterTeamScore: 0, quarterRivalScore: 0 });
+                  }}
+                  style={[styles.quarterButton, matchState.quarter === q && styles.quarterButtonActive]}
+                >
+                  <Text style={[styles.quarterButtonText, matchState.quarter === q && styles.quarterButtonTextActive]}>{q === 5 ? "EX" : `Q${q}`}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </HelpWrapper>
 
-          {/* Row 2: Quintetos y Cambios y Stats */}
           <View style={styles.actionButtonsRow}>
             {isSubMode ? (
               <Pressable
@@ -528,7 +560,7 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
                     return;
                   }
                   if (subsIn.size !== subsOut.size) {
-                    showToast(`Has seleccionado ${subsOut.size} para salir y ${subsIn.size} para entrar. Debes elegir la misma cantidad.`);
+                    showToast(`Has seleccionado ${subsOut.size} para salir y ${subsIn.size} para entrar.`);
                     return;
                   }
                   const newCourt = [...matchState.courtPlayerIds];
@@ -540,12 +572,6 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
                       inIndex++;
                     }
                   }
-
-                  if (newCourt.length > 5) {
-                    showToast("No puedes tener más de 5 jugadores en pista.");
-                    return;
-                  }
-
                   updateState({ courtPlayerIds: newCourt });
                   setSubsIn(new Set());
                   setSubsOut(new Set());
@@ -562,95 +588,87 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
             </Pressable>
           </View>
 
-          {/* Row 3: Bench Players */}
-          <View style={styles.benchPlayersRow}>
-            {benchPlayers.map((p) => {
-              const isSelected = isSubMode ? subsIn.has(p.id) : false;
-              return (
-                <Pressable
-                  key={p.id}
-                  style={[
-                    styles.jerseyToken,
-                    isSelected && styles.jerseyTokenSelected
-                  ]}
-                  onPress={() => handlePlayerTap(p.id, true)}
-                >
-                  <Ionicons name="shirt" size={36} color={isSelected ? "#3B82F6" : "#4B5563"} />
-                  <Text style={styles.jerseyNumber}>{p.jerseyNumber}</Text>
-                </Pressable>
-              );
-            })}
+          <HelpWrapper helpKey="bench">
+            <View style={styles.benchPlayersRow}>
+              {benchPlayers.map((p) => {
+                const isSelected = isSubMode ? subsIn.has(p.id) : false;
+                return (
+                  <Pressable
+                    key={p.id}
+                    style={[styles.jerseyToken, isSelected && styles.jerseyTokenSelected]}
+                    onPress={() => handlePlayerTap(p.id, true)}
+                  >
+                    <Ionicons name="shirt" size={36} color={isSelected ? "#3B82F6" : "#4B5563"} />
+                    <Text style={styles.jerseyNumber}>{p.jerseyNumber}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </HelpWrapper>
+        </View>
+
+        <HelpWrapper helpKey="court_player" style={{ flex: 1 }}>
+          <View style={styles.courtContainer}>
+            <View style={{ width: "100%", aspectRatio: 384 / 300, position: "absolute", top: 0 }}>
+              <HalfCourt />
+              {courtPlayers.map((p, index) => {
+                const pos = COURT_POSITIONS[index] || { x: "50%", y: "50%" };
+                const isSelected = isSubMode ? subsOut.has(p.id) : selectedPlayerId === p.id;
+                return (
+                  <Pressable
+                    key={p.id}
+                    style={[styles.playerToken, { left: pos.x, top: pos.y, transform: [{ translateX: -25 }, { translateY: -25 }] }]}
+                    onPress={() => handlePlayerTap(p.id, false)}
+                  >
+                    <Ionicons name="shirt" size={48} color={isSelected ? "#2563EB" : "#1F2937"} />
+                    <Text style={styles.playerTokenText}>{p.jerseyNumber}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
-        </View>
+        </HelpWrapper>
 
-
-
-        {/* Modals */}
-        <View style={styles.courtContainer}>
-          <View style={{ width: "100%", aspectRatio: 384 / 300, position: "absolute", top: 0 }}>
-            <HalfCourt />
-
-            {courtPlayers.map((p, index) => {
-              const pos = COURT_POSITIONS[index] || { x: "50%", y: "50%" };
-              const isSelected = isSubMode ? subsOut.has(p.id) : selectedPlayerId === p.id;
-              return (
-                <Pressable
-                  key={p.id}
-                  style={[
-                    styles.playerToken,
-                    { left: pos.x, top: pos.y, transform: [{ translateX: -25 }, { translateY: -25 }] }
-                  ]}
-                  onPress={() => handlePlayerTap(p.id, false)}
-                >
-                  <Ionicons name="shirt" size={48} color={isSelected ? "#2563EB" : "#1F2937"} />
-                  <Text style={styles.playerTokenText}>{p.jerseyNumber}</Text>
-                </Pressable>
-              );
-            })}
+        <HelpWrapper helpKey="stats_toolbar">
+          <View style={styles.toolbar}>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonPoint, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => handleShotBtn(1)}>
+              <Text style={styles.toolButtonText}>+1 TL</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonPoint, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => handleShotBtn(2)}>
+              <Text style={styles.toolButtonText}>+2 PT</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonPoint, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => handleShotBtn(3)}>
+              <Text style={styles.toolButtonText}>+3 PT</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "oreb", 1); setSelectedPlayerId(null); }}>
+              <Text style={styles.toolButtonText}>Reb Of</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "dreb", 1); setSelectedPlayerId(null); }}>
+              <Text style={styles.toolButtonText}>Reb Def</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "asis", 1); setSelectedPlayerId(null); }}>
+              <Text style={styles.toolButtonText}>Ast</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "rec", 1); setSelectedPlayerId(null); }}>
+              <Text style={styles.toolButtonText}>Robo</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonMiss, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "per", 1); setSelectedPlayerId(null); }}>
+              <Text style={styles.toolButtonText}>Pérdida</Text>
+            </Pressable>
+            <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonMiss, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { 
+              updatePlayerStat(selectedPlayerId!, "falt", 1, prev => ({
+                teamFoulsByQuarter: {
+                  ...(prev.teamFoulsByQuarter || {}),
+                  [prev.quarter]: ((prev.teamFoulsByQuarter || {})[prev.quarter] || 0) + 1
+                }
+              })); 
+              setSelectedPlayerId(null); 
+            }}>
+              <Text style={styles.toolButtonText}>Falta</Text>
+            </Pressable>
           </View>
-        </View>
+        </HelpWrapper>
 
-        {/* Toolbar */}
-        <View style={styles.toolbar}>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonPoint, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => handleShotBtn(1)}>
-            <Text style={styles.toolButtonText}>+1 TL</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonPoint, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => handleShotBtn(2)}>
-            <Text style={styles.toolButtonText}>+2 PT</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonPoint, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => handleShotBtn(3)}>
-            <Text style={styles.toolButtonText}>+3 PT</Text>
-          </Pressable>
-
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "oreb", 1); setSelectedPlayerId(null); }}>
-            <Text style={styles.toolButtonText}>Reb Of</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "dreb", 1); setSelectedPlayerId(null); }}>
-            <Text style={styles.toolButtonText}>Reb Def</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "asis", 1); setSelectedPlayerId(null); }}>
-            <Text style={styles.toolButtonText}>Ast</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "rec", 1); setSelectedPlayerId(null); }}>
-            <Text style={styles.toolButtonText}>Robo</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonMiss, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { updatePlayerStat(selectedPlayerId!, "per", 1); setSelectedPlayerId(null); }}>
-            <Text style={styles.toolButtonText}>Pérdida</Text>
-          </Pressable>
-          <Pressable disabled={!selectedPlayerId} style={[styles.toolButton, styles.toolButtonMiss, !selectedPlayerId && styles.statButtonDisabled]} onPress={() => { 
-            updatePlayerStat(selectedPlayerId!, "falt", 1, prev => ({
-              teamFoulsByQuarter: {
-                ...(prev.teamFoulsByQuarter || {}),
-                [prev.quarter]: ((prev.teamFoulsByQuarter || {})[prev.quarter] || 0) + 1
-              }
-            })); 
-            setSelectedPlayerId(null); 
-          }}>
-            <Text style={styles.toolButtonText}>Falta</Text>
-          </Pressable>
-        </View>
-
-        {/* Toast Notification */}
         {toastMessage && (
           <Animated.View style={[styles.toastContainer, { opacity: toastOpacity }]}>
             <Ionicons name="alert-circle" size={24} color="#FFF" style={{ marginRight: 8 }} />
@@ -658,29 +676,17 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
           </Animated.View>
         )}
 
-        {/* Initial Five Modal */}
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          transparent={true}
-        >
+        <Modal visible={isModalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Quinteto Inicial</Text>
-              <Text style={{ color: "#9CA3AF", marginBottom: 16, textAlign: "center" }}>
-                Selecciona 5 jugadores ({tempStartingFive.size}/5)
-              </Text>
-
               <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 16, marginBottom: 24 }}>
                 {sortedRoster.map(p => {
                   const isSelected = tempStartingFive.has(p.id);
                   return (
                     <Pressable
                       key={p.id}
-                      style={[
-                        styles.jerseyToken,
-                        isSelected && styles.jerseyTokenSelected
-                      ]}
+                      style={[styles.jerseyToken, isSelected && styles.jerseyTokenSelected]}
                       onPress={() => {
                         const next = new Set(tempStartingFive);
                         if (isSelected) next.delete(p.id);
@@ -694,193 +700,58 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
                   );
                 })}
               </View>
-
               <View style={styles.modalActions}>
-                <Pressable
-                  style={styles.modalButtonCancel}
-                  onPress={() => setIsModalVisible(false)}
-                >
-                  <Text style={styles.modalButtonCancelText}>Cancelar</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.modalButtonConfirm, tempStartingFive.size !== 5 && { opacity: 0.5 }]}
-                  disabled={tempStartingFive.size !== 5}
-                  onPress={() => {
-                    updateState({ courtPlayerIds: Array.from(tempStartingFive) });
-                    setIsModalVisible(false);
-                  }}
-                >
-                  <Text style={styles.modalButtonConfirmText}>Guardar</Text>
-                </Pressable>
+                <Pressable style={styles.modalButtonCancel} onPress={() => setIsModalVisible(false)}><Text style={styles.modalButtonCancelText}>Cancelar</Text></Pressable>
+                <Pressable style={[styles.modalButtonConfirm, tempStartingFive.size !== 5 && { opacity: 0.5 }]} disabled={tempStartingFive.size !== 5} onPress={() => { updateState({ courtPlayerIds: Array.from(tempStartingFive) }); setIsModalVisible(false); }}><Text style={styles.modalButtonConfirmText}>Guardar</Text></Pressable>
               </View>
             </View>
           </View>
         </Modal>
 
-        {/* Shot Flow Modal */}
-        <Modal
-          visible={shotModal.visible}
-          animationType="fade"
-          transparent={true}
-        >
+        <Modal visible={shotModal.visible} animationType="fade" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               {shotModal.step === "outcome" ? (
                 <>
                   <Text style={styles.modalTitle}>Tiro de {shotModal.points} PT</Text>
-                  <Text style={{ color: "#9CA3AF", marginBottom: 24, textAlign: "center" }}>¿Cuál fue el resultado del tiro?</Text>
                   <View style={{ flexDirection: "row", gap: 12, justifyContent: "center" }}>
-                    <Pressable
-                      style={[styles.modalButtonCancel, { flex: 1, backgroundColor: "#DC2626" }]}
-                      onPress={() => handleShotOutcome(false)}
-                    >
-                      <Text style={styles.modalButtonCancelText}>Fallo</Text>
-                    </Pressable>
-                    <Pressable
-                      style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]}
-                      onPress={() => handleShotOutcome(true)}
-                    >
-                      <Text style={styles.modalButtonConfirmText}>Acierto</Text>
-                    </Pressable>
+                    <Pressable style={[styles.modalButtonCancel, { flex: 1, backgroundColor: "#DC2626" }]} onPress={() => handleShotOutcome(false)}><Text style={styles.modalButtonCancelText}>Fallo</Text></Pressable>
+                    <Pressable style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]} onPress={() => handleShotOutcome(true)}><Text style={styles.modalButtonConfirmText}>Acierto</Text></Pressable>
                   </View>
                 </>
               ) : (
                 <>
                   <Text style={styles.modalTitle}>¿Asistencia?</Text>
-                  <Text style={{ color: "#9CA3AF", marginBottom: 16, textAlign: "center" }}>Selecciona quién dio el pase</Text>
-
                   <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 12, marginBottom: 24 }}>
                     {courtPlayers.filter(p => p.id !== shotModal.shooterId).map(p => (
-                      <Pressable
-                        key={p.id}
-                        style={[styles.jerseyToken, { backgroundColor: "#374151", borderRadius: 8 }]}
-                        onPress={() => handleAssist(p.id)}
-                      >
-                        <Ionicons name="person" size={24} color="#9CA3AF" style={{ position: "absolute", top: 4 }} />
-                        <Text style={[styles.jerseyNumber, { top: 28, fontSize: 12 }]}>#{p.jerseyNumber}</Text>
+                      <Pressable key={p.id} style={[styles.jerseyToken, { backgroundColor: "#374151", borderRadius: 8 }]} onPress={() => handleAssist(p.id)}>
+                        <Ionicons name="person" size={24} color="#9CA3AF" />
+                        <Text style={[styles.jerseyNumber, { fontSize: 12 }]}>#{p.jerseyNumber}</Text>
                       </Pressable>
                     ))}
                   </View>
-
-                  <Pressable
-                    style={[styles.modalButtonCancel, { alignSelf: "stretch" }]}
-                    onPress={() => handleAssist(null)}
-                  >
-                    <Text style={styles.modalButtonCancelText}>Sin Asistencia</Text>
-                  </Pressable>
+                  <Pressable style={styles.modalButtonCancel} onPress={() => handleAssist(null)}><Text style={styles.modalButtonCancelText}>Sin Asistencia</Text></Pressable>
                 </>
               )}
             </View>
           </View>
         </Modal>
 
-        {/* Player Stats Modal */}
-        <Modal
-          visible={isStatsModalVisible}
-          animationType="fade"
-          transparent={true}
-        >
+        <Modal visible={isStatsModalVisible} animationType="fade" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={[styles.modalContent, { width: "95%", maxWidth: 400 }]}>
               {selectedPlayerId && (() => {
-                const p = rosterPlayers.find(p => p.id === selectedPlayerId);
-                const st = matchState.playerStats[selectedPlayerId] || {
-                  minutes: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
-                  dreb: 0, oreb: 0, asis: 0, rec: 0, per: 0, falt: 0
-                };
-
+                const st = matchState.playerStats[selectedPlayerId] || { minutes: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, dreb: 0, oreb: 0, asis: 0, rec: 0, per: 0, falt: 0 };
                 const points = (st.t1a * 1) + (st.t2a * 2) + (st.t3a * 3);
-                const pir = points + (st.dreb + st.oreb) + st.asis + st.rec
-                  - (st.t1i - st.t1a) - (st.t2i - st.t2a) - (st.t3i - st.t3a)
-                  - st.per - st.falt;
-
-                const formatMin = (ms: number) => {
-                  const totalSecs = Math.floor(ms / 1000);
-                  const m = Math.floor(totalSecs / 60);
-                  const s = totalSecs % 60;
-                  return `${m}:${s.toString().padStart(2, '0')}`;
-                };
-
-                const getPct = (a: number, i: number) => {
-                  if (i === 0) return "0%";
-                  return Math.round((a / i) * 100) + "%";
-                };
-
+                const formatMin = (ms: number) => { const totalSecs = Math.floor(ms / 1000); return `${Math.floor(totalSecs / 60)}:${(totalSecs % 60).toString().padStart(2, '0')}`; };
                 return (
                   <>
-                    <View style={styles.statsHeader}>
-                      <Text style={styles.statsPlayerName}>#{p?.jerseyNumber} {p?.firstName} {p?.lastName}</Text>
-                    </View>
-
+                    <View style={styles.statsHeader}><Text style={styles.statsPlayerName}>Estadísticas</Text></View>
                     <View style={styles.statsCenterRow}>
-                      <View style={styles.statsCenterBox}>
-                        <Text style={styles.statsCenterLabel}>Minutos</Text>
-                        <Text style={styles.statsCenterValue}>{formatMin(st.minutes)}</Text>
-                      </View>
-                      <View style={styles.statsCenterBox}>
-                        <Text style={styles.statsCenterLabel}>Puntos</Text>
-                        <Text style={styles.statsCenterValue}>{points}</Text>
-                      </View>
-                      <View style={styles.statsCenterBox}>
-                        <Text style={styles.statsCenterLabel}>Valoración</Text>
-                        <Text style={[styles.statsCenterValue, { color: pir < 0 ? "#EF4444" : pir > 10 ? "#10B981" : "#3B82F6" }]}>{pir}</Text>
-                      </View>
+                      <View style={styles.statsCenterBox}><Text style={styles.statsCenterLabel}>Minutos</Text><Text style={styles.statsCenterValue}>{formatMin(st.minutes)}</Text></View>
+                      <View style={styles.statsCenterBox}><Text style={styles.statsCenterLabel}>Puntos</Text><Text style={styles.statsCenterValue}>{points}</Text></View>
                     </View>
-
-                    <View style={styles.statsRowGroup}>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>T1</Text>
-                        <Text style={styles.statsBoxValue}>{st.t1a}/{st.t1i}</Text>
-                        <Text style={styles.statsBoxSub}>{getPct(st.t1a, st.t1i)}</Text>
-                      </View>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>T2</Text>
-                        <Text style={styles.statsBoxValue}>{st.t2a}/{st.t2i}</Text>
-                        <Text style={styles.statsBoxSub}>{getPct(st.t2a, st.t2i)}</Text>
-                      </View>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>T3</Text>
-                        <Text style={styles.statsBoxValue}>{st.t3a}/{st.t3i}</Text>
-                        <Text style={styles.statsBoxSub}>{getPct(st.t3a, st.t3i)}</Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.statsRowGroup}>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>ROf</Text>
-                        <Text style={styles.statsBoxValue}>{st.oreb}</Text>
-                      </View>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>RDef</Text>
-                        <Text style={styles.statsBoxValue}>{st.dreb}</Text>
-                      </View>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>Asist</Text>
-                        <Text style={styles.statsBoxValue}>{st.asis}</Text>
-                      </View>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>Robos</Text>
-                        <Text style={styles.statsBoxValue}>{st.rec}</Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.statsRowGroup}>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>Pérdidas</Text>
-                        <Text style={[styles.statsBoxValue, { color: "#EF4444" }]}>{st.per}</Text>
-                      </View>
-                      <View style={styles.statsBox}>
-                        <Text style={styles.statsBoxTitle}>Faltas</Text>
-                        <Text style={[styles.statsBoxValue, { color: "#EF4444" }]}>{st.falt}</Text>
-                      </View>
-                    </View>
-
-                    <Pressable
-                      style={[styles.modalButtonCancel, { marginTop: 8 }]}
-                      onPress={() => setIsStatsModalVisible(false)}
-                    >
-                      <Text style={styles.modalButtonCancelText}>Cerrar</Text>
-                    </Pressable>
+                    <Pressable style={styles.modalButtonCancel} onPress={() => setIsStatsModalVisible(false)}><Text style={styles.modalButtonCancelText}>Cerrar</Text></Pressable>
                   </>
                 );
               })()}
@@ -888,56 +759,35 @@ export const GamePlayMatchScreen = ({ route }: GamePlayMatchProps) => {
           </View>
         </Modal>
 
-        {/* Rival Score Modal */}
-        <Modal
-          visible={isRivalModalVisible}
-          animationType="fade"
-          transparent={true}
-        >
+        <Modal visible={isRivalModalVisible} animationType="fade" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Puntos del Rival</Text>
-              <Text style={{ color: "#9CA3AF", marginBottom: 24, textAlign: "center" }}>
-                ¿Cuántos puntos ha encestado el equipo rival?
-              </Text>
               <View style={{ flexDirection: "row", gap: 12, justifyContent: "center", marginBottom: 16 }}>
-                <Pressable
-                  style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]}
-                  onPress={() => handleRivalScore(1)}
-                >
-                  <Text style={styles.modalButtonConfirmText}>+1 TL</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]}
-                  onPress={() => handleRivalScore(2)}
-                >
-                  <Text style={styles.modalButtonConfirmText}>+2 PT</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]}
-                  onPress={() => handleRivalScore(3)}
-                >
-                  <Text style={styles.modalButtonConfirmText}>+3 PT</Text>
-                </Pressable>
+                <Pressable style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]} onPress={() => handleRivalScore(1)}><Text style={styles.modalButtonConfirmText}>+1 TL</Text></Pressable>
+                <Pressable style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]} onPress={() => handleRivalScore(2)}><Text style={styles.modalButtonConfirmText}>+2 PT</Text></Pressable>
+                <Pressable style={[styles.modalButtonConfirm, { flex: 1, backgroundColor: "#10B981" }]} onPress={() => handleRivalScore(3)}><Text style={styles.modalButtonConfirmText}>+3 PT</Text></Pressable>
               </View>
-              
-              <Pressable
-                style={[styles.modalButtonConfirm, { backgroundColor: "#EF4444", marginBottom: 16 }]}
-                onPress={() => handleRivalFoul()}
-              >
-                <Text style={styles.modalButtonConfirmText}>+1 Falta</Text>
-              </Pressable>
-
-              <Pressable
-                style={styles.modalButtonCancel}
-                onPress={() => setIsRivalModalVisible(false)}
-              >
-                <Text style={styles.modalButtonCancelText}>Cancelar</Text>
-              </Pressable>
+              <Pressable style={[styles.modalButtonConfirm, { backgroundColor: "#EF4444", marginBottom: 16 }]} onPress={() => handleRivalFoul()}><Text style={styles.modalButtonConfirmText}>+1 Falta</Text></Pressable>
+              <Pressable style={styles.modalButtonCancel} onPress={() => setIsRivalModalVisible(false)}><Text style={styles.modalButtonCancelText}>Cancelar</Text></Pressable>
             </View>
           </View>
         </Modal>
 
+        <Modal visible={!!activeHelpItem} transparent animationType="fade">
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", padding: 24 }}>
+            <View style={{ backgroundColor: "#1F2937", borderRadius: 16, padding: 24 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12, gap: 8 }}>
+                <Ionicons name="information-circle" size={28} color="#3B82F6" />
+                <Text style={{ color: "#F9FAFB", fontSize: 20, fontWeight: "bold" }}>{activeHelpItem?.title}</Text>
+              </View>
+              <Text style={{ color: "#D1D5DB", fontSize: 16, lineHeight: 24, marginBottom: 24 }}>{activeHelpItem?.description}</Text>
+              <Pressable style={{ backgroundColor: "#2563EB", padding: 14, borderRadius: 8, alignItems: "center" }} onPress={() => setActiveHelpItem(null)}>
+                <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: 16 }}>Entendido</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaView>
   );
