@@ -122,12 +122,6 @@ const GameListScreen = ({ navigation }: GamesListScreenProps) => {
   return (
     <SafeAreaView edges={["left", "right"]} style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.headerRow}>
-          <Pressable onPress={() => navigation.navigate(AppRoutes.GameForm)} style={styles.createButton}>
-            <Text style={styles.createButtonText}>Nuevo</Text>
-          </Pressable>
-        </View>
-
         <FlatList
           contentContainerStyle={styles.listContainer}
           data={games}
@@ -149,92 +143,83 @@ const GameListScreen = ({ navigation }: GamesListScreenProps) => {
             )
           }
           renderItem={({ item: game }) => {
-            const borderColor = game.isPlayed ? (game.teamScore < game.rivalScore ? "red" : "green") : "#E5E7EB";
+            const borderColor = game.isPlayed ? (game.teamScore >= game.rivalScore ? "#10B981" : "#EF4444") : "#9CA3AF";
 
             return (
-              <View style={[styles.card, { borderColor }]}>
-                <View style={styles.gameInfoColumn}>
-                  <Text style={styles.gameHeader}>{game.round} - {new Date(game.date).toLocaleDateString()}</Text>
-                  <Text style={styles.gameScoreText}>
-                    {game.isPlayed
-                      ? `${teamName} ${game.teamScore} - ${game.rivalScore} ${game.rival}`
-                      : `${teamName} - No jugado - ${game.rival}`}
-                  </Text>
-                  {game.periods && game.periods.length > 0 ? (
+              <Pressable
+                style={[styles.card, { borderLeftColor: borderColor }]}
+                onPress={() => navigation.navigate(AppRoutes.GameDetail, { game })}
+              >
+                <View style={styles.cardHeaderRow}>
+                  <Text style={styles.gameRoundDateText}>{game.round}</Text>
+                  <Text style={styles.gameRoundDateText}>{new Date(game.date).toLocaleDateString()}</Text>
+                </View>
+
+                <View style={styles.cardBody}>
+                  <Text style={styles.teamNamesText}>{teamName} vs {game.rival}</Text>
+                  {game.isPlayed ? (
                     <>
-                      <Text style={styles.gamePeriodsText}>
-                        {teamName} {game.periods.map(p => p.teamScore).join(" ")}
-                      </Text>
-                      <Text style={styles.gamePeriodsText}>
-                        {game.periods.map(p => p.rivalScore).join(" ")} {game.rival}
-                      </Text>
+                      <Text style={styles.scoreBigText}>{game.teamScore} - {game.rivalScore}</Text>
+                      {game.periods && game.periods.length > 0 && (
+                        <Text style={styles.gamePeriodsText}>
+                          Parciales: {game.periods.map(p => `${p.teamScore}-${p.rivalScore}`).join(" | ")}
+                        </Text>
+                      )}
                     </>
-                  ) : null}
+                  ) : (
+                    <Text style={styles.scoreUnplayedText}>No jugado</Text>
+                  )}
                 </View>
 
-                <View style={styles.cardActions}>
-                  <Pressable
-                    onPress={() => {
-                      navigation.navigate(AppRoutes.GameRoster, {
-                        gameId: game.id,
-                      });
-                    }}
-                    style={styles.startButton}
-                  >
-                    <FontAwesome name="users" size={16} color="black" />
-                  </Pressable>
+                <View style={styles.cardFooter}>
+                  <View style={styles.footerActionGroup}>
+                    <Pressable
+                      style={styles.iconButton}
+                      onPress={(e) => { e.stopPropagation(); navigation.navigate(AppRoutes.GameForm, { game }); }}
+                    >
+                      <Ionicons name="pencil" size={18} color="#4B5563" />
+                    </Pressable>
+                    <Pressable
+                      disabled={deletingGameId === game.id}
+                      style={[styles.iconButton, styles.iconButtonDelete]}
+                      onPress={(e) => { e.stopPropagation(); handleDeleteGame(game); }}
+                    >
+                      {deletingGameId === game.id ? (
+                        <ActivityIndicator size="small" color="#EF4444" />
+                      ) : (
+                        <Ionicons name="trash" size={18} color="#EF4444" />
+                      )}
+                    </Pressable>
+                  </View>
 
-                  <Pressable
-                    disabled={isLoading}
-                    onPress={() => handlePlayGame(game)}
-                    style={styles.playMatchButton}
-                  >
-                    <Ionicons name="play" size={16} color="black" />
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() =>
-                      navigation.navigate(AppRoutes.GameForm, {
-                        game: game,
-                      })
-                    }
-                    style={styles.editButton}
-                  >
-                    <Ionicons name="pencil" size={16} color="#111827" />
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => {
-                      navigation.navigate(AppRoutes.GameDetail, {
-                        game: game,
-                      });
-                    }}
-                    style={styles.viewButton}
-                  >
-                    <Ionicons name="eye" size={16} color="#ffffff" />
-                  </Pressable>
-
-                  <Pressable
-                    disabled={deletingGameId === game.id}
-                    onPress={() => handleDeleteGame(game)}
-                    style={[
-                      styles.deleteButton,
-                      deletingGameId === game.id
-                        ? styles.disabledDeleteButton
-                        : null,
-                    ]}
-                  >
-                    {deletingGameId === game.id ? (
-                      <ActivityIndicator size="small" color="#ffffff" />
-                    ) : (
-                      <Ionicons name="trash" size={16} color="#ffffff" />
-                    )}
-                  </Pressable>
+                  <View style={styles.footerActionGroup}>
+                    <Pressable
+                      style={styles.iconButton}
+                      onPress={(e) => { e.stopPropagation(); navigation.navigate(AppRoutes.GameRoster, { gameId: game.id }); }}
+                    >
+                      <FontAwesome name="users" size={18} color="#4B5563" />
+                    </Pressable>
+                    <Pressable
+                      disabled={isLoading}
+                      style={[styles.iconButton, styles.iconButtonPlay]}
+                      onPress={(e) => { e.stopPropagation(); handlePlayGame(game); }}
+                    >
+                      <Ionicons name="play" size={18} color="#FFF" />
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
+              </Pressable>
             );
           }}
         />
+
+        {/* Floating Action Button (FAB) */}
+        <Pressable 
+          style={styles.fab} 
+          onPress={() => navigation.navigate(AppRoutes.GameForm)}
+        >
+          <Ionicons name="add" size={32} color="#FFF" />
+        </Pressable>
       </View>
     </SafeAreaView>
   );
