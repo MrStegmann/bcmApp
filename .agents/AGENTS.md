@@ -29,3 +29,6 @@ Before declaring a task finished, verify:
 - Validate specs: `npm run spec:lint`
 - Run spec-bound tests: `npm test -- --spec=<feature-name>`
 - Verify code coverage: `npm run test:coverage`
+
+## 5. Architectural Rules
+- All new features and refactoring tasks must adhere to the MVC architecture rules defined in `.agents/rules/mvc.md`.
