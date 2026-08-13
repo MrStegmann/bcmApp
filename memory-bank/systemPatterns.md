@@ -15,5 +15,5 @@ The application follows a modular architecture separating concerns into distinct
 - **Global UI State (`src/store/`)**: Zustand stores are used to handle global transient UI state, such as alerts (`AlertStore.js`) and navigation/menu state (`MenuStore.js`).
 
 ## UI Layer
-- **Pages (`src/page/`)**: Main screen components representing different feature views (e.g., `ClubManage.jsx`, `PlayerList.jsx`, `GameList.jsx`, `TrainingList.jsx`).
-- **Components (`src/components/`)**: Reusable, modular UI components shared across different pages.
+- **Pages (`src/page/`)**: Main screen components representing different feature views (e.g., `ClubManage.jsx`, `PlayerList.jsx`, `GameList.jsx`, `TrainingList.jsx`). Note: Many existing pages are currently marked as `@deprecated` due to styling refactoring.
+- **Components (`src/components/`, `src/framework/`)**: Reusable UI components. Note: Legacy components relying on Tailwind are marked as `@deprecated`.

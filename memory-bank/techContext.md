@@ -3,7 +3,7 @@
 The Basket Club Manager is built using the following technologies:
 
 - **Framework:** React Native with Expo (`expo`, `react-native`) for cross-platform mobile development (iOS/Android).
-- **Styling:** Tailwind CSS (`tailwindcss`) configured with NativeWind (`nativewind`) for utility-first styling.
+- **Styling:** Standard React Native `StyleSheet` (Tailwind CSS and NativeWind were explicitly removed; legacy UI components are marked as `@deprecated`).
 - **Database:** Local SQLite database utilizing `expo-sqlite` for offline data persistence.
 - **State Management:** 
   - Zustand (`zustand`) for lightweight global state management (alerts, menus).
