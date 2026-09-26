@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "drizzle-sqlite": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.experimental/drizzle-sqlite/SKILL.md",
+      "computedHash": "1bebe1aa4176e1615b80425d7d360754e765a16bd83ef302dd088dd1544ba215"
+    },
+    "vercel-react-native-skills": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-native-skills/SKILL.md",
+      "computedHash": "a804b4e848059822638c390359976f7021380bcefb1469d473aa4e9202c15ecb"
+    }
+  }
+}

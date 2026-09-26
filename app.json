@@ -6,12 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -20,14 +14,17 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.patrickjs.bcmApp"
     },
     "web": {
       "favicon": "./assets/icon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-sqlite", "expo-font"],
+    "plugins": [
+      "expo-sqlite",
+      "expo-font",
+      "expo-status-bar"
+    ],
     "extra": {
       "eas": {
         "projectId": "da35109f-0a95-49f7-90cb-fab42e991460"
