@@ -1,19 +1,32 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
+import { useMenuStore } from "../store/MenuStore";
 
-interface HeaderProps {
+export interface HeaderProps {
+  title?: string;
   children?: React.ReactNode;
 }
 
-const Header: React.FC<HeaderProps> = ({ children }) => {
+const Header: React.FC<HeaderProps> = ({ title, children }) => {
+  const storeHeaderTitle = useMenuStore((state) => state.headerTitle);
+  const displayTitle = title ?? storeHeaderTitle;
+
   return (
-    <View className="w-full z-30 relative">
-      <View className="w-full h-20 flex justify-end items-center rounded-b-full shadow-2xl shadow-red-900">
-        <View className="w-full h-full flex justify-end items-center rounded-b-full bg-danish-dark-gray shadow-inner shadow-red-900 relative">
-          <View className="absolute -bottom-6 flex-row justify-center w-full gap-3 z-40">
+    <View className="w-full z-20 relative">
+      <View className="w-full h-24 flex justify-center items-center rounded-b-3xl bg-danish-dark-gray border-b-2 border-danish-red shadow-xl shadow-red-900/50 px-4 pt-4">
+        <Text
+          className="text-danish-white text-xl font-bold text-center tracking-wide"
+          numberOfLines={1}
+          testID="header-title"
+        >
+          {displayTitle}
+        </Text>
+
+        {children ? (
+          <View className="flex-row justify-center w-full gap-3 mt-2">
             {children}
           </View>
-        </View>
+        ) : null}
       </View>
     </View>
   );

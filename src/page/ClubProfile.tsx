@@ -1,34 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef, memo } from "react";
 import { Text, View } from "react-native";
-import Entypo from "@expo/vector-icons/Entypo";
-import Foundation from "@expo/vector-icons/Foundation";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import Ionicons from "@expo/vector-icons/Ionicons";
 
-import ClubForm from "../components/ClubForm";
 import PlayerList from "./PlayerList";
 import Calendar from "./Calendar";
 import TrainingList from "./TrainingList";
 import GameList from "./GameList";
 
 import { useClubStore } from "../store/ClubStore";
-import { useMenuStore } from "../store/MenuStore";
-import TopMenuEnums from "../Enums/TopMenuEnums";
+import { useMenuStore, BottomMenuItem } from "../store/MenuStore";
+import { TopMenuEnums } from "../types/enums";
 import useDB from "../hooks/useDB";
 
 interface ClubProfileProps {
   handleReturn: () => void;
-  handleUpdate: (data: { id: number; name: string }) => void;
+  handleUpdate?: (data: { id: number; name: string }) => void;
 }
 
-const ClubProfile: React.FC<ClubProfileProps> = ({ handleReturn, handleUpdate }) => {
+const getTabTitle = (option: TopMenuEnums, clubName?: string): string => {
+  switch (option) {
+    case TopMenuEnums.PLAYERS:
+      return "Plantilla de Jugadores";
+    case TopMenuEnums.GAMES:
+      return "Partidos";
+    case TopMenuEnums.TRAININGS:
+      return "Entrenamientos";
+    case TopMenuEnums.CALENDAR:
+      return "Calendario de Cuotas";
+    case TopMenuEnums.MAIN:
+    default:
+      return clubName ? `Equipo: ${clubName}` : "Panel del Equipo";
+  }
+};
+
+const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
   const { GameController } = useDB();
   const [option, setOption] = useState<TopMenuEnums>(TopMenuEnums.MAIN);
-  const [gamesResults, setGamesResults] = useState<any[]>([]);
+  const [, setGamesResults] = useState<any[]>([]);
 
   const club = useClubStore((state) => state.club);
-  const setTopMenu = useMenuStore((state) => state.setTopMenu);
+
+  const setHeaderTitle = useMenuStore((state) => state.setHeaderTitle);
+  const setActiveTab = useMenuStore((state) => state.setActiveTab);
+  const setBottomMenu = useMenuStore((state) => state.setBottomMenu);
+
+  const handleReturnRef = useRef(handleReturn);
+  useEffect(() => {
+    handleReturnRef.current = handleReturn;
+  }, [handleReturn]);
+
+  const handleSelectTab = useCallback((targetTab: TopMenuEnums) => {
+    setOption(targetTab);
+  }, []);
+
+  const handleReturnToMain = useCallback(() => {
+    setOption(TopMenuEnums.MAIN);
+  }, []);
 
   useEffect(() => {
     if (club?.id) {
@@ -37,110 +63,84 @@ const ClubProfile: React.FC<ClubProfileProps> = ({ handleReturn, handleUpdate })
   }, [club]);
 
   useEffect(() => {
-    if (TopMenuEnums.MAIN === option) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.PLAYERS,
-          name: "Plantilla de Jugadores",
-          onPress: () => onSelectOption(TopMenuEnums.PLAYERS),
-          children: () => <Entypo name="users" size={18} color="white" />,
-        },
-        {
-          id: TopMenuEnums.CALENDAR,
-          name: "Calendario de cuotas",
-          onPress: () => onSelectOption(TopMenuEnums.CALENDAR),
-          children: () => <Entypo name="calendar" size={18} color="white" />,
-        },
-        {
-          id: TopMenuEnums.TRAININGS,
-          name: "Entrenamientos",
-          onPress: () => onSelectOption(TopMenuEnums.TRAININGS),
-          children: () => <Foundation name="clipboard-notes" size={18} color="white" />,
-        },
-        {
-          id: TopMenuEnums.GAMES,
-          name: "Partidos",
-          onPress: () => onSelectOption(TopMenuEnums.GAMES),
-          children: () => (
-            <MaterialCommunityIcons name="basketball-hoop-outline" size={18} color="white" />
-          ),
-        },
-        {
-          id: TopMenuEnums.EDIT_TEAM,
-          name: "Editar Equipo",
-          onPress: () => onSelectOption(TopMenuEnums.EDIT_TEAM),
-          children: () => <Ionicons name="settings" size={18} color="white" />,
-        },
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: handleReturn,
-          children: () => <FontAwesome5 name="door-open" size={18} color="white" />,
-        },
-      ]);
-    } else if (TopMenuEnums.EDIT_TEAM === option) {
-      setTopMenu([
-        {
-          id: TopMenuEnums.GO_BACK,
-          name: "Volver",
-          onPress: () => setOption(TopMenuEnums.MAIN),
-          children: () => <Entypo name="back" size={18} color="white" />,
-        },
-      ]);
-    }
-  }, [option]);
+    setActiveTab(option);
+    setHeaderTitle(getTabTitle(option, club?.name));
 
-  const onSelectOption = (o: TopMenuEnums) => {
-    setOption(o);
-  };
+    const bottomItems: BottomMenuItem[] = [
+      {
+        id: TopMenuEnums.PLAYERS,
+        label: "Plantilla",
+        iconName: "users",
+        iconFamily: "Entypo",
+        onPress: () => handleSelectTab(TopMenuEnums.PLAYERS),
+      },
+      {
+        id: TopMenuEnums.GAMES,
+        label: "Partidos",
+        iconName: "basketball-hoop-outline",
+        iconFamily: "MaterialCommunityIcons",
+        onPress: () => handleSelectTab(TopMenuEnums.GAMES),
+      },
+      {
+        id: TopMenuEnums.TRAININGS,
+        label: "Entrenamientos",
+        iconName: "clipboard-notes",
+        iconFamily: "Foundation",
+        onPress: () => handleSelectTab(TopMenuEnums.TRAININGS),
+      },
+      {
+        id: TopMenuEnums.CALENDAR,
+        label: "Cuotas",
+        iconName: "calendar",
+        iconFamily: "Entypo",
+        onPress: () => handleSelectTab(TopMenuEnums.CALENDAR),
+      },
+      {
+        id: TopMenuEnums.GO_BACK,
+        label: "Volver",
+        iconName: "door-open",
+        iconFamily: "FontAwesome5",
+        onPress: () => handleReturnRef.current(),
+      },
+    ];
 
-  const onUpdateClub = async (data: any) => {
-    handleUpdate(data);
-    onReturn();
-  };
-
-  const onReturn = () => {
-    if (option === TopMenuEnums.MAIN) {
-      handleReturn();
-    } else {
-      setOption(TopMenuEnums.MAIN);
-    }
-  };
+    setBottomMenu(bottomItems);
+  }, [option, club?.name, handleSelectTab, setActiveTab, setHeaderTitle, setBottomMenu]);
 
   return (
     <View className="w-full h-full flex flex-col justify-center items-center">
       {option === TopMenuEnums.MAIN && (
         <View className="w-full flex flex-col justify-center items-center">
-          <View className="relative w-full flex flex-col justify-center items-center mt-3 mb-10">
-            <Text className="text-center text-2xl font-bold text-danish-white">
+          <View className="relative w-full flex flex-col justify-center items-center mt-3 mb-10 px-4">
+            <Text className="text-center text-3xl font-bold text-danish-white mb-2">
               {club?.name}
             </Text>
-            <Text className="text-danish-white">
-              ¡Bienvenido al gestor del Equipo!
+            {club?.category ? (
+              <Text className="text-center text-lg text-danish-red font-semibold mb-4">
+                {club.category}
+              </Text>
+            ) : null}
+            <Text className="text-gray-400 text-base text-center">
+              Selecciona una opción del menú inferior para gestionar la plantilla, partidos, entrenamientos o cuotas.
             </Text>
           </View>
         </View>
       )}
 
-      {option === TopMenuEnums.EDIT_TEAM && (
-        <View className="flex-1 w-full h-full justify-center items-center">
-          <ClubForm onSubmit={onUpdateClub} clubData={club} />
-        </View>
-      )}
       {option === TopMenuEnums.PLAYERS && (
-        <PlayerList onReturn={() => setOption(TopMenuEnums.MAIN)} />
+        <PlayerList onReturn={handleReturnToMain} />
       )}
       {option === TopMenuEnums.CALENDAR && (
-        <Calendar onReturn={() => setOption(TopMenuEnums.MAIN)} />
+        <Calendar onReturn={handleReturnToMain} />
       )}
       {option === TopMenuEnums.TRAININGS && (
-        <TrainingList onReturn={() => setOption(TopMenuEnums.MAIN)} />
+        <TrainingList onReturn={handleReturnToMain} />
       )}
       {option === TopMenuEnums.GAMES && (
-        <GameList onReturn={() => setOption(TopMenuEnums.MAIN)} />
+        <GameList onReturn={handleReturnToMain} />
       )}
     </View>
   );
-};
+});
 
 export default ClubProfile;

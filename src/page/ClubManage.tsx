@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity } from "react-native";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React, { useEffect, useState, useCallback } from "react";
+import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import ClubForm from "../components/ClubForm";
 import ClubList from "../components/ClubList";
 import ClubProfile from "./ClubProfile";
 import Header from "../components/Header";
+import BottomNavBar from "../components/BottomNavBar";
 import Alerts from "../components/Alerts";
 
 import { useClubStore } from "../store/ClubStore";
-import { useMenuStore } from "../store/MenuStore";
-import TopMenuEnums from "../Enums/TopMenuEnums";
+import { useMenuStore, BottomMenuItem } from "../store/MenuStore";
+import { TopMenuEnums } from "../types/enums";
 import useDB from "../hooks/useDB";
-import { Team, NewTeam } from "../types/database";
+import { Team } from "../types/database";
 
 const ClubManage: React.FC = () => {
   const { TeamController } = useDB();
@@ -28,65 +27,80 @@ const ClubManage: React.FC = () => {
     deleteTeam,
   } = useClubStore();
 
-  const { topMenuItems, setTopMenu } = useMenuStore();
+  const setHeaderTitle = useMenuStore((state) => state.setHeaderTitle);
+  const setBottomMenu = useMenuStore((state) => state.setBottomMenu);
+  const setActiveTab = useMenuStore((state) => state.setActiveTab);
 
   const [createMode, setCreateMode] = useState<boolean>(false);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
 
-  useEffect(() => {
-    // Start with no team selected so app enters at ClubList
-    setClub(null);
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (TeamController?.load) {
       await TeamController.load();
     }
     await fetchTeams();
-  };
+  }, [TeamController, fetchTeams]);
+
+  useEffect(() => {
+    setClub(null);
+    loadData();
+  }, []);
 
   useEffect(() => {
     if (club) return;
 
-    if (createMode || editingTeam) {
-      setTopMenu([
+    if (createMode) {
+      setHeaderTitle("Crear Nuevo Equipo");
+      setActiveTab(TopMenuEnums.ADD_NEW_TEAM);
+      const items: BottomMenuItem[] = [
         {
-          id: TopMenuEnums.MANAGE,
-          name: "Volver",
-          onPress: () => {
-            setCreateMode(false);
-            setEditingTeam(null);
-          },
-          children: () => <Entypo name="back" size={18} color="white" />,
+          id: TopMenuEnums.GO_BACK,
+          label: "Volver",
+          iconName: "arrow-left",
+          iconFamily: "Feather",
+          onPress: () => setCreateMode(false),
         },
-      ]);
+      ];
+      setBottomMenu(items);
+    } else if (editingTeam) {
+      setHeaderTitle("Editar Equipo");
+      setActiveTab(TopMenuEnums.EDIT_TEAM);
+      const items: BottomMenuItem[] = [
+        {
+          id: TopMenuEnums.GO_BACK,
+          label: "Volver",
+          iconName: "arrow-left",
+          iconFamily: "Feather",
+          onPress: () => setEditingTeam(null),
+        },
+      ];
+      setBottomMenu(items);
     } else {
-      setTopMenu([
+      setHeaderTitle("Gestión de Equipos");
+      setActiveTab(TopMenuEnums.MAIN);
+      const items: BottomMenuItem[] = [
         {
-          id: TopMenuEnums.MANAGE,
-          name: "Añadir Equipo",
-          onPress: () => {
-            setCreateMode(true);
-          },
-          children: () => (
-            <MaterialIcons name="add-moderator" size={18} color="white" />
-          ),
+          id: TopMenuEnums.ADD_NEW_TEAM,
+          label: "Añadir Equipo",
+          iconName: "plus-circle",
+          iconFamily: "Feather",
+          onPress: () => setCreateMode(true),
         },
-      ]);
+      ];
+      setBottomMenu(items);
     }
-  }, [createMode, editingTeam, club, setTopMenu]);
+  }, [createMode, editingTeam, club, setHeaderTitle, setBottomMenu, setActiveTab]);
 
-  const handleAddClub = async (data: { name: string; category?: string }) => {
+  const handleAddClub = useCallback(async (data: { name: string; category?: string }) => {
     if (TeamController?.add) {
       await TeamController.add(data.name);
     }
     await createTeam({ name: data.name, category: data.category });
     setCreateMode(false);
     await loadData();
-  };
+  }, [TeamController, createTeam, loadData]);
 
-  const handleUpdateClub = async (data: { name: string; category?: string; id?: number }) => {
+  const handleUpdateClub = useCallback(async (data: { name: string; category?: string; id?: number }) => {
     if (data.id) {
       if (TeamController?.edit) {
         await TeamController.edit(data.id, data.name);
@@ -95,47 +109,36 @@ const ClubManage: React.FC = () => {
     }
     setEditingTeam(null);
     await loadData();
-  };
+  }, [TeamController, updateTeam, loadData]);
 
-  const handleDeleteClub = async (teamOrId: Team | number) => {
+  const handleDeleteClub = useCallback(async (teamOrId: Team | number) => {
     const id = typeof teamOrId === "number" ? teamOrId : teamOrId.id;
     if (TeamController?.remove) {
       await TeamController.remove(id);
     }
     await deleteTeam(id);
     await loadData();
-  };
+  }, [TeamController, deleteTeam, loadData]);
 
-  const handleSelectTeam = (selected: Team) => {
+  const handleSelectTeam = useCallback((selected: Team) => {
     setClub(selected);
-  };
+  }, [setClub]);
 
-  const handleReturnClubManage = () => {
+  const handleReturnClubManage = useCallback(() => {
     setClub(null);
-  };
+  }, [setClub]);
 
-  const handleEditTeamTrigger = (selected: Team) => {
+  const handleEditTeamTrigger = useCallback((selected: Team) => {
     setEditingTeam(selected);
-  };
+  }, []);
 
   return (
-    <View className="w-full h-full flex flex-col relative bg-gray-900">
+    <View className="w-full h-full flex flex-col justify-between bg-gray-900 relative">
       <Alerts />
 
-      <Header>
-        {topMenuItems.map((menu) => (
-          <TouchableOpacity
-            key={String(menu.id)}
-            className="w-12 h-12 border-2 bg-danish-red border-danish-dark-gray shadow shadow-black rounded-full flex items-center justify-center active:bg-danish-light-gray z-50"
-            onPress={menu.onPress}
-            testID="header-menu-button"
-          >
-            {typeof menu.children === "function" ? menu.children() : menu.children}
-          </TouchableOpacity>
-        ))}
-      </Header>
+      <Header />
 
-      <View className="w-full border-b h-[82%] py-2 border-danish-red shadow shadow-danish-red bg-gray-900 mt-10 z-0">
+      <View className="flex-1 w-full py-2 bg-gray-900">
         <KeyboardAwareScrollView
           enableOnAndroid={true}
           extraScrollHeight={130}
@@ -178,6 +181,8 @@ const ClubManage: React.FC = () => {
           )}
         </KeyboardAwareScrollView>
       </View>
+
+      <BottomNavBar />
     </View>
   );
 };

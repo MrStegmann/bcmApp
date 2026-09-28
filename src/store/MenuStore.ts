@@ -1,6 +1,15 @@
 import { create } from "zustand";
 import { TopMenuEnums } from "../types/enums";
 
+export interface BottomMenuItem {
+  id: TopMenuEnums;
+  label: string;
+  iconName: string;
+  iconFamily?: "Entypo" | "Feather" | "MaterialIcons" | "Foundation" | "MaterialCommunityIcons" | "FontAwesome5";
+  onPress: () => void;
+  testID?: string;
+}
+
 export interface TopMenuItem {
   id: TopMenuEnums | string;
   name: string;
@@ -10,18 +19,28 @@ export interface TopMenuItem {
 
 export interface MenuStoreState {
   activeTab: TopMenuEnums;
+  headerTitle: string;
+  bottomMenuItems: BottomMenuItem[];
   topMenu: TopMenuEnums | TopMenuItem[];
   topMenuItems: TopMenuItem[];
+
   setActiveTab: (tab: TopMenuEnums) => void;
+  setHeaderTitle: (title: string) => void;
+  setBottomMenu: (items: BottomMenuItem[]) => void;
   setTopMenu: (menu: TopMenuEnums | TopMenuItem[]) => void;
 }
 
 export const useMenuStore = create<MenuStoreState>((set) => ({
-  activeTab: TopMenuEnums.ROSTER,
-  topMenu: TopMenuEnums.ROSTER,
+  activeTab: TopMenuEnums.MAIN,
+  headerTitle: "Gestión de Equipos",
+  bottomMenuItems: [],
+  topMenu: TopMenuEnums.MAIN,
   topMenuItems: [],
 
-  setActiveTab: (tab: TopMenuEnums) => set({ activeTab: tab, topMenu: tab }),
+  setActiveTab: (tab: TopMenuEnums) => set({ activeTab: tab }),
+  setHeaderTitle: (title: string) => set({ headerTitle: title }),
+  setBottomMenu: (items: BottomMenuItem[]) => set({ bottomMenuItems: items }),
+
   setTopMenu: (menu: TopMenuEnums | TopMenuItem[]) => {
     if (Array.isArray(menu)) {
       set({ topMenu: TopMenuEnums.ROSTER, topMenuItems: menu });
