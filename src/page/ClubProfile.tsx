@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useRef, memo } from "react";
 import { Text, View } from "react-native";
 
 import PlayerList from "./PlayerList";
-import Calendar from "./Calendar";
 import TrainingList from "./TrainingList";
 import GameList from "./GameList";
 
@@ -24,8 +23,6 @@ const getTabTitle = (option: TopMenuEnums, clubName?: string): string => {
       return "Partidos";
     case TopMenuEnums.TRAININGS:
       return "Entrenamientos";
-    case TopMenuEnums.CALENDAR:
-      return "Calendario de Cuotas";
     case TopMenuEnums.MAIN:
     default:
       return clubName ? `Equipo: ${clubName}` : "Panel del Equipo";
@@ -89,11 +86,11 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
         onPress: () => handleSelectTab(TopMenuEnums.TRAININGS),
       },
       {
-        id: TopMenuEnums.CALENDAR,
-        label: "Cuotas",
-        iconName: "calendar",
-        iconFamily: "Entypo",
-        onPress: () => handleSelectTab(TopMenuEnums.CALENDAR),
+        id: TopMenuEnums.MAIN,
+        label: "Inicio",
+        iconName: "home",
+        iconFamily: "Feather",
+        onPress: handleReturnToMain,
       },
       {
         id: TopMenuEnums.GO_BACK,
@@ -129,9 +126,6 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
 
       {option === TopMenuEnums.PLAYERS && (
         <PlayerList onReturn={handleReturnToMain} />
-      )}
-      {option === TopMenuEnums.CALENDAR && (
-        <Calendar onReturn={handleReturnToMain} />
       )}
       {option === TopMenuEnums.TRAININGS && (
         <TrainingList onReturn={handleReturnToMain} />

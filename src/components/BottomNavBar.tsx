@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -38,6 +39,7 @@ const renderIcon = (item: BottomMenuItem, isActive: boolean) => {
 };
 
 export default function BottomNavBar({ items, activeTab }: BottomNavBarProps) {
+  const insets = useSafeAreaInsets();
   const storeItems = useMenuStore((state) => state.bottomMenuItems);
   const storeActiveTab = useMenuStore((state) => state.activeTab);
 
@@ -48,8 +50,17 @@ export default function BottomNavBar({ items, activeTab }: BottomNavBarProps) {
     return null;
   }
 
+  // Reserve space for the device home-gesture bar using the measured bottom inset.
+  // A minimum of 8px is always applied so the navbar breathes even on
+  // devices that report 0 (e.g. older Android).
+  const bottomPadding = Math.max(insets.bottom, 8);
+
   return (
-    <View className="w-full bg-danish-dark-gray border-t-2 border-danish-red shadow-2xl z-40 py-2 px-2">
+    <View
+      className="w-full bg-danish-dark-gray border-t-2 border-danish-red shadow-2xl z-40 px-2 pt-2"
+      style={{ paddingBottom: bottomPadding }}
+      testID="bottom-navbar-safe-wrapper"
+    >
       <View className="flex-row justify-around items-center w-full">
         {menuItems.map((item) => {
           const isActive = item.id === currentTab;

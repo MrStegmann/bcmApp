@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 
@@ -28,11 +28,32 @@ const PlayerList: React.FC<PlayerListProps> = ({ onReturn }) => {
 
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
+  const setHeaderAction = useMenuStore((state) => state.setHeaderAction);
+
+  const openCreatePlayer = useCallback(() => setCreatePlayer(true), []);
 
   useEffect(() => {
     getData();
     setMainMenu();
+    return () => {
+      setHeaderAction(null);
+    };
   }, []);
+
+  useEffect(() => {
+    const isListView = !createPlayer && !editPlayer && !playerSelected;
+    if (isListView) {
+      setHeaderAction({
+        label: "Añadir",
+        iconName: "plus-circle",
+        iconFamily: "Feather",
+        onPress: openCreatePlayer,
+        testID: "header-add-player",
+      });
+    } else {
+      setHeaderAction(null);
+    }
+  }, [createPlayer, editPlayer, playerSelected]);
 
   useEffect(() => {
     if (createPlayer) {

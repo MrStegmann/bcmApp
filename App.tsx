@@ -2,7 +2,7 @@ import "./index.css";
 import { useEffect, useState } from "react";
 import { View, StyleSheet, Text, ActivityIndicator } from "react-native";
 import ClubManage from "./src/page/ClubManage";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { initDatabase } from "./src/db";
 import { seedDatabase } from "./src/db/seed";
 
@@ -27,16 +27,20 @@ export default function App() {
 
   if (!isReady) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </SafeAreaView>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-900" style={styles.container} edges={["left", "right"]}>
-      <ClubManage />
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView className="flex-1 bg-gray-900" style={styles.container} edges={["left", "right"]}>
+        <ClubManage />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

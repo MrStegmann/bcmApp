@@ -25,6 +25,7 @@ describe("ClubProfile Streamlined Layout & Settings Removal Unit Tests (US2 / T0
     useMenuStore.setState({
       activeTab: TopMenuEnums.MAIN,
       headerTitle: "Equipo: Golden State Warriors",
+      headerAction: null,
       bottomMenuItems: [],
     });
   });
@@ -73,5 +74,89 @@ describe("ClubProfile Streamlined Layout & Settings Removal Unit Tests (US2 / T0
     expect(returnFn).toHaveBeenCalledTimes(1);
 
     unsubscribe();
+  });
+});
+
+describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004)", () => {
+  const mockTeam = {
+    id: 2,
+    name: "Chicago Bulls",
+    category: "Senior",
+    createdAt: "2026-01-01T00:00:00.000Z",
+  };
+
+  beforeEach(() => {
+    useClubStore.setState({
+      club: mockTeam,
+      currentTeam: mockTeam,
+      teamsList: [mockTeam],
+      clubs: [mockTeam],
+      isLoading: false,
+      error: null,
+    });
+    useMenuStore.setState({
+      activeTab: TopMenuEnums.MAIN,
+      headerTitle: "Equipo: Chicago Bulls",
+      headerAction: null,
+      bottomMenuItems: [],
+    });
+  });
+
+  it("should configure exactly 5 bottom items with Home (MAIN) and no CALENDAR or Fees", () => {
+    const bottomItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
+      { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
+      { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
+      { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
+    ];
+
+    useMenuStore.getState().setBottomMenu(bottomItems);
+
+    const state = useMenuStore.getState();
+    const menuIds = state.bottomMenuItems.map((item) => item.id);
+
+    expect(menuIds.length).toBe(5);
+    expect(menuIds).toContain(TopMenuEnums.MAIN);
+    expect(menuIds).not.toContain(TopMenuEnums.CALENDAR);
+    expect(menuIds).not.toContain(TopMenuEnums.EDIT_TEAM);
+  });
+
+  it("should contain Home item labeled 'Inicio' with home icon", () => {
+    const bottomItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
+      { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
+      { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
+      { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
+    ];
+
+    useMenuStore.getState().setBottomMenu(bottomItems);
+
+    const homeItem = useMenuStore.getState().bottomMenuItems.find((i) => i.id === TopMenuEnums.MAIN);
+    expect(homeItem).toBeDefined();
+    expect(homeItem?.label).toBe("Inicio");
+    expect(homeItem?.iconName).toBe("home");
+  });
+
+  it("should invoke Home onPress and transition activeTab back to MAIN", () => {
+    const goHomeFn = jest.fn(() => {
+      useMenuStore.getState().setActiveTab(TopMenuEnums.MAIN);
+    });
+
+    const bottomItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: goHomeFn },
+      { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
+    ];
+
+    useMenuStore.getState().setActiveTab(TopMenuEnums.PLAYERS);
+    useMenuStore.getState().setBottomMenu(bottomItems);
+
+    const homeItem = useMenuStore.getState().bottomMenuItems.find((i) => i.id === TopMenuEnums.MAIN);
+    homeItem?.onPress();
+
+    expect(goHomeFn).toHaveBeenCalledTimes(1);
+    expect(useMenuStore.getState().activeTab).toBe(TopMenuEnums.MAIN);
   });
 });

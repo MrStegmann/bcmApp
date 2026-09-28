@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -30,11 +30,32 @@ const TrainingList: React.FC<TrainingListProps> = ({ onReturn }) => {
 
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
+  const setHeaderAction = useMenuStore((state) => state.setHeaderAction);
+
+  const openCreateTraining = useCallback(() => setCreateTraining(true), []);
 
   useEffect(() => {
     getTrainings();
     setMainMenu();
+    return () => {
+      setHeaderAction(null);
+    };
   }, []);
+
+  useEffect(() => {
+    const isListView = !createTraining && !editTraining && !selectedTraining;
+    if (isListView) {
+      setHeaderAction({
+        label: "Añadir",
+        iconName: "plus-circle",
+        iconFamily: "Feather",
+        onPress: openCreateTraining,
+        testID: "header-add-training",
+      });
+    } else {
+      setHeaderAction(null);
+    }
+  }, [createTraining, editTraining, selectedTraining]);
 
   useEffect(() => {
     if (createTraining) {

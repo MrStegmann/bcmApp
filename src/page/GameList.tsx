@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -21,20 +21,41 @@ interface GameListProps {
 const GameList: React.FC<GameListProps> = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
+  const setHeaderAction = useMenuStore((state) => state.setHeaderAction);
   const { GameController } = useDB();
+
+  const openCreateGame = useCallback(() => setCreateGame(true), []);
 
   const [games, setGames] = useState<Game[]>([]);
   const [gameSelected, setGameSelected] = useState<Game | null>(null);
   const [createGame, setCreateGame] = useState<boolean>(false);
   const [editGame, setEditGame] = useState<boolean>(false);
-
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [itemToDelete, setItemToDelete] = useState<Game | null>(null);
+
 
   useEffect(() => {
     getData();
     setMainMenu();
+    return () => {
+      setHeaderAction(null);
+    };
   }, []);
+
+  useEffect(() => {
+    const isListView = !createGame && !editGame && !gameSelected;
+    if (isListView) {
+      setHeaderAction({
+        label: "Añadir",
+        iconName: "plus-circle",
+        iconFamily: "Feather",
+        onPress: openCreateGame,
+        testID: "header-add-game",
+      });
+    } else {
+      setHeaderAction(null);
+    }
+  }, [createGame, editGame, gameSelected]);
 
   useEffect(() => {
     if (createGame) {

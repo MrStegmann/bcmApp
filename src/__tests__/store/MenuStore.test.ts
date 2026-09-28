@@ -1,4 +1,4 @@
-import { useMenuStore } from "../../store/MenuStore";
+import { useMenuStore, HeaderAction } from "../../store/MenuStore";
 import { TopMenuEnums } from "../../types/enums";
 
 declare const jest: any;
@@ -9,6 +9,7 @@ describe("MenuStore Unit Tests (T005)", () => {
     useMenuStore.setState({
       activeTab: TopMenuEnums.MAIN,
       headerTitle: "Gestión de Equipos",
+      headerAction: null,
       bottomMenuItems: [],
     });
   });
@@ -18,6 +19,7 @@ describe("MenuStore Unit Tests (T005)", () => {
     expect(state.activeTab).toBe(TopMenuEnums.MAIN);
     expect(state.headerTitle).toBe("Gestión de Equipos");
     expect(state.bottomMenuItems).toEqual([]);
+    expect(state.headerAction).toBeNull();
   });
 
   it("should update headerTitle when setHeaderTitle is called", () => {
@@ -42,6 +44,87 @@ describe("MenuStore Unit Tests (T005)", () => {
 
     useMenuStore.getState().setBottomMenu(mockItems);
     expect(useMenuStore.getState().bottomMenuItems).toEqual(mockItems);
+  });
+});
+
+describe("MenuStore headerAction State Transitions (T003)", () => {
+  beforeEach(() => {
+    useMenuStore.setState({
+      activeTab: TopMenuEnums.MAIN,
+      headerTitle: "Gestión de Equipos",
+      headerAction: null,
+      bottomMenuItems: [],
+    });
+  });
+
+  it("should initialize headerAction as null", () => {
+    expect(useMenuStore.getState().headerAction).toBeNull();
+  });
+
+  it("should set a headerAction when setHeaderAction is called with a valid action", () => {
+    const mockAction: HeaderAction = {
+      label: "Añadir",
+      iconName: "plus-circle",
+      iconFamily: "Feather",
+      onPress: jest.fn(),
+    };
+
+    useMenuStore.getState().setHeaderAction(mockAction);
+    const action = useMenuStore.getState().headerAction;
+
+    expect(action).not.toBeNull();
+    expect(action?.label).toBe("Añadir");
+    expect(action?.iconName).toBe("plus-circle");
+    expect(action?.iconFamily).toBe("Feather");
+  });
+
+  it("should clear headerAction when setHeaderAction is called with null", () => {
+    const mockAction: HeaderAction = {
+      label: "Añadir",
+      iconName: "plus-circle",
+      onPress: jest.fn(),
+    };
+
+    useMenuStore.getState().setHeaderAction(mockAction);
+    expect(useMenuStore.getState().headerAction).not.toBeNull();
+
+    useMenuStore.getState().setHeaderAction(null);
+    expect(useMenuStore.getState().headerAction).toBeNull();
+  });
+
+  it("should replace an existing headerAction when a new one is set", () => {
+    const firstAction: HeaderAction = {
+      label: "Añadir Jugador",
+      iconName: "user-plus",
+      iconFamily: "Feather",
+      onPress: jest.fn(),
+    };
+    const secondAction: HeaderAction = {
+      label: "Añadir Partido",
+      iconName: "plus-circle",
+      iconFamily: "Feather",
+      onPress: jest.fn(),
+    };
+
+    useMenuStore.getState().setHeaderAction(firstAction);
+    expect(useMenuStore.getState().headerAction?.label).toBe("Añadir Jugador");
+
+    useMenuStore.getState().setHeaderAction(secondAction);
+    expect(useMenuStore.getState().headerAction?.label).toBe("Añadir Partido");
+  });
+
+  it("should invoke onPress callback from headerAction correctly", () => {
+    const onPressMock = jest.fn();
+    const mockAction: HeaderAction = {
+      label: "Añadir",
+      iconName: "plus",
+      onPress: onPressMock,
+    };
+
+    useMenuStore.getState().setHeaderAction(mockAction);
+    useMenuStore.getState().headerAction?.onPress();
+
+    expect(onPressMock).toHaveBeenCalledTimes(1);
   });
 });
 

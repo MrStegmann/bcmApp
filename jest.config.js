@@ -4,5 +4,7 @@ module.exports = {
   moduleNameMapper: {
     "\\.css$": "identity-obj-proxy",
     "^expo-sqlite$": "<rootDir>/src/__tests__/mocks/expo-sqlite.js",
+    "^react-native-safe-area-context$": "<rootDir>/src/__tests__/mocks/react-native-safe-area-context.js",
   },
 };
+
