@@ -29,6 +29,7 @@ const PlayerList: React.FC<PlayerListProps> = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const setHeaderAction = useMenuStore((state) => state.setHeaderAction);
+  const setHeaderBackAction = useMenuStore((state) => state.setHeaderBackAction);
 
   const openCreatePlayer = useCallback(() => setCreatePlayer(true), []);
 
@@ -37,12 +38,42 @@ const PlayerList: React.FC<PlayerListProps> = ({ onReturn }) => {
     setMainMenu();
     return () => {
       setHeaderAction(null);
+      setHeaderBackAction(null);
     };
   }, []);
 
   useEffect(() => {
-    const isListView = !createPlayer && !editPlayer && !playerSelected;
-    if (isListView) {
+    if (createPlayer) {
+      setHeaderAction(null);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "chevron-left",
+        iconFamily: "Feather",
+        onPress: () => setCreatePlayer(false),
+        testID: "header-back-button",
+      });
+    } else if (editPlayer) {
+      setHeaderAction(null);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "chevron-left",
+        iconFamily: "Feather",
+        onPress: () => {
+          setPlayerSelected(null);
+          setEditPlayer(false);
+        },
+        testID: "header-back-button",
+      });
+    } else if (playerSelected) {
+      setHeaderAction(null);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "chevron-left",
+        iconFamily: "Feather",
+        onPress: () => setPlayerSelected(null),
+        testID: "header-back-button",
+      });
+    } else {
       setHeaderAction({
         label: "Añadir",
         iconName: "plus-circle",
@@ -50,8 +81,7 @@ const PlayerList: React.FC<PlayerListProps> = ({ onReturn }) => {
         onPress: openCreatePlayer,
         testID: "header-add-player",
       });
-    } else {
-      setHeaderAction(null);
+      setHeaderBackAction(null);
     }
   }, [createPlayer, editPlayer, playerSelected]);
 

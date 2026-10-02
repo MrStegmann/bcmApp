@@ -1,14 +1,14 @@
 import * as schema from "../../db/schema";
 
 describe("Database Connection & Schema Instantiation Tests (T009)", () => {
-  it("should define all 7 core tables in Drizzle schema", () => {
+  it("should define all 6 core tables in Drizzle schema", () => {
     expect(schema.teams).toBeDefined();
     expect(schema.players).toBeDefined();
     expect(schema.games).toBeDefined();
     expect(schema.playerStats).toBeDefined();
     expect(schema.trainings).toBeDefined();
     expect(schema.trainingPlayers).toBeDefined();
-    expect(schema.fees).toBeDefined();
+    expect((schema as any).fees).toBe(undefined);
   });
 
   it("should verify teams table structure", () => {

@@ -102,12 +102,12 @@ describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004
     });
   });
 
-  it("should configure exactly 5 bottom items with Home (MAIN) and no CALENDAR or Fees", () => {
+  it("should configure exactly 5 bottom items with Home (MAIN) at index 0 and no CALENDAR or Fees", () => {
     const bottomItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
       { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
-      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
@@ -117,24 +117,29 @@ describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004
     const menuIds = state.bottomMenuItems.map((item) => item.id);
 
     expect(menuIds.length).toBe(5);
-    expect(menuIds).toContain(TopMenuEnums.MAIN);
+    expect(menuIds[0]).toBe(TopMenuEnums.MAIN);
+    expect(menuIds[1]).toBe(TopMenuEnums.PLAYERS);
+    expect(menuIds[2]).toBe(TopMenuEnums.GAMES);
+    expect(menuIds[3]).toBe(TopMenuEnums.TRAININGS);
+    expect(menuIds[4]).toBe(TopMenuEnums.GO_BACK);
     expect(menuIds).not.toContain(TopMenuEnums.CALENDAR);
     expect(menuIds).not.toContain(TopMenuEnums.EDIT_TEAM);
   });
 
-  it("should contain Home item labeled 'Inicio' with home icon", () => {
+  it("should contain Home item as first element labeled 'Inicio' with home icon", () => {
     const bottomItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
       { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
-      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setBottomMenu(bottomItems);
 
-    const homeItem = useMenuStore.getState().bottomMenuItems.find((i) => i.id === TopMenuEnums.MAIN);
+    const homeItem = useMenuStore.getState().bottomMenuItems[0];
     expect(homeItem).toBeDefined();
+    expect(homeItem?.id).toBe(TopMenuEnums.MAIN);
     expect(homeItem?.label).toBe("Inicio");
     expect(homeItem?.iconName).toBe("home");
   });
@@ -145,18 +150,19 @@ describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004
     });
 
     const bottomItems: BottomMenuItem[] = [
-      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: goHomeFn },
+      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setActiveTab(TopMenuEnums.PLAYERS);
     useMenuStore.getState().setBottomMenu(bottomItems);
 
-    const homeItem = useMenuStore.getState().bottomMenuItems.find((i) => i.id === TopMenuEnums.MAIN);
-    homeItem?.onPress();
+    const homeItem = useMenuStore.getState().bottomMenuItems[0];
+    homeItem.onPress();
 
     expect(goHomeFn).toHaveBeenCalledTimes(1);
     expect(useMenuStore.getState().activeTab).toBe(TopMenuEnums.MAIN);
   });
 });
+

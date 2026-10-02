@@ -119,7 +119,6 @@ interface PlayerDetailProps {
 
 const PlayerDetail: React.FC<PlayerDetailProps> = ({ data }) => {
   const { PlayerController, PlayerStatsController, TraningPlayersController } = useDB();
-  const [playerFees, setPlayerFees] = useState<any[]>([]);
   const [playerAllStats, setPlayerAllStats] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([]);
   const [totalTrainings, setTotalTrainings] = useState<number>(0);
@@ -131,7 +130,6 @@ const PlayerDetail: React.FC<PlayerDetailProps> = ({ data }) => {
         setTotalTrainings(results.length);
         setTotalTrainingsAssis(results.filter((tp) => tp.assistance || tp.attended).length);
       });
-      PlayerController.loadFees(data.id, setPlayerFees);
       PlayerController.loadStats(data.id, (items: any[]) => {
         setPlayerAllStats(items);
       });
@@ -188,29 +186,6 @@ const PlayerDetail: React.FC<PlayerDetailProps> = ({ data }) => {
           </Text>
         </View>
       )}
-
-      <Text className="font-bold mb-1 mt-4 text-danish-white">
-        Calendario de Pagos
-      </Text>
-      <View className="flex flex-row flex-wrap w-full h-full px-3 gap-4 justify-center items-center">
-        {playerFees.map((pf) => (
-          <View
-            key={pf.id || pf.fee_id}
-            className={`w-20 h-20 flex flex-col justify-center items-center border rounded-xl bg-danish-dark-gray shadow-inner ${pf.paid ? "shadow-danish-gold border-danish-gold" : "shadow-danish-red border-danish-red"} p-1`}
-          >
-            <Text className="text-xs w-full text-center font-bold text-danish-white">
-              {pf.month}
-            </Text>
-            <View className="w-full flex-1 flex items-center justify-center">
-              {pf.paid ? (
-                <Entypo name="check" size={18} color="gold" />
-              ) : (
-                <Entypo name="cross" size={18} color="red" />
-              )}
-            </View>
-          </View>
-        ))}
-      </View>
     </View>
   );
 };

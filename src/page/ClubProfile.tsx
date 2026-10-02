@@ -65,6 +65,13 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
 
     const bottomItems: BottomMenuItem[] = [
       {
+        id: TopMenuEnums.MAIN,
+        label: "Inicio",
+        iconName: "home",
+        iconFamily: "Feather",
+        onPress: handleReturnToMain,
+      },
+      {
         id: TopMenuEnums.PLAYERS,
         label: "Plantilla",
         iconName: "users",
@@ -84,13 +91,6 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
         iconName: "clipboard-notes",
         iconFamily: "Foundation",
         onPress: () => handleSelectTab(TopMenuEnums.TRAININGS),
-      },
-      {
-        id: TopMenuEnums.MAIN,
-        label: "Inicio",
-        iconName: "home",
-        iconFamily: "Feather",
-        onPress: handleReturnToMain,
       },
       {
         id: TopMenuEnums.GO_BACK,
@@ -118,7 +118,7 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
               </Text>
             ) : null}
             <Text className="text-gray-400 text-base text-center">
-              Selecciona una opción del menú inferior para gestionar la plantilla, partidos, entrenamientos o cuotas.
+              Selecciona una opción del menú inferior para gestionar la plantilla, partidos o entrenamientos.
             </Text>
           </View>
         </View>

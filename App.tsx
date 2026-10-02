@@ -1,10 +1,13 @@
 import "./index.css";
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Text, ActivityIndicator } from "react-native";
+import { View, StyleSheet, Text, ActivityIndicator, LogBox } from "react-native";
 import ClubManage from "./src/page/ClubManage";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { initDatabase } from "./src/db";
 import { seedDatabase } from "./src/db/seed";
+
+// Ignore third-party library registration of deprecated React Native SafeAreaView (e.g. react-native-css-interop)
+LogBox.ignoreLogs(["SafeAreaView has been deprecated"]);
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -28,18 +31,18 @@ export default function App() {
   if (!isReady) {
     return (
       <SafeAreaProvider>
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
           <ActivityIndicator size="large" color="#0000ff" />
-        </SafeAreaView>
+        </View>
       </SafeAreaProvider>
     );
   }
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView className="flex-1 bg-gray-900" style={styles.container} edges={["left", "right"]}>
+      <View className="flex-1 bg-gray-900" style={styles.container}>
         <ClubManage />
-      </SafeAreaView>
+      </View>
     </SafeAreaProvider>
   );
 }

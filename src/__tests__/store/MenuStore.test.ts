@@ -128,13 +128,64 @@ describe("MenuStore headerAction State Transitions (T003)", () => {
   });
 });
 
+describe("MenuStore headerBackAction State Transitions (T008)", () => {
+  beforeEach(() => {
+    useMenuStore.setState({
+      activeTab: TopMenuEnums.MAIN,
+      headerTitle: "Gestión de Equipos",
+      headerAction: null,
+      headerBackAction: null,
+      bottomMenuItems: [],
+    });
+  });
+
+  it("should initialize headerBackAction as null", () => {
+    expect(useMenuStore.getState().headerBackAction).toBeNull();
+  });
+
+  it("should set a headerBackAction when setHeaderBackAction is called with a valid action", () => {
+    const onPressMock = jest.fn();
+    const mockBackAction = {
+      label: "Volver",
+      iconName: "chevron-left",
+      iconFamily: "Feather" as const,
+      onPress: onPressMock,
+      testID: "header-back-button",
+    };
+
+    useMenuStore.getState().setHeaderBackAction(mockBackAction);
+    const action = useMenuStore.getState().headerBackAction;
+
+    expect(action).not.toBeNull();
+    expect(action?.label).toBe("Volver");
+    expect(action?.iconName).toBe("chevron-left");
+    expect(action?.iconFamily).toBe("Feather");
+    expect(action?.testID).toBe("header-back-button");
+
+    action?.onPress();
+    expect(onPressMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear headerBackAction when setHeaderBackAction is called with null", () => {
+    const mockBackAction = {
+      label: "Volver",
+      onPress: jest.fn(),
+    };
+
+    useMenuStore.getState().setHeaderBackAction(mockBackAction);
+    expect(useMenuStore.getState().headerBackAction).not.toBeNull();
+
+    useMenuStore.getState().setHeaderBackAction(null);
+    expect(useMenuStore.getState().headerBackAction).toBeNull();
+  });
+});
+
 describe("Routing Performance Unit Tests (US3 / T012)", () => {
   it("should execute 100 rapid tab state transitions in under 100ms", () => {
     const tabs = [
       TopMenuEnums.PLAYERS,
       TopMenuEnums.GAMES,
       TopMenuEnums.TRAININGS,
-      TopMenuEnums.CALENDAR,
       TopMenuEnums.MAIN,
     ];
 
@@ -150,3 +201,4 @@ describe("Routing Performance Unit Tests (US3 / T012)", () => {
     expect(useMenuStore.getState().activeTab).toBe(TopMenuEnums.MAIN);
   });
 });
+

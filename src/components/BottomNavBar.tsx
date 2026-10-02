@@ -19,7 +19,7 @@ export interface BottomNavBarProps {
 
 const renderIcon = (item: BottomMenuItem, isActive: boolean) => {
   const color = isActive ? "#ef4444" : "#9ca3af";
-  const size = 20;
+  const size = 22;
 
   switch (item.iconFamily) {
     case "Entypo":
@@ -69,20 +69,13 @@ export default function BottomNavBar({ items, activeTab }: BottomNavBarProps) {
             <TouchableOpacity
               key={String(item.id)}
               onPress={item.onPress}
-              className={`flex-1 items-center justify-center py-1.5 px-1 rounded-xl mx-0.5 active:bg-gray-800 ${
+              accessibilityLabel={item.label}
+              className={`flex-1 items-center justify-center py-2.5 px-1 rounded-xl mx-0.5 active:bg-gray-800 ${
                 isActive ? "bg-red-950/40 border border-red-900/60" : ""
               }`}
               testID={item.testID || `bottom-nav-item-${item.id}`}
             >
               {renderIcon(item, isActive)}
-              <Text
-                className={`text-xs mt-1 font-semibold text-center ${
-                  isActive ? "text-red-500 font-bold" : "text-gray-400"
-                }`}
-                numberOfLines={1}
-              >
-                {item.label}
-              </Text>
             </TouchableOpacity>
           );
         })}

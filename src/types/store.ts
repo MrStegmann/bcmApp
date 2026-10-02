@@ -9,8 +9,6 @@ import {
   NewPlayerStat,
   Training,
   NewTraining,
-  Fee,
-  NewFee,
 } from "./database";
 import { TopMenuEnums } from "./enums";
 
@@ -72,20 +70,9 @@ export interface TrainingState {
   setSelectedTraining: (training: Training | null) => void;
 }
 
-// 5. FEES STORE CONTRACT
-export interface FeesState {
-  feesList: Fee[];
-  isLoading: boolean;
-
-  // Actions
-  fetchFees: (teamId: number) => Promise<Fee[]>;
-  createFee: (fee: NewFee) => Promise<Fee | null>;
-  toggleFeePayment: (feeId: number, paidStatus: boolean) => Promise<boolean>;
-  deleteFee: (feeId: number) => Promise<boolean>;
-}
-
-// 6. MENU STORE CONTRACT
+// 5. MENU STORE CONTRACT
 export interface MenuState {
   activeTab: TopMenuEnums;
   setActiveTab: (tab: TopMenuEnums) => void;
 }
+

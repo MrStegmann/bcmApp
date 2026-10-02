@@ -6,7 +6,6 @@ import type {
   playerStats,
   trainings,
   trainingPlayers,
-  fees,
 } from "../db/schema";
 
 export type Team = InferSelectModel<typeof teams>;
@@ -27,5 +26,3 @@ export type NewTraining = InferInsertModel<typeof trainings>;
 export type TrainingPlayer = InferSelectModel<typeof trainingPlayers>;
 export type NewTrainingPlayer = InferInsertModel<typeof trainingPlayers>;
 
-export type Fee = InferSelectModel<typeof fees>;
-export type NewFee = InferInsertModel<typeof fees>;

@@ -42,6 +42,7 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
   const insets = useSafeAreaInsets();
   const storeHeaderTitle = useMenuStore((state) => state.headerTitle);
   const headerAction = useMenuStore((state) => state.headerAction);
+  const headerBackAction = useMenuStore((state) => state.headerBackAction);
   const displayTitle = title ?? storeHeaderTitle;
 
   // Reserve space for the device status bar using the measured top inset.
@@ -55,9 +56,23 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
       style={{ paddingTop: topPadding }}
       testID="header-safe-wrapper"
     >
-      <View className="w-full flex-row justify-between items-center rounded-b-3xl bg-danish-dark-gray border-b-2 border-danish-red shadow-xl shadow-red-900/50 px-4 py-3">
-        {/* Left spacer — balances the optional right action button */}
-        <View className="w-10" />
+      <View className="w-full flex-row justify-between items-center bg-danish-dark-gray border-b-2 border-danish-red shadow-xl shadow-red-900/50 px-4 py-3">
+        {headerBackAction ? (
+          <TouchableOpacity
+            onPress={headerBackAction.onPress}
+            className="w-10 h-10 items-center justify-center rounded-xl bg-gray-800/80 border border-gray-700/60 active:bg-gray-700"
+            testID={headerBackAction.testID || "header-back-button"}
+            accessibilityLabel={headerBackAction.label || "Volver"}
+          >
+            {headerBackAction.iconName ? (
+              renderActionIcon(headerBackAction as HeaderAction)
+            ) : (
+              <Feather name="chevron-left" size={24} color="#ffffff" />
+            )}
+          </TouchableOpacity>
+        ) : (
+          <View className="w-10" />
+        )}
 
         <Text
           className="flex-1 text-danish-white text-xl font-bold text-center tracking-wide"

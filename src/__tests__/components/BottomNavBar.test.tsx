@@ -63,7 +63,7 @@ describe("BottomNavBar Component & Navigation Flow Unit Tests (US1 / T006)", () 
   });
 });
 
-describe("BottomNavBar Home Button Selection (US1 / T005)", () => {
+describe("BottomNavBar Home Button & Item Order (US1 / T010)", () => {
   beforeEach(() => {
     useMenuStore.setState({
       activeTab: TopMenuEnums.PLAYERS,
@@ -73,21 +73,23 @@ describe("BottomNavBar Home Button Selection (US1 / T005)", () => {
     });
   });
 
-  it("should include Home (MAIN) item and no CALENDAR in team layout menu", () => {
+  it("should place Home (MAIN) as the first item (index 0) in team layout menu", () => {
     const teamMenuItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
       { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
-      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setBottomMenu(teamMenuItems);
 
-    const ids = useMenuStore.getState().bottomMenuItems.map((i) => i.id);
-    expect(ids).toContain(TopMenuEnums.MAIN);
-    expect(ids).not.toContain(TopMenuEnums.CALENDAR);
-    expect(ids.length).toBe(5);
+    const items = useMenuStore.getState().bottomMenuItems;
+    expect(items[0].id).toBe(TopMenuEnums.MAIN);
+    expect(items[1].id).toBe(TopMenuEnums.PLAYERS);
+    expect(items[2].id).toBe(TopMenuEnums.GAMES);
+    expect(items[3].id).toBe(TopMenuEnums.TRAININGS);
+    expect(items[4].id).toBe(TopMenuEnums.GO_BACK);
   });
 
   it("should set activeTab to MAIN when Home button onPress is triggered", () => {
@@ -96,31 +98,31 @@ describe("BottomNavBar Home Button Selection (US1 / T005)", () => {
     });
 
     const teamMenuItems: BottomMenuItem[] = [
-      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: homePressFn },
+      { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setBottomMenu(teamMenuItems);
 
-    const homeItem = useMenuStore.getState().bottomMenuItems.find((i) => i.id === TopMenuEnums.MAIN);
-    homeItem?.onPress();
+    const homeItem = useMenuStore.getState().bottomMenuItems[0];
+    homeItem.onPress();
 
     expect(homePressFn).toHaveBeenCalledTimes(1);
     expect(useMenuStore.getState().activeTab).toBe(TopMenuEnums.MAIN);
   });
 
-  it("should render Home item with 'Inicio' label and 'home' icon", () => {
+  it("should configure Home item with 'Inicio' label and 'home' icon", () => {
     const teamMenuItems: BottomMenuItem[] = [
       { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setBottomMenu(teamMenuItems);
 
-    const homeItem = useMenuStore.getState().bottomMenuItems.find((i) => i.id === TopMenuEnums.MAIN);
-    expect(homeItem?.label).toBe("Inicio");
-    expect(homeItem?.iconName).toBe("home");
-    expect(homeItem?.iconFamily).toBe("Feather");
+    const homeItem = useMenuStore.getState().bottomMenuItems[0];
+    expect(homeItem.label).toBe("Inicio");
+    expect(homeItem.iconName).toBe("home");
+    expect(homeItem.iconFamily).toBe("Feather");
   });
 });
 

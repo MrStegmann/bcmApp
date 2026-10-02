@@ -2,14 +2,14 @@ import { useClubStore } from "../store/ClubStore";
 import { usePlayerStore } from "../store/PlayerStore";
 import { useGameStore } from "../store/GameStore";
 import { useTrainingStore } from "../store/TrainingStore";
-import { useFeesStore } from "../store/FeesStore";
+import { db, players, games, playerStats, trainingPlayers } from "../db";
+import { eq } from "drizzle-orm";
 
 export function useDB() {
   const clubStore = useClubStore();
   const playerStore = usePlayerStore();
   const gameStore = useGameStore();
   const trainingStore = useTrainingStore();
-  const feesStore = useFeesStore();
 
   const currentTeamId = clubStore.currentTeam?.id || 1;
 
@@ -35,34 +35,140 @@ export function useDB() {
     // Player Controller
     PlayerController: {
       getAll: (teamId?: number) => playerStore.fetchPlayers(teamId || currentTeamId),
-      load: async (cb?: (players: any[]) => void, teamId?: number) => {
+      load: async (cb?: (playersList: any[]) => void, teamId?: number) => {
         const list = await playerStore.fetchPlayers(teamId || currentTeamId);
         if (cb) cb(list);
         return list;
       },
-      loadStatsByTeam: async (teamId: number, cb?: (players: any[]) => void) => {
-        const list = await playerStore.fetchPlayers(teamId);
-        if (cb) cb(list);
-        return list;
+      loadStatsByTeam: async (teamId: number, cb?: (playersList: any[]) => void) => {
+        const teamPlayers = await playerStore.fetchPlayers(teamId || currentTeamId);
+        try {
+          const allStats = await db.select().from(playerStats);
+          const enriched = teamPlayers.map((p) => {
+            const pStats = allStats.filter((s) => s.playerId === p.id);
+            const total_minutes = pStats.reduce((sum, s) => sum + (s.minutes || 0), 0);
+            const total_t1a = pStats.reduce((sum, s) => sum + (s.t1a || 0), 0);
+            const total_t1i = pStats.reduce((sum, s) => sum + (s.t1i || 0), 0);
+            const total_t2a = pStats.reduce((sum, s) => sum + (s.t2a || 0), 0);
+            const total_t2i = pStats.reduce((sum, s) => sum + (s.t2i || 0), 0);
+            const total_t3a = pStats.reduce((sum, s) => sum + (s.t3a || 0), 0);
+            const total_t3i = pStats.reduce((sum, s) => sum + (s.t3i || 0), 0);
+            const total_oreb = pStats.reduce((sum, s) => sum + (s.oreb || 0), 0);
+            const total_dreb = pStats.reduce((sum, s) => sum + (s.dreb || 0), 0);
+            const total_asis = pStats.reduce((sum, s) => sum + (s.asis || 0), 0);
+            const total_rec = pStats.reduce((sum, s) => sum + (s.rec || 0), 0);
+            const total_per = pStats.reduce((sum, s) => sum + (s.per || 0), 0);
+            const total_falt = pStats.reduce((sum, s) => sum + (s.falt || 0), 0);
+            const total_valuation = pStats.reduce((sum, s) => sum + (s.valuation || 0), 0);
+            return {
+              ...p,
+              first_name: p.firstName,
+              last_name: p.lastName,
+              total_minutes,
+              total_t1a,
+              total_t1i,
+              total_t2a,
+              total_t2i,
+              total_t3a,
+              total_t3i,
+              total_oreb,
+              total_dreb,
+              total_asis,
+              total_rec,
+              total_per,
+              total_falt,
+              total_valuation,
+            };
+          });
+          if (cb) cb(enriched);
+          return enriched;
+        } catch {
+          if (cb) cb(teamPlayers);
+          return teamPlayers;
+        }
       },
       loadPlayerStats: async (playerId: number, gameId: number, cb?: (res: any) => void) => {
+        let player = playerStore.playersList.find((p) => p.id === playerId);
+        if (!player) {
+          try {
+            const [found] = await db.select().from(players).where(eq(players.id, playerId));
+            player = found;
+          } catch {}
+        }
         const stats = await gameStore.fetchGamePlayerStats(gameId);
-        const res = stats[playerId] || { id: playerId, player_id: playerId, game_id: gameId };
+        const stat = stats[playerId];
+        const res = {
+          id: stat?.id || playerId,
+          statId: stat?.id,
+          game_id: gameId,
+          player_id: playerId,
+          first_name: player?.firstName || "",
+          last_name: player?.lastName || "",
+          number: player?.number ? Number(player.number) || player.number : 0,
+          minutes: stat?.minutes || 0,
+          t1a: stat?.t1a || 0,
+          t1i: stat?.t1i || 0,
+          t2a: stat?.t2a || 0,
+          t2i: stat?.t2i || 0,
+          t3a: stat?.t3a || 0,
+          t3i: stat?.t3i || 0,
+          oreb: stat?.oreb || 0,
+          dreb: stat?.dreb || 0,
+          asis: stat?.asis || 0,
+          rec: stat?.rec || 0,
+          per: stat?.per || 0,
+          falt: stat?.falt || 0,
+          valuation: stat?.valuation || 0,
+        };
         if (cb) cb(res);
         return res;
       },
-      loadFees: async (playerId: number, cb?: (feesList: any[]) => void) => {
-        const list = await feesStore.fetchFees(currentTeamId);
-        const filtered = list.filter((f) => !f.playerId || f.playerId === playerId);
-        if (cb) cb(filtered);
-        return filtered;
-      },
       loadStats: async (playerId: number, cb?: (statsList: any[]) => void) => {
-        const stats: any[] = [];
-        if (cb) cb(stats);
-        return stats;
+        try {
+          const pStats = await db.select().from(playerStats).where(eq(playerStats.playerId, playerId));
+          if (pStats.length === 0) {
+            if (cb) cb([]);
+            return [];
+          }
+          const total_minutes = pStats.reduce((sum, s) => sum + (s.minutes || 0), 0);
+          const total_t1a = pStats.reduce((sum, s) => sum + (s.t1a || 0), 0);
+          const total_t1i = pStats.reduce((sum, s) => sum + (s.t1i || 0), 0);
+          const total_t2a = pStats.reduce((sum, s) => sum + (s.t2a || 0), 0);
+          const total_t2i = pStats.reduce((sum, s) => sum + (s.t2i || 0), 0);
+          const total_t3a = pStats.reduce((sum, s) => sum + (s.t3a || 0), 0);
+          const total_t3i = pStats.reduce((sum, s) => sum + (s.t3i || 0), 0);
+          const total_oreb = pStats.reduce((sum, s) => sum + (s.oreb || 0), 0);
+          const total_dreb = pStats.reduce((sum, s) => sum + (s.dreb || 0), 0);
+          const total_asis = pStats.reduce((sum, s) => sum + (s.asis || 0), 0);
+          const total_rec = pStats.reduce((sum, s) => sum + (s.rec || 0), 0);
+          const total_per = pStats.reduce((sum, s) => sum + (s.per || 0), 0);
+          const total_falt = pStats.reduce((sum, s) => sum + (s.falt || 0), 0);
+          const total_valuation = pStats.reduce((sum, s) => sum + (s.valuation || 0), 0);
+          const summary = [{
+            player_id: playerId,
+            total_minutes,
+            total_t1a,
+            total_t1i,
+            total_t2a,
+            total_t2i,
+            total_t3a,
+            total_t3i,
+            total_oreb,
+            total_dreb,
+            total_asis,
+            total_rec,
+            total_per,
+            total_falt,
+            total_valuation,
+          }];
+          if (cb) cb(summary);
+          return summary;
+        } catch {
+          if (cb) cb([]);
+          return [];
+        }
       },
-      add: (param1: any, param2?: any, param3?: any, param4?: any, param5?: any, param6?: any) => {
+      add: (param1: any, param2?: any, param3?: any, param4?: any, ...args: any[]) => {
         if (typeof param2 === "string") {
           return playerStore.createPlayer({
             teamId: param1 || currentTeamId,
@@ -74,7 +180,7 @@ export function useDB() {
         return playerStore.createPlayer({ teamId: currentTeamId, ...param1 });
       },
       create: (data: any) => playerStore.createPlayer({ teamId: currentTeamId, ...data }),
-      edit: (id: number, param2: any, param3?: any, param4?: any, param5?: any, param6?: any) => {
+      edit: (id: number, param2: any, param3?: any, param4?: any, param5?: any, ...args: any[]) => {
         if (typeof param3 === "string") {
           return playerStore.updatePlayer(id, {
             firstName: param3,
@@ -99,17 +205,98 @@ export function useDB() {
         if (cb) cb(list);
         return list;
       },
+      getRoster: async (gameId: number) => {
+        try {
+          const stats = await db.select().from(playerStats).where(eq(playerStats.gameId, gameId));
+          return stats;
+        } catch {
+          return [];
+        }
+      },
       loadCalledup: async (gameId: number, cb?: (res: any[]) => void) => {
-        const list: any[] = [];
-        if (cb) cb(list);
-        return list;
+        try {
+          const stats = await db.select().from(playerStats).where(eq(playerStats.gameId, gameId));
+          const list = stats.map((s) => ({
+            ...s,
+            player_id: s.playerId,
+            game_id: s.gameId,
+          }));
+          if (cb) cb(list);
+          return list;
+        } catch {
+          if (cb) cb([]);
+          return [];
+        }
       },
       editCalledup: async (data: any) => {
-        return true;
+        const gameId = data.game_id || data.gameId;
+        const playerId = data.player_id || data.playerId;
+        const isCalled = data.called ?? true;
+        if (!gameId || !playerId) return false;
+        try {
+          if (isCalled) {
+            const existing = await db.select().from(playerStats).where(eq(playerStats.gameId, gameId));
+            const match = existing.find((s) => s.playerId === playerId);
+            if (!match) {
+              await db.insert(playerStats).values({
+                gameId,
+                playerId,
+                minutes: 0,
+                t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+                oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+              });
+            }
+          } else {
+            const existing = await db.select().from(playerStats).where(eq(playerStats.gameId, gameId));
+            const match = existing.find((s) => s.playerId === playerId);
+            if (match) {
+              await db.delete(playerStats).where(eq(playerStats.id, match.id));
+            }
+          }
+          return true;
+        } catch {
+          return false;
+        }
       },
-      add: (data: any) => gameStore.createGame({ teamId: currentTeamId, ...data }),
-      create: (data: any) => gameStore.createGame({ teamId: currentTeamId, ...data }),
-      edit: (data: any) => Promise.resolve(true),
+      add: (data: any) =>
+        gameStore.createGame({
+          teamId: currentTeamId,
+          opponent: data.rivalTeamName || data.opponent || "",
+          round: data.round ? String(data.round) : "1",
+          date: data.timeStamp || data.date || "",
+          status: data.status || "pending",
+          ...data,
+        }),
+      create: (data: any) =>
+        gameStore.createGame({
+          teamId: currentTeamId,
+          opponent: data.rivalTeamName || data.opponent || "",
+          round: data.round ? String(data.round) : "1",
+          date: data.timeStamp || data.date || "",
+          status: data.status || "pending",
+          ...data,
+        }),
+      edit: async (data: any) => {
+        if (!data?.id) return false;
+        const payload: any = {};
+        if (data.result_c1 !== undefined) payload.resultC1 = Number(data.result_c1);
+        if (data.result_c2 !== undefined) payload.resultC2 = Number(data.result_c2);
+        if (data.result_c3 !== undefined) payload.resultC3 = Number(data.result_c3);
+        if (data.result_c4 !== undefined) payload.resultC4 = Number(data.result_c4);
+        if (data.result_extra !== undefined) payload.resultExtra = Number(data.result_extra);
+        if (data.result_c1_opponent !== undefined) payload.resultC1Opponent = Number(data.result_c1_opponent);
+        if (data.result_c2_opponent !== undefined) payload.resultC2Opponent = Number(data.result_c2_opponent);
+        if (data.result_c3_opponent !== undefined) payload.resultC3Opponent = Number(data.result_c3_opponent);
+        if (data.result_c4_opponent !== undefined) payload.resultC4Opponent = Number(data.result_c4_opponent);
+        if (data.result_extra_opponent !== undefined) payload.resultExtraOpponent = Number(data.result_extra_opponent);
+        if (data.opponent !== undefined || data.rivalTeamName !== undefined) payload.opponent = data.rivalTeamName || data.opponent;
+        if (data.round !== undefined) payload.round = String(data.round);
+        if (data.date !== undefined || data.timeStamp !== undefined) payload.date = data.timeStamp || data.date;
+        if (data.status !== undefined) payload.status = data.status;
+        return gameStore.updateGame(data.id, payload);
+      },
+      startMatch: (gameId: number) => gameStore.startMatch(gameId),
+      finishMatch: (gameId: number, finalScores?: any) => gameStore.finishMatch(gameId, finalScores),
       remove: (id: number) => gameStore.deleteGame(id),
       delete: (id: number) => gameStore.deleteGame(id),
     },
@@ -124,9 +311,14 @@ export function useDB() {
         return stats;
       },
       loadByPlayer: async (playerId: number, cb?: (stats: any[]) => void) => {
-        const list: any[] = [];
-        if (cb) cb(list);
-        return list;
+        try {
+          const list = await db.select().from(playerStats).where(eq(playerStats.playerId, playerId));
+          if (cb) cb(list);
+          return list;
+        } catch {
+          if (cb) cb([]);
+          return [];
+        }
       },
       add: (data: any) => gameStore.savePlayerStat(data),
       create: (data: any) => gameStore.savePlayerStat(data),
@@ -173,9 +365,18 @@ export function useDB() {
         return map;
       },
       loadByPlayer: async (playerId: number, cb?: (results: any[]) => void) => {
-        const results: any[] = [];
-        if (cb) cb(results);
-        return results;
+        try {
+          const list = await db.select().from(trainingPlayers).where(eq(trainingPlayers.playerId, playerId));
+          const mapped = list.map((tp) => ({
+            ...tp,
+            assistance: tp.attended === 1,
+          }));
+          if (cb) cb(mapped);
+          return mapped;
+        } catch {
+          if (cb) cb([]);
+          return [];
+        }
       },
       edit: (data: any) =>
         trainingStore.togglePlayerAttendance(data.trainingId || data.training_id, data.playerId || data.player_id, data.assistance || data.attended),
@@ -191,38 +392,23 @@ export function useDB() {
         return map;
       },
       loadByPlayer: async (playerId: number, cb?: (results: any[]) => void) => {
-        const results: any[] = [];
-        if (cb) cb(results);
-        return results;
+        try {
+          const list = await db.select().from(trainingPlayers).where(eq(trainingPlayers.playerId, playerId));
+          const mapped = list.map((tp) => ({
+            ...tp,
+            assistance: tp.attended === 1,
+          }));
+          if (cb) cb(mapped);
+          return mapped;
+        } catch {
+          if (cb) cb([]);
+          return [];
+        }
       },
       edit: (data: any) =>
         trainingStore.togglePlayerAttendance(data.trainingId || data.training_id, data.playerId || data.player_id, data.assistance || data.attended),
       toggle: (trainingId: number, playerId: number, attended: boolean) =>
         trainingStore.togglePlayerAttendance(trainingId, playerId, attended),
-    },
-
-    // Fees Controller
-    FeesController: {
-      getAll: (teamId?: number) => feesStore.fetchFees(teamId || currentTeamId),
-      load: async (param1?: any, param2?: any) => {
-        const teamId = typeof param1 === "number" ? param1 : currentTeamId;
-        const cb = typeof param1 === "function" ? param1 : typeof param2 === "function" ? param2 : undefined;
-        const list = await feesStore.fetchFees(teamId);
-        if (cb) cb(list);
-        return list;
-      },
-      loadFeesByGame: async (teamId: number, cb?: (feesList: any[]) => void) => {
-        const list = await feesStore.fetchFees(teamId);
-        if (cb) cb(list);
-        return list;
-      },
-      add: (data: any) => feesStore.createFee({ teamId: currentTeamId, ...data }),
-      create: (data: any) => feesStore.createFee({ teamId: currentTeamId, ...data }),
-      edit: (feeId: number, teamId: any, playerId: any, season: any, month: any, paid: boolean, clubId?: any) =>
-        feesStore.toggleFeePayment(feeId, paid),
-      toggle: (feeId: number, paid: boolean) => feesStore.toggleFeePayment(feeId, paid),
-      remove: (id: number) => feesStore.deleteFee(id),
-      delete: (id: number) => feesStore.deleteFee(id),
     },
   };
 }

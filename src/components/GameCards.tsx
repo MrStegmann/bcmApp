@@ -2,12 +2,13 @@ import React from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import { Text, View, ScrollView, TouchableOpacity } from "react-native";
+import { Game } from "../types/database";
 
 interface GameCardsProps {
-  games: any[];
-  onSelect: (game: any) => void;
-  onEdit: (game: any) => void;
-  onDelete: (game: any) => void;
+  games: Game[];
+  onSelect: (game: Game) => void;
+  onEdit: (game: Game) => void;
+  onDelete: (game: Game) => void;
 }
 
 const GameCards: React.FC<GameCardsProps> = ({
@@ -21,69 +22,124 @@ const GameCards: React.FC<GameCardsProps> = ({
       <View className="w-full flex flex-col justify-center items-center mt-20">
         <MaterialCommunityIcons
           name="book-open-blank-variant-outline"
-          size={30}
-          color="gray"
+          size={36}
+          color="#9CA3AF"
         />
-        <Text className="text-lg font-bold text-danish-light-gray text-center px-2">
+        <Text className="text-lg font-bold text-danish-light-gray text-center px-4 mt-2">
           Parece que aún no has registrado ningún partido
+        </Text>
+        <Text className="text-xs text-gray-500 text-center px-6 mt-1">
+          Pulsa en Añadir para programar tu primer partido.
         </Text>
       </View>
     );
   }
 
+  const renderStatusBadge = (status?: string) => {
+    switch (status) {
+      case "finished":
+        return (
+          <View className="px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/80">
+            <Text className="text-[10px] font-bold text-emerald-400">Finalizado</Text>
+          </View>
+        );
+      case "inProgress":
+        return (
+          <View className="px-2 py-0.5 rounded-full bg-amber-950 border border-amber-500/80">
+            <Text className="text-[10px] font-bold text-amber-400">En Juego</Text>
+          </View>
+        );
+      case "pending":
+      default:
+        return (
+          <View className="px-2 py-0.5 rounded-full bg-blue-950 border border-blue-500/80">
+            <Text className="text-[10px] font-bold text-blue-400">Pendiente</Text>
+          </View>
+        );
+    }
+  };
+
   return (
     <View className="w-full h-full flex flex-col items-center">
-      <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
+      <ScrollView
+        className="w-full"
+        showsVerticalScrollIndicator={true}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
         {games.map((game) => {
           const result =
-            (game.resultC1 ?? game.result_c1 ?? 0) +
-            (game.resultC2 ?? game.result_c2 ?? 0) +
-            (game.resultC3 ?? game.result_c3 ?? 0) +
-            (game.resultC4 ?? game.result_c4 ?? 0) +
-            (game.resultExtra ?? game.result_extra ?? 0);
+            (game.resultC1 ?? (game as any).result_c1 ?? 0) +
+            (game.resultC2 ?? (game as any).result_c2 ?? 0) +
+            (game.resultC3 ?? (game as any).result_c3 ?? 0) +
+            (game.resultC4 ?? (game as any).result_c4 ?? 0) +
+            (game.resultExtra ?? (game as any).result_extra ?? 0);
           const resultOpponent =
-            (game.resultC1Opponent ?? game.result_c1_opponent ?? 0) +
-            (game.resultC2Opponent ?? game.result_c2_opponent ?? 0) +
-            (game.resultC3Opponent ?? game.result_c3_opponent ?? 0) +
-            (game.resultC4Opponent ?? game.result_c4_opponent ?? 0) +
-            (game.resultExtraOpponent ?? game.result_extra_opponent ?? 0);
+            (game.resultC1Opponent ?? (game as any).result_c1_opponent ?? 0) +
+            (game.resultC2Opponent ?? (game as any).result_c2_opponent ?? 0) +
+            (game.resultC3Opponent ?? (game as any).result_c3_opponent ?? 0) +
+            (game.resultC4Opponent ?? (game as any).result_c4_opponent ?? 0) +
+            (game.resultExtraOpponent ?? (game as any).result_extra_opponent ?? 0);
+
+          const roundLabel =
+            typeof game.round === "string" && game.round.toLowerCase().startsWith("jornada")
+              ? game.round
+              : `Jornada ${game.round}`;
+
+          const isWinning = result > resultOpponent;
 
           return (
             <TouchableOpacity
               key={game.id}
               onPress={() => onSelect(game)}
-              className="my-2 active:shadow-inner shadow-danish-red bg-transparent z-10 hover:bg-danish-red active:bg-danish-red"
+              className="my-1.5 w-full active:opacity-85"
             >
               <View
-                className={`w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg border ${result > resultOpponent ? "border-danish-gold shadow-danish-gold" : "border-danish-red shadow-danish-red"}`}
+                className={`w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg border ${
+                  game.status === "finished" && isWinning
+                    ? "border-danish-gold shadow-danish-gold"
+                    : "border-danish-red shadow-danish-red"
+                }`}
               >
-                <View className="w-[75%] flex flex-row justify-between items-center">
-                  <View className="flex flex-col">
-                    <Text className="text-xs text-danish-white text-center">
-                      Jornada {game.round}
-                    </Text>
-                    <Text className="text-xs text-danish-white text-center">
+                <View className="w-[75%] flex flex-row justify-between items-center pr-2">
+                  <View className="flex flex-col items-start w-[38%]">
+                    <View className="flex-row items-center gap-1.5 mb-1">
+                      <Text className="text-xs text-danish-gold font-bold truncate">
+                        {roundLabel}
+                      </Text>
+                    </View>
+                    <Text className="text-[11px] text-gray-400">
                       {game.date}
                     </Text>
+                    <View className="mt-1.5">
+                      {renderStatusBadge(game.status)}
+                    </View>
                   </View>
-                  <View className="flex flex-col">
-                    <Text className="text-xs text-danish-white text-center">
-                      {game.opponent}
+
+                  <View className="flex flex-col items-center justify-center w-[35%] px-1">
+                    <Text className="text-xs font-bold text-danish-white text-center truncate">
+                      vs {game.opponent}
                     </Text>
                   </View>
-                  <View className="flex flex-col">
-                    <Text className="text-xs text-danish-white text-center">
+
+                  <View className="flex flex-col items-end w-[27%]">
+                    <Text className="text-sm font-extrabold text-danish-white text-right">
                       {result} - {resultOpponent}
                     </Text>
                   </View>
                 </View>
 
-                <View className="w-[25%] flex flex-row justify-end items-center gap-3">
-                  <TouchableOpacity onPress={() => onEdit(game)}>
-                    <Feather name="edit" size={18} color="white" />
+                <View className="w-[25%] flex flex-row justify-end items-center gap-3 pl-1 border-l border-gray-800">
+                  <TouchableOpacity
+                    onPress={() => onEdit(game)}
+                    className="p-1.5 rounded-lg bg-gray-800 active:bg-gray-700"
+                  >
+                    <Feather name="edit" size={16} color="#F3F4F6" />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => onDelete(game)}>
-                    <Feather name="trash" size={18} color="red" />
+                  <TouchableOpacity
+                    onPress={() => onDelete(game)}
+                    className="p-1.5 rounded-lg bg-gray-800 active:bg-gray-700"
+                  >
+                    <Feather name="trash" size={16} color="#EF4444" />
                   </TouchableOpacity>
                 </View>
               </View>

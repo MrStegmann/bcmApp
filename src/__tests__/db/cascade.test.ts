@@ -11,9 +11,6 @@ describe("Relational Foreign Key Cascade Policy Tests (T010)", () => {
     // Trainings -> Team foreign key
     expect(schema.trainings.teamId).toBeDefined();
 
-    // Fees -> Team foreign key
-    expect(schema.fees.teamId).toBeDefined();
-
     // PlayerStats -> Game & Player foreign keys
     expect(schema.playerStats.gameId).toBeDefined();
     expect(schema.playerStats.playerId).toBeDefined();
@@ -30,6 +27,6 @@ describe("Relational Foreign Key Cascade Policy Tests (T010)", () => {
     expect(schema.playerStatsRelations).toBeDefined();
     expect(schema.trainingsRelations).toBeDefined();
     expect(schema.trainingPlayersRelations).toBeDefined();
-    expect(schema.feesRelations).toBeDefined();
+    expect((schema as any).feesRelations).toBe(undefined);
   });
 });

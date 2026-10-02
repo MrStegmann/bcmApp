@@ -25,10 +25,19 @@ export interface HeaderAction {
   testID?: string;
 }
 
+export interface HeaderBackAction {
+  label?: string;
+  iconName?: string;
+  iconFamily?: "Entypo" | "Feather" | "MaterialIcons" | "Foundation" | "MaterialCommunityIcons" | "FontAwesome5";
+  onPress: () => void;
+  testID?: string;
+}
+
 export interface MenuStoreState {
   activeTab: TopMenuEnums;
   headerTitle: string;
   headerAction: HeaderAction | null;
+  headerBackAction: HeaderBackAction | null;
   bottomMenuItems: BottomMenuItem[];
   topMenu: TopMenuEnums | TopMenuItem[];
   topMenuItems: TopMenuItem[];
@@ -36,6 +45,7 @@ export interface MenuStoreState {
   setActiveTab: (tab: TopMenuEnums) => void;
   setHeaderTitle: (title: string) => void;
   setHeaderAction: (action: HeaderAction | null) => void;
+  setHeaderBackAction: (action: HeaderBackAction | null) => void;
   setBottomMenu: (items: BottomMenuItem[]) => void;
   setTopMenu: (menu: TopMenuEnums | TopMenuItem[]) => void;
 }
@@ -44,6 +54,7 @@ export const useMenuStore = create<MenuStoreState>((set) => ({
   activeTab: TopMenuEnums.MAIN,
   headerTitle: "Gestión de Equipos",
   headerAction: null,
+  headerBackAction: null,
   bottomMenuItems: [],
   topMenu: TopMenuEnums.MAIN,
   topMenuItems: [],
@@ -51,6 +62,7 @@ export const useMenuStore = create<MenuStoreState>((set) => ({
   setActiveTab: (tab: TopMenuEnums) => set({ activeTab: tab }),
   setHeaderTitle: (title: string) => set({ headerTitle: title }),
   setHeaderAction: (action: HeaderAction | null) => set({ headerAction: action }),
+  setHeaderBackAction: (action: HeaderBackAction | null) => set({ headerBackAction: action }),
   setBottomMenu: (items: BottomMenuItem[]) => set({ bottomMenuItems: items }),
 
   setTopMenu: (menu: TopMenuEnums | TopMenuItem[]) => {
@@ -63,3 +75,4 @@ export const useMenuStore = create<MenuStoreState>((set) => ({
 }));
 
 export default useMenuStore;
+

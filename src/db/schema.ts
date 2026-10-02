@@ -15,7 +15,6 @@ export const teamsRelations = relations(teams, ({ many }) => ({
   players: many(players),
   games: many(games),
   trainings: many(trainings),
-  fees: many(fees),
 }));
 
 // 2. PLAYERS SCHEMA
@@ -41,7 +40,6 @@ export const playersRelations = relations(players, ({ one, many }) => ({
   }),
   playerStats: many(playerStats),
   trainingPlayers: many(trainingPlayers),
-  fees: many(fees),
 }));
 
 // 3. GAMES SCHEMA
@@ -51,8 +49,12 @@ export const games = sqliteTable("games", {
     .notNull()
     .references(() => teams.id, { onDelete: "cascade" }),
   opponent: text("opponent").notNull(),
-  round: integer("round").notNull().default(1),
+  round: text("round").notNull().default("1"),
   date: text("date").notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
   resultC1: integer("result_c1").default(0),
   resultC2: integer("result_c2").default(0),
   resultC3: integer("result_c3").default(0),
@@ -173,27 +175,3 @@ export const trainingPlayersRelations = relations(trainingPlayers, ({ one }) => 
   }),
 }));
 
-// 7. FEES SCHEMA
-export const fees = sqliteTable("fees", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  teamId: integer("team_id")
-    .notNull()
-    .references(() => teams.id, { onDelete: "cascade" }),
-  playerId: integer("player_id").references(() => players.id, { onDelete: "cascade" }),
-  month: text("month").notNull(),
-  year: integer("year").notNull(),
-  amount: real("amount").notNull().default(0.0),
-  paid: integer("paid").notNull().default(0),
-  dueDate: text("due_date"),
-});
-
-export const feesRelations = relations(fees, ({ one }) => ({
-  team: one(teams, {
-    fields: [fees.teamId],
-    references: [teams.id],
-  }),
-  player: one(players, {
-    fields: [fees.playerId],
-    references: [players.id],
-  }),
-}));

@@ -32,8 +32,10 @@ export function initDatabase(): void {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
       opponent TEXT NOT NULL,
-      round INTEGER NOT NULL DEFAULT 1,
+      round TEXT NOT NULL DEFAULT '1',
       date TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
       result_c1 INTEGER DEFAULT 0,
       result_c2 INTEGER DEFAULT 0,
       result_c3 INTEGER DEFAULT 0,
@@ -91,18 +93,16 @@ export function initDatabase(): void {
       attended INTEGER NOT NULL DEFAULT 1,
       notes TEXT
     );
-
-    CREATE TABLE IF NOT EXISTS fees (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-      player_id INTEGER REFERENCES players(id) ON DELETE CASCADE,
-      month TEXT NOT NULL,
-      year INTEGER NOT NULL,
-      amount REAL NOT NULL DEFAULT 0.0,
-      paid INTEGER NOT NULL DEFAULT 0,
-      due_date TEXT
-    );
   `);
+
+  // Migrate existing tables if columns are missing
+  try {
+    sqliteDb.execSync("ALTER TABLE games ADD COLUMN status TEXT NOT NULL DEFAULT 'pending';");
+  } catch {}
+
+  try {
+    sqliteDb.execSync("ALTER TABLE games ADD COLUMN created_at TEXT NOT NULL DEFAULT (datetime('now'));");
+  } catch {}
 }
 
 export * from "./schema";

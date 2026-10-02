@@ -31,6 +31,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ onReturn }) => {
   const club = useClubStore((state) => state.club);
   const setTopMenu = useMenuStore((state) => state.setTopMenu);
   const setHeaderAction = useMenuStore((state) => state.setHeaderAction);
+  const setHeaderBackAction = useMenuStore((state) => state.setHeaderBackAction);
 
   const openCreateTraining = useCallback(() => setCreateTraining(true), []);
 
@@ -39,12 +40,42 @@ const TrainingList: React.FC<TrainingListProps> = ({ onReturn }) => {
     setMainMenu();
     return () => {
       setHeaderAction(null);
+      setHeaderBackAction(null);
     };
   }, []);
 
   useEffect(() => {
-    const isListView = !createTraining && !editTraining && !selectedTraining;
-    if (isListView) {
+    if (createTraining) {
+      setHeaderAction(null);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "chevron-left",
+        iconFamily: "Feather",
+        onPress: () => setCreateTraining(false),
+        testID: "header-back-button",
+      });
+    } else if (editTraining) {
+      setHeaderAction(null);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "chevron-left",
+        iconFamily: "Feather",
+        onPress: () => {
+          setSelectedTraining(null);
+          setEditTraining(false);
+        },
+        testID: "header-back-button",
+      });
+    } else if (selectedTraining) {
+      setHeaderAction(null);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "chevron-left",
+        iconFamily: "Feather",
+        onPress: () => setSelectedTraining(null),
+        testID: "header-back-button",
+      });
+    } else {
       setHeaderAction({
         label: "Añadir",
         iconName: "plus-circle",
@@ -52,8 +83,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ onReturn }) => {
         onPress: openCreateTraining,
         testID: "header-add-training",
       });
-    } else {
-      setHeaderAction(null);
+      setHeaderBackAction(null);
     }
   }, [createTraining, editTraining, selectedTraining]);
 

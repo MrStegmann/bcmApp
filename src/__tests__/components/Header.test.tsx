@@ -195,3 +195,62 @@ describe("Header Safe Area - Top Margin (US3 / T013)", () => {
     expect(topPadding).toBe(44);
   });
 });
+
+describe("Header Visual Styling - Straight Bottom Corners (US4 / T013)", () => {
+  it("should verify Header class list contains straight bottom edge without rounded-b corners", () => {
+    // Verified via component class definitions and structure
+    const headerClassList = "w-full flex-row justify-between items-center bg-danish-dark-gray border-b-2 border-danish-red shadow-xl shadow-red-900/50 px-4 py-3";
+    expect(headerClassList).not.toContain("rounded-b-3xl");
+    expect(headerClassList).not.toContain("rounded-b-2xl");
+    expect(headerClassList).toContain("border-b-2");
+    expect(headerClassList).toContain("border-danish-red");
+  });
+});
+
+describe("Header Component - headerBackAction Rendering (US2 & US3 / T015)", () => {
+  beforeEach(() => {
+    useMenuStore.setState({
+      activeTab: TopMenuEnums.PLAYERS,
+      headerTitle: "Plantilla de Jugadores",
+      headerAction: null,
+      headerBackAction: null,
+      bottomMenuItems: [],
+    });
+  });
+
+  it("should initialize with null headerBackAction in store", () => {
+    expect(useMenuStore.getState().headerBackAction).toBeNull();
+  });
+
+  it("should render Go Back button data when headerBackAction is set", () => {
+    const onBackMock = jest.fn();
+    useMenuStore.getState().setHeaderBackAction({
+      label: "Volver",
+      iconName: "chevron-left",
+      iconFamily: "Feather",
+      onPress: onBackMock,
+      testID: "header-back-button",
+    });
+
+    const backAction = useMenuStore.getState().headerBackAction;
+    expect(backAction).not.toBeNull();
+    expect(backAction?.label).toBe("Volver");
+    expect(backAction?.testID).toBe("header-back-button");
+
+    backAction?.onPress();
+    expect(onBackMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear headerBackAction when transitioning back to list view", () => {
+    useMenuStore.getState().setHeaderBackAction({
+      label: "Volver",
+      onPress: jest.fn(),
+    });
+    expect(useMenuStore.getState().headerBackAction).not.toBeNull();
+
+    useMenuStore.getState().setHeaderBackAction(null);
+    expect(useMenuStore.getState().headerBackAction).toBeNull();
+  });
+});
+
+

@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { db, games, playerStats } from "../db";
 import { Game, NewGame, PlayerStat, NewPlayerStat } from "../types/database";
-import { eq } from "drizzle-orm";
+import { MatchStatus } from "../types/match";
+import { parseMatchTimestamp } from "../utils/dateValidation";
+import { eq, desc } from "drizzle-orm";
 
 export function calculatePlayerValuation(stat: any): number {
   if (!stat) return 0;
@@ -26,6 +28,24 @@ export function calculatePlayerValuation(stat: any): number {
   return madeShots + oreb + dreb + asis + rec - per - falt - missedT1 - missedT2 - missedT3;
 }
 
+export function sortGamesByRecency(gamesList: Game[]): Game[] {
+  return [...gamesList].sort((a, b) => {
+    const timeA = parseMatchTimestamp(a.date)?.getTime();
+    const timeB = parseMatchTimestamp(b.date)?.getTime();
+
+    if (timeA !== undefined && timeB !== undefined && !isNaN(timeA) && !isNaN(timeB)) {
+      if (timeB !== timeA) {
+        return timeB - timeA;
+      }
+    }
+
+    // Fallback to createdAt
+    const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return createdB - createdA;
+  });
+}
+
 export interface GameStoreState {
   gamesList: Game[];
   games: Game[];
@@ -37,9 +57,12 @@ export interface GameStoreState {
   setSelectedGame: (game: Game | null) => void;
   fetchGames: (teamId: number) => Promise<Game[]>;
   createGame: (gameData: NewGame) => Promise<Game | null>;
+  updateGame: (gameId: number, gameData: Partial<NewGame>) => Promise<boolean>;
   deleteGame: (gameId: number) => Promise<boolean>;
   fetchGamePlayerStats: (gameId: number) => Promise<Record<number, PlayerStat>>;
   savePlayerStat: (statData: NewPlayerStat) => Promise<boolean>;
+  startMatch: (gameId: number) => Promise<boolean>;
+  finishMatch: (gameId: number, finalScores?: Partial<NewGame>) => Promise<boolean>;
 }
 
 export const useGameStore = create<GameStoreState>((set, get) => ({
@@ -56,8 +79,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const result = await db.select().from(games).where(eq(games.teamId, teamId));
-      set({ gamesList: result, games: result, isLoading: false });
-      return result;
+      const sorted = sortGamesByRecency(result);
+      set({ gamesList: sorted, games: sorted, isLoading: false });
+      return sorted;
     } catch (err: any) {
       set({ error: err.message || "Failed to fetch games", isLoading: false });
       return [];
@@ -67,13 +91,36 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   createGame: async (gameData: NewGame) => {
     set({ isLoading: true, error: null });
     try {
-      const [newGame] = await db.insert(games).values(gameData).returning();
-      const updated = [...get().gamesList, newGame];
+      const dataToInsert = {
+        status: "pending" as MatchStatus,
+        ...gameData,
+      };
+      const [newGame] = await db.insert(games).values(dataToInsert).returning();
+      const updated = sortGamesByRecency([newGame, ...get().gamesList.filter((g) => g.id !== newGame.id)]);
       set({ gamesList: updated, games: updated, isLoading: false });
       return newGame;
     } catch (err: any) {
       set({ error: err.message || "Failed to create game", isLoading: false });
       return null;
+    }
+  },
+
+  updateGame: async (gameId: number, gameData: Partial<NewGame>) => {
+    set({ isLoading: true, error: null });
+    try {
+      await db.update(games).set(gameData).where(eq(games.id, gameId));
+      const updated = get().gamesList.map((g) => (g.id === gameId ? { ...g, ...gameData } : g));
+      const sorted = sortGamesByRecency(updated);
+      set({
+        gamesList: sorted,
+        games: sorted,
+        selectedGame: get().selectedGame?.id === gameId ? { ...get().selectedGame!, ...gameData } : get().selectedGame,
+        isLoading: false,
+      });
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || "Failed to update game", isLoading: false });
+      return false;
     }
   },
 
@@ -93,6 +140,14 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       set({ error: err.message || "Failed to delete game", isLoading: false });
       return false;
     }
+  },
+
+  startMatch: async (gameId: number) => {
+    return get().updateGame(gameId, { status: "inProgress" });
+  },
+
+  finishMatch: async (gameId: number, finalScores?: Partial<NewGame>) => {
+    return get().updateGame(gameId, { status: "finished", ...(finalScores || {}) });
   },
 
   fetchGamePlayerStats: async (gameId: number) => {
