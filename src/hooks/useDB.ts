@@ -297,6 +297,11 @@ export function useDB() {
       },
       startMatch: (gameId: number) => gameStore.startMatch(gameId),
       finishMatch: (gameId: number, finalScores?: any) => gameStore.finishMatch(gameId, finalScores),
+      saveQuarterScores: (
+        gameId: number,
+        clubScores: Record<string, number>,
+        opponentScores: Record<string, number>
+      ) => gameStore.saveQuarterScores(gameId, clubScores as any, opponentScores as any),
       remove: (id: number) => gameStore.deleteGame(id),
       delete: (id: number) => gameStore.deleteGame(id),
     },
@@ -324,6 +329,7 @@ export function useDB() {
       create: (data: any) => gameStore.savePlayerStat(data),
       edit: (data: any) => gameStore.savePlayerStat(data),
       save: (data: any) => gameStore.savePlayerStat(data),
+      batchSave: (statsList: any[]) => gameStore.batchSavePlayerStats(statsList),
     },
 
     // Training Controller

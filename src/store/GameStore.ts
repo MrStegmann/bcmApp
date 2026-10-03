@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { db, games, playerStats } from "../db";
 import { Game, NewGame, PlayerStat, NewPlayerStat } from "../types/database";
-import { MatchStatus } from "../types/match";
+import { MatchStatus, QuarterKey, InGamePlayer } from "../types/match";
 import { parseMatchTimestamp } from "../utils/dateValidation";
 import { eq, desc } from "drizzle-orm";
 
@@ -26,6 +26,45 @@ export function calculatePlayerValuation(stat: any): number {
   const missedT3 = Math.max(0, t3i - t3a);
 
   return madeShots + oreb + dreb + asis + rec - per - falt - missedT1 - missedT2 - missedT3;
+}
+
+export function calculatePlayerPoints(player: Partial<InGamePlayer> | any): number {
+  if (!player) return 0;
+  const t1a = Number(player.t1a || 0);
+  const t2a = Number(player.t2a || 0);
+  const t3a = Number(player.t3a || 0);
+  return t1a * 1 + t2a * 2 + t3a * 3;
+}
+
+export function calculateTotalScore(scores?: Partial<Record<QuarterKey, number>> | any): number {
+  if (!scores) return 0;
+  const c1 = Number(scores.c1 || scores.resultC1 || scores.result_c1 || 0);
+  const c2 = Number(scores.c2 || scores.resultC2 || scores.result_c2 || 0);
+  const c3 = Number(scores.c3 || scores.resultC3 || scores.result_c3 || 0);
+  const c4 = Number(scores.c4 || scores.resultC4 || scores.result_c4 || 0);
+  const extra = Number(scores.extra || scores.resultExtra || scores.result_extra || 0);
+  return c1 + c2 + c3 + c4 + extra;
+}
+
+export function validateStartingFive(playerIds: number[]): boolean {
+  if (!Array.isArray(playerIds) || playerIds.length !== 5) {
+    return false;
+  }
+  const unique = new Set(playerIds);
+  return unique.size === 5;
+}
+
+export function calculateTimeoutBudget(quarterKey: QuarterKey, extraResetsCount: number = 0): number {
+  if (quarterKey === "c1" || quarterKey === "c2") {
+    return 2;
+  }
+  if (quarterKey === "c3" || quarterKey === "c4") {
+    return 3;
+  }
+  if (quarterKey === "extra") {
+    return 1 + Math.max(0, extraResetsCount);
+  }
+  return 2;
 }
 
 export function sortGamesByRecency(gamesList: Game[]): Game[] {
@@ -61,6 +100,12 @@ export interface GameStoreState {
   deleteGame: (gameId: number) => Promise<boolean>;
   fetchGamePlayerStats: (gameId: number) => Promise<Record<number, PlayerStat>>;
   savePlayerStat: (statData: NewPlayerStat) => Promise<boolean>;
+  batchSavePlayerStats: (statsList: NewPlayerStat[]) => Promise<boolean>;
+  saveQuarterScores: (
+    gameId: number,
+    clubScores: Record<QuarterKey, number>,
+    opponentScores: Record<QuarterKey, number>
+  ) => Promise<boolean>;
   startMatch: (gameId: number) => Promise<boolean>;
   finishMatch: (gameId: number, finalScores?: Partial<NewGame>) => Promise<boolean>;
 }
@@ -172,14 +217,11 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       const val = calculatePlayerValuation(statData);
       const dataWithVal = { ...statData, valuation: val };
 
-      // Check if existing stat record exists for gameId + playerId
       const existing = await db
         .select()
         .from(playerStats)
-        .where(
-          eq(playerStats.gameId, statData.gameId)
-        );
-      
+        .where(eq(playerStats.gameId, statData.gameId));
+
       const match = existing.find((s) => s.playerId === statData.playerId);
 
       if (match) {
@@ -198,6 +240,59 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       set({ error: err.message || "Failed to save player stat", isLoading: false });
       return false;
     }
+  },
+
+  batchSavePlayerStats: async (statsList: NewPlayerStat[]) => {
+    if (!statsList || statsList.length === 0) return true;
+    set({ isLoading: true, error: null });
+    try {
+      const gameId = statsList[0].gameId;
+      const existing = await db
+        .select()
+        .from(playerStats)
+        .where(eq(playerStats.gameId, gameId));
+
+      for (const stat of statsList) {
+        const val = calculatePlayerValuation(stat);
+        const dataWithVal = { ...stat, valuation: val };
+        const match = existing.find((s) => s.playerId === stat.playerId);
+
+        if (match) {
+          await db
+            .update(playerStats)
+            .set(dataWithVal)
+            .where(eq(playerStats.id, match.id));
+        } else {
+          await db.insert(playerStats).values(dataWithVal);
+        }
+      }
+
+      await get().fetchGamePlayerStats(gameId);
+      set({ isLoading: false });
+      return true;
+    } catch (err: any) {
+      set({ error: err.message || "Failed to batch save stats", isLoading: false });
+      return false;
+    }
+  },
+
+  saveQuarterScores: async (
+    gameId: number,
+    clubScores: Record<QuarterKey, number>,
+    opponentScores: Record<QuarterKey, number>
+  ) => {
+    return get().updateGame(gameId, {
+      resultC1: clubScores.c1,
+      resultC2: clubScores.c2,
+      resultC3: clubScores.c3,
+      resultC4: clubScores.c4,
+      resultExtra: clubScores.extra,
+      resultC1Opponent: opponentScores.c1,
+      resultC2Opponent: opponentScores.c2,
+      resultC3Opponent: opponentScores.c3,
+      resultC4Opponent: opponentScores.c4,
+      resultExtraOpponent: opponentScores.extra,
+    });
   },
 }));
 
