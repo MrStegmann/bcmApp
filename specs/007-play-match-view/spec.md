@@ -4,14 +4,23 @@
 
 **Created**: 2026-10-02
 
+**Last Updated**: 2026-10-24
+
 **Status**: Draft
 
-**Input**: User description: "The task is to create an organic game panel control and stats separated into three components with global state management for score, time, and team foul control. Component 1 (Time, Score, and Fouls): controls periods (q1, q2, q3, q4, extra) with single tap to swap to next period and 3-second hold to show period list modal; total score calculated from period scores, isolated score/time/team fouls per period; crono with single tap start/stop and 3-second hold to set manually; 10min per regular period, 5min for extra time with reset crono to 5min without wiping score/fouls. Component 2 (Team Management): half basketball court canvas with 5 position buttons representing active quintet; tapping opens stats modal (t1a, t1i, t2a, t2i, t3a, t3i with assist teammate prompt including 'non assistant' option on t2a/t3a; offensive & defensive rebounds both present; fouls adding to period team fouls; assists, ball lost, ball recuperation); active players auto-accumulate minutes when crono runs; team panel with Swap button activating balanced substitution mode (N in = N out); players represented by circles showing jerseyNumber, name, minutos, and pts; horizontal bench list; timeout control buttons (increase/decrease) in same row as Swap button (2 timeouts for q1-q2, 3 for q3-q4, 1 for extra time, +1 on extra crono reset). Component 3 (Rival Panel Control): rival score adjustments (+1, +2, +3, -1) and rival period team fouls (+1, -1)."
+**Input**:
+- Original: "The task is to create an organic game panel control and stats separated into three components with global state management for score, time, and team foul control. Component 1 (Time, Score, and Fouls): controls periods (q1, q2, q3, q4, extra) with single tap to swap to next period and 3-second hold to show period list modal; total score calculated from period scores, isolated score/time/team fouls per period; crono with single tap start/stop and 3-second hold to set manually; 10min per regular period, 5min for extra time with reset crono to 5min without wiping score/fouls. Component 2 (Team Management): half basketball court canvas with 5 position buttons representing active quintet; tapping opens stats modal (t1a, t1i, t2a, t2i, t3a, t3i with assist teammate prompt including 'non assistant' option on t2a/t3a; offensive & defensive rebounds both present; fouls adding to period team fouls; assists, ball lost, ball recuperation); active players auto-accumulate minutes when crono runs; team panel with Swap button activating balanced substitution mode (N in = N out); players represented by circles showing jerseyNumber, name, minutos, and pts; horizontal bench list; timeout control buttons (increase/decrease) in same row as Swap button (2 timeouts for q1-q2, 3 for q3-q4, 1 for extra time, +1 on extra crono reset). Component 3 (Rival Panel Control): rival score adjustments (+1, +2, +3, -1) and rival period team fouls (+1, -1)."
+- Update (2026-10-24): "The task is to update the player identification showed in the view. It must show always the Jersey Number if has; if not, use the first letter of the Player Name following the lastName (e.g.: A. Arias, A. Delgado, P. Stegmann, etc.). Includes jersey number priority check, fallback name formatting utility, edge case handling, and unit test assertions."
 
 ## Clarifications
 
 ### Session 2026-10-03
 - Q: When the user taps an unassigned (empty) position slot on the half-court canvas, what behavior should be triggered? → A: Open a quick player selector modal to assign an available bench player directly to that empty position.
+
+### Session 2026-10-24 (Player Identification Update)
+- Q: When a player has an assigned Jersey Number, how should player identification be displayed in player circles? → A: When a player has an assigned Jersey Number, the view exclusively displays the Jersey Number (omitting redundant name labels).
+- Q: How should the view handle a player without a Jersey Number (missing, null, or empty string)? → A: Trigger the fallback name format `[First Initial]. [Last Name]` (e.g., `A. Arias`, `A. Delgado`, `P. Stegmann`).
+- Q: How should edge cases (missing first name, missing last name, extraneous whitespace) be handled? → A: Safe fallback handling: trim whitespace; if first name is missing, display last name; if last name is missing, display first name; if both are absent, display a neutral default label (`"Jugador"`) without breaking circle layout or throwing runtime errors.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -46,7 +55,7 @@ As a coach, I want an interactive half basketball court displaying 5 position bu
 
 **Acceptance Scenarios**:
 
-1. **Given** the half basketball court canvas, **When** viewed during the game, **Then** 5 player positions are rendered as interactive buttons showing player circles with `jerseyNumber`, `name`, `minutos`, and `pts` (or empty placeholder if unassigned).
+1. **Given** the half basketball court canvas, **When** viewed during the game, **Then** 5 player positions are rendered as interactive buttons showing player circles with player identification (Jersey Number exclusively when present, or formatted fallback `[First Initial]. [Last Name]` when absent), `minutos`, and `pts` (or empty placeholder if unassigned).
 2. **Given** an empty court position slot is tapped, **When** the slot is unassigned, **Then** a quick player selector modal opens displaying available bench players to assign to that position.
 3. **Given** an assigned on-court player button is tapped, **When** the stats modal opens, **Then** options for `t1a`, `t1i`, `t2a`, `t2i`, `t3a`, `t3i`, offensive rebound, defensive rebound, foul (`fault`), assist (`asis`), ball lost (`lost`), and ball recovery (`recovers`) are presented.
 4. **Given** the user selects `t1a`, `t2a`, or `t3a`, **When** the action is registered, **Then** the player's points increase by 1, 2, or 3, the current period score increments accordingly, and the total match score updates.
@@ -56,6 +65,8 @@ As a coach, I want an interactive half basketball court displaying 5 position bu
 8. **Given** both "Offensive Rebound" and "Defensive Rebound" options exist in the stats modal, **When** either is tapped, **Then** the corresponding rebound category is incremented for the player.
 9. **Given** the user records a foul (`fault`), **When** confirmed, **Then** the player's personal foul count increments, the current period's team fouls increment by 1, and the running crono automatically pauses.
 10. **Given** the chronometer is running, **When** time elapses, **Then** all 5 active on-court players automatically accumulate played minutes/seconds.
+11. **Given** an assigned player on the court, **When** the player has an assigned Jersey Number, **Then** the view exclusively displays the Jersey Number for player identification in the player circle.
+12. **Given** an assigned player on the court, **When** the player does not have an assigned Jersey Number (absent, null, or empty string), **Then** the view displays the player's name in `[First Initial]. [Last Name]` format (e.g., `A. Arias`, `A. Delgado`, `P. Stegmann`) without layout breaks.
 
 ---
 
@@ -69,7 +80,7 @@ As a coach, I want a team management panel beneath the court canvas with a horiz
 
 **Acceptance Scenarios**:
 
-1. **Given** the team management panel below the court canvas, **When** rendered, **Then** the bench is displayed as a horizontal scrollable list of player circles, each showing `jerseyNumber`, `name`, `minutos`, and `pts`.
+1. **Given** the team management panel below the court canvas, **When** rendered, **Then** the bench is displayed as a horizontal scrollable list of player circles, each showing player identification (Jersey Number exclusively if present, or fallback `[First Initial]. [Last Name]` if absent/empty), `minutos`, and `pts`.
 2. **Given** the coach taps the "Swap" button, **When** Swap Mode activates, **Then** the coach can select on-court quintet players to bench and bench players to enter the court.
 3. **Given** Swap Mode is active, **When** the coach selects unequal counts (e.g., 2 bench players but only 1 court player), **Then** confirming the substitution is disabled with a requirement notice that substitutions must be equal (N in = N out).
 4. **Given** equal numbers of bench and court players are selected (and the clock is stopped), **When** confirmed, **Then** the selected bench players move to the court, selected court players move to the bench, and Swap Mode exits.
@@ -77,6 +88,7 @@ As a coach, I want a team management panel beneath the court canvas with a horiz
 6. **Given** the match transitions to period `q3` or `q4`, **When** the timeout quota is evaluated, **Then** the user receives a combined pool of 3 timeouts total for the second half.
 7. **Given** the match enters `extra` time, **When** evaluated, **Then** 1 timeout is allocated for extra time, and each subsequent extra time crono reset adds +1 additional timeout.
 8. **Given** timeout remaining is at 0, **When** the coach taps decrease timeout, **Then** the action is prevented (cannot drop below 0).
+9. **Given** a player on the bench, **When** the player has an assigned Jersey Number, **Then** the circle exclusively displays the Jersey Number; **When** the player lacks a Jersey Number, **Then** the circle displays the formatted name fallback `[First Initial]. [Last Name]`.
 
 ---
 
@@ -108,6 +120,9 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 - **Assist Attribution Options**: On any made 2pt or 3pt shot, the user can choose any of the other 4 on-court teammates or select "non assistant" ("No Assistant").
 - **Manual Time Entry Bounds**: Manual time configuration cannot accept negative numbers or values exceeding the maximum period duration (10:00 for regular periods, 5:00 for extra time).
 - **Score and Foul Underflow**: Decrementing scores or fouls below 0 is disallowed.
+- **Player Lacks Jersey Number**: When a player object has no jersey number (`null`, `undefined`, or empty/whitespace string `""`), the identification area triggers the fallback format `[First Initial]. [Last Name]`.
+- **Player Missing First Name or Last Name in Fallback**: If a player has no jersey number and lacks a first name, the fallback displays `[Last Name]`; if the player lacks a last name, it displays `[First Name]`; if both are missing or empty, a neutral fallback (`"Jugador"`) is rendered safely without throwing runtime errors or breaking the circle layout.
+- **Player Names with Leading or Trailing Whitespace**: Whitespace is trimmed before extracting the initial and constructing the formatted string (e.g., `"  Alex  "` and `" Arias "` produce `"A. Arias"`).
 
 ## Requirements *(mandatory)*
 
@@ -141,11 +156,13 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 - **FR-015**: Recording `t2a` or `t3a` MUST transition the modal to an assist prompt listing on-court teammates and a "non assistant" option.
 - **FR-016**: Recording a personal foul (`fault`) MUST increment the player's personal fouls, increment the active period's team fouls by 1, and automatically pause the running chronometer.
 - **FR-017**: All 5 on-court quintet players MUST automatically accumulate playing time (`minutos`) in real time while the chronometer is running.
-- **FR-018**: Each player (on court and on bench) MUST be visually formatted with:
-  1. `#JerseyNumber` first and biggest.
-  2. `playerName` below the jersey number and smallest.
-  3. Divisor line below player name.
-  4. Player minutes and points in `${min}min / ${pts}pts` format below divisor line.
+- **FR-018**: Each player circle (on court and on bench) MUST visually format player identification and match stats:
+  1. **Player Identification**:
+     - When a player has an assigned Jersey Number, the view MUST exclusively display the Jersey Number (e.g., `#23` or `23`) as the primary identifier.
+     - When a player does NOT have an assigned Jersey Number (absent, null, undefined, or empty/whitespace string), the view MUST display the player's name in `[First Initial]. [Last Name]` format (e.g., `A. Arias`, `A. Delgado`, `P. Stegmann`).
+  2. Divisor line below player identifier.
+  3. Player minutes and points in `${min}min / ${pts}pts` format below divisor line.
+- **FR-018a**: Name formatting fallback MUST safely handle edge cases (missing first name, missing last name, trailing/leading spaces, empty strings) without causing UI layout breaks or runtime errors.
 - **FR-019**: Bench players MUST be displayed in a horizontal scrollable list beneath the court canvas.
 - **FR-020**: System MUST provide a "Swap" button that activates Swap Mode for player substitutions between the court quintet and the bench.
 - **FR-021**: Swap Mode MUST allow selecting multiple court and bench players and enforce balanced substitutions ($N\text{ in} = N\text{ out} \ge 1$) when confirming.
@@ -170,7 +187,7 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 - **MatchSession**: Central entity managing the overall match state, active period identifier (`q1`, `q2`, `q3`, `q4`, `extra`), total home score, total rival score, chronometer running state, available timeouts, and associations to period states and player rosters.
 - **PeriodState**: Represents an isolated period (`q1`, `q2`, `q3`, `q4`, `extra`) containing remaining duration (seconds), home period score, rival period score, home period team fouls, and rival period team fouls.
 - **PlayerRosterState**: Manages the separation between the active on-court quintet (exactly 5 positions) and the bench player list.
-- **PlayerMatchStats**: Contains individual cumulative stats for each player in the match: `jerseyNumber`, `name`, `minutes` (seconds played), `pts` (total points), `t1a` (1pt made), `t1i` (1pt missed), `t2a` (2pt made), `t2i` (2pt missed), `t3a` (3pt made), `t3i` (3pt missed), `offensiveRebounds`, `defensiveRebounds`, `fouls`, `assists`, `lost` (turnovers), and `recovers` (steals).
+- **PlayerMatchStats**: Contains individual cumulative stats for each player in the match: `jerseyNumber` (optional/nullable string), `firstName` (string), `lastName` (string), `minutes` (seconds played), `pts` (total points), `t1a` (1pt made), `t1i` (1pt missed), `t2a` (2pt made), `t2i` (2pt missed), `t3a` (3pt made), `t3i` (3pt missed), `offensiveRebounds`, `defensiveRebounds`, `fouls`, `assists`, `lost` (turnovers), and `recovers` (steals).
 - **TimeoutState**: Tracks remaining timeout budget partitioned by game phase (First Half: `q1`/`q2` pool of 2; Second Half: `q3`/`q4` pool of 3; Extra Time: pool of 1 + reset increments).
 
 ## Success Criteria *(mandatory)*
@@ -185,6 +202,8 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 - **SC-006**: Extra time crono reset restores the clock to 5:00 and grants +1 timeout while maintaining 100% data integrity for all existing period scores, team fouls, and player stats.
 - **SC-007**: Timeout allocations strictly enforce 2 for `q1`-`q2`, 3 for `q3`-`q4`, and 1 for `extra` (plus resets).
 - **SC-008**: Live player minute accumulation accurately tallies seconds for all 5 on-court players while the timer is running.
+- **SC-009**: 100% of player circles (court and bench) display exclusively the Jersey Number when an assigned jersey number is present.
+- **SC-010**: 100% of player circles for players without a jersey number display the fallback `[First Initial]. [Last Name]` safely, with 0 runtime exceptions or layout distortion across edge-case name inputs.
 
 ## Assumptions
 
@@ -194,3 +213,5 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 - Extra time starts with 1 timeout, and each reset of the extra time crono adds +1 timeout to the available count.
 - Rival tracking is focused on period score adjustments (+1, +2, +3, -1) and period team fouls (+1, -1); individual rival player stats are not tracked in this panel.
 - On-court quintet is strictly limited to 5 players; substitutions can only be performed when the chronometer is paused.
+- When a player has an assigned Jersey Number, the view exclusively displays the Jersey Number, omitting any redundant player name text to maximize circle clarity and legibility on mobile screens.
+- Fallback name abbreviation adheres to standard format `[First Initial]. [Last Name]` (e.g., `A. Arias`), trimming surrounding whitespace and capitalizing the initial.

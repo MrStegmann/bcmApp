@@ -37,14 +37,15 @@ describe("Database Seed Script Tests", () => {
         .where(eq(players.teamId, seededTeams[0].id));
       expect(seededPlayers.length).toBeGreaterThanOrEqual(12);
 
-      // Verify each player has position and unique number
+      // Verify each player has unique number and valid names
       const numbers = seededPlayers.map((p) => p.number);
       const uniqueNumbers = new Set(numbers);
       expect(uniqueNumbers.size).toBe(seededPlayers.length);
 
       seededPlayers.forEach((p) => {
-        expect(p.position).toBeDefined();
-        expect(p.position).not.toBeNull();
+        expect(p.firstName).toBeDefined();
+        expect(p.lastName).toBeDefined();
+        expect(p.number).toBeDefined();
       });
     });
   });

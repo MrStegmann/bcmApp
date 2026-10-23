@@ -1,7 +1,7 @@
 # Specification Quality Checklist: Matches & New Match Workflow
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-10-02
+**Created**: 2026-10-23
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,4 +31,5 @@
 
 ## Notes
 
+- Specification updated on 2026-10-23 to transition the match date input from timestamp (`dd/mm/aaaa - hh:mm`) to date-only (`dd/mm/aaaa`), adding automatic mask formatting and strictly restricting input to numeric characters.
 - All validation checks passed. Specification is ready for `/speckit-plan` or `/speckit-clarify`.

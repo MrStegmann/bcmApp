@@ -1,20 +1,30 @@
 import React, { useEffect, useState, useCallback, useRef, memo } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 import PlayerList from "./PlayerList";
 import GameList from "./GameList";
+import { HomeView } from "../features/home-view";
+import { MatchDetailView } from "../features/match-detail";
 
 import { useClubStore } from "../store/ClubStore";
 import { useMenuStore, BottomMenuItem } from "../store/MenuStore";
 import { TopMenuEnums } from "../types/enums";
 import useDB from "../hooks/useDB";
+import { Game } from "../types/database";
 
 interface ClubProfileProps {
   handleReturn: () => void;
   handleUpdate?: (data: { id: number; name: string }) => void;
 }
 
-const getTabTitle = (option: TopMenuEnums, clubName?: string): string => {
+const getTabTitle = (
+  option: TopMenuEnums,
+  clubName?: string,
+  selectedMatch?: Game | null
+): string => {
+  if (selectedMatch) {
+    return "Detalle del Partido";
+  }
   switch (option) {
     case TopMenuEnums.PLAYERS:
       return "Plantilla de Jugadores";
@@ -30,6 +40,7 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
   const { GameController } = useDB();
   const [option, setOption] = useState<TopMenuEnums>(TopMenuEnums.MAIN);
   const [, setGamesResults] = useState<any[]>([]);
+  const [matchDetailGame, setMatchDetailGame] = useState<Game | null>(null);
 
   const club = useClubStore((state) => state.club);
 
@@ -43,11 +54,21 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
   }, [handleReturn]);
 
   const handleSelectTab = useCallback((targetTab: TopMenuEnums) => {
+    setMatchDetailGame(null);
     setOption(targetTab);
   }, []);
 
   const handleReturnToMain = useCallback(() => {
+    setMatchDetailGame(null);
     setOption(TopMenuEnums.MAIN);
+  }, []);
+
+  const handleSelectMatchForDetail = useCallback((match: Game) => {
+    setMatchDetailGame(match);
+  }, []);
+
+  const handleCloseMatchDetail = useCallback(() => {
+    setMatchDetailGame(null);
   }, []);
 
   useEffect(() => {
@@ -58,7 +79,7 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
 
   useEffect(() => {
     setActiveTab(option);
-    setHeaderTitle(getTabTitle(option, club?.name));
+    setHeaderTitle(getTabTitle(option, club?.name, matchDetailGame));
 
     const bottomItems: BottomMenuItem[] = [
       {
@@ -87,38 +108,56 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
         label: "Volver",
         iconName: "door-open",
         iconFamily: "FontAwesome5",
-        onPress: () => handleReturnRef.current(),
+        onPress: () => {
+          if (matchDetailGame) {
+            handleCloseMatchDetail();
+          } else {
+            handleReturnRef.current();
+          }
+        },
       },
     ];
 
     setBottomMenu(bottomItems);
-  }, [option, club?.name, handleSelectTab, setActiveTab, setHeaderTitle, setBottomMenu]);
+  }, [
+    option,
+    club?.name,
+    matchDetailGame,
+    handleSelectTab,
+    handleReturnToMain,
+    handleCloseMatchDetail,
+    setActiveTab,
+    setHeaderTitle,
+    setBottomMenu,
+  ]);
 
   return (
     <View className="w-full h-full flex flex-col justify-center items-center">
-      {option === TopMenuEnums.MAIN && (
-        <View className="w-full flex flex-col justify-center items-center">
-          <View className="relative w-full flex flex-col justify-center items-center mt-3 mb-10 px-4">
-            <Text className="text-center text-3xl font-bold text-danish-white mb-2">
-              {club?.name}
-            </Text>
-            {club?.category ? (
-              <Text className="text-center text-lg text-danish-red font-semibold mb-4">
-                {club.category}
-              </Text>
-            ) : null}
-            <Text className="text-gray-400 text-base text-center">
-              Selecciona una opción del menú inferior para gestionar la plantilla o partidos.
-            </Text>
-          </View>
-        </View>
-      )}
+      {matchDetailGame ? (
+        <MatchDetailView
+          match={matchDetailGame}
+          onReturn={handleCloseMatchDetail}
+          onMatchUpdated={(updated) => {
+            setMatchDetailGame(updated);
+          }}
+        />
+      ) : (
+        <>
+          {option === TopMenuEnums.MAIN && (
+            <HomeView
+              teamId={club?.id}
+              onSelectMatch={handleSelectMatchForDetail}
+              onNavigateToGames={() => handleSelectTab(TopMenuEnums.GAMES)}
+            />
+          )}
 
-      {option === TopMenuEnums.PLAYERS && (
-        <PlayerList onReturn={handleReturnToMain} />
-      )}
-      {option === TopMenuEnums.GAMES && (
-        <GameList onReturn={handleReturnToMain} />
+          {option === TopMenuEnums.PLAYERS && (
+            <PlayerList onReturn={handleReturnToMain} />
+          )}
+          {option === TopMenuEnums.GAMES && (
+            <GameList onReturn={handleReturnToMain} />
+          )}
+        </>
       )}
     </View>
   );

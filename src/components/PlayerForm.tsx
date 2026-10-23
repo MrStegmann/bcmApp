@@ -3,8 +3,14 @@ import { View } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import Input from "../framework/Input";
 import Button from "../framework/Button";
+import {
+  validatePlayerForm,
+  createPlayerPayload,
+} from "../utils/playerValidation";
 
-interface PlayerFormProps {
+export { validatePlayerForm, createPlayerPayload };
+
+export interface PlayerFormProps {
   onSubmit: (data: any) => void;
   onCancel?: () => void;
   playerData?: any;
@@ -18,12 +24,15 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ onSubmit, onCancel, playerData 
   const [wrongLastName, setWrongLastName] = useState("");
   const [number, setNumber] = useState("");
   const [wrongNumber, setWrongNumber] = useState("");
+  const [jerseyName, setJerseyName] = useState("");
+  const [wrongJerseyName, setWrongJerseyName] = useState("");
 
   useEffect(() => {
     if (playerData) {
       setFirstName(playerData.firstName || playerData.first_name || "");
       setLastName(playerData.lastName || playerData.last_name || "");
       setNumber(playerData.number ? String(playerData.number) : "");
+      setJerseyName(playerData.jerseyName || playerData.jersey_name || "");
     }
   }, [playerData]);
 
@@ -36,21 +45,38 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ onSubmit, onCancel, playerData 
   useEffect(() => {
     setWrongNumber("");
   }, [number]);
+  useEffect(() => {
+    setWrongJerseyName("");
+  }, [jerseyName]);
 
   const handleSubmit = () => {
-    if (firstName === "") setWrongFirstName("Debes introducir un nombre.");
-    if (lastName === "") setWrongLastName("Debes introducir un apellido.");
-    if (number === "") setWrongNumber("Debes introducir un número.");
-    if ([firstName, lastName, number].includes("")) return;
-    if (isNaN(Number(number))) return setWrongNumber("Debes introducir un número.");
-
-    onSubmit({
-      teamId: club?.id || 1,
+    const validation = validatePlayerForm({
       firstName,
       lastName,
       number,
-      id: playerData?.id,
+      jerseyName,
     });
+
+    if (!validation.isValid) {
+      if (validation.errors.firstName) setWrongFirstName(validation.errors.firstName);
+      if (validation.errors.lastName) setWrongLastName(validation.errors.lastName);
+      if (validation.errors.number) setWrongNumber(validation.errors.number);
+      if (validation.errors.jerseyName) setWrongJerseyName(validation.errors.jerseyName);
+      return;
+    }
+
+    const payload = createPlayerPayload(
+      {
+        teamId: club?.id || 1,
+        firstName,
+        lastName,
+        number,
+        jerseyName,
+      },
+      playerData?.id
+    );
+
+    onSubmit(payload);
   };
 
   return (
@@ -73,6 +99,12 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ onSubmit, onCancel, playerData 
         onChange={setNumber}
         wrongMsg={wrongNumber}
         keyboardType="numeric"
+      />
+      <Input
+        placeholder="Nombre en camiseta (opcional)"
+        value={jerseyName}
+        onChange={setJerseyName}
+        wrongMsg={wrongJerseyName}
       />
       <Button
         title={playerData ? "Guardar" : "Añadir jugador"}

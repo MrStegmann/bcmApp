@@ -42,6 +42,43 @@ describe("GameStore & Valuation Logic Unit Tests (T005)", () => {
   });
 
   describe("Match Sorting by Recency", () => {
+    it("should sort matches with date-only format by recency", () => {
+      const gameOlder = {
+        id: 1,
+        teamId: 1,
+        opponent: "Rival 1",
+        round: "1",
+        date: "10/10/2026",
+        status: "pending",
+        createdAt: "2026-10-01T10:00:00.000Z",
+      } as Game;
+
+      const gameNewer = {
+        id: 2,
+        teamId: 1,
+        opponent: "Rival 2",
+        round: "2",
+        date: "20/10/2026",
+        status: "pending",
+        createdAt: "2026-10-02T10:00:00.000Z",
+      } as Game;
+
+      const gameMiddle = {
+        id: 3,
+        teamId: 1,
+        opponent: "Rival 3",
+        round: "3",
+        date: "15/10/2026",
+        status: "inProgress",
+        createdAt: "2026-10-01T15:00:00.000Z",
+      } as Game;
+
+      const sorted = sortGamesByRecency([gameOlder, gameNewer, gameMiddle]);
+      expect(sorted[0].id).toBe(2); // 20/10/2026
+      expect(sorted[1].id).toBe(3); // 15/10/2026
+      expect(sorted[2].id).toBe(1); // 10/10/2026
+    });
+
     it("should sort matches with most recent timestamp/date first", () => {
       const gameOlder = {
         id: 1,

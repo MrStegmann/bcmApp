@@ -11,37 +11,37 @@ declare const jest: any;
 describe("Play Match View End-to-End Integration Suite (T021 & T022 - Phase 8)", () => {
   const createMockRoster = (): InGamePlayer[] => [
     {
-      id: 1, firstName: "Luka", lastName: "Doncic", number: "77", position: "Base",
+      id: 1, firstName: "Luka", lastName: "Doncic", number: "77",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
     {
-      id: 2, firstName: "Kyrie", lastName: "Irving", number: "11", position: "Escolta",
+      id: 2, firstName: "Kyrie", lastName: "Irving", number: "11",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
     {
-      id: 3, firstName: "Klay", lastName: "Thompson", number: "31", position: "Alero",
+      id: 3, firstName: "Klay", lastName: "Thompson", number: "31",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
     {
-      id: 4, firstName: "P.J.", lastName: "Washington", number: "25", position: "Ala-Pívot",
+      id: 4, firstName: "P.J.", lastName: "Washington", number: "25",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
     {
-      id: 5, firstName: "Dereck", lastName: "Lively", number: "2", position: "Pívot",
+      id: 5, firstName: "Dereck", lastName: "Lively", number: "2",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
     {
-      id: 6, firstName: "Daniel", lastName: "Gafford", number: "21", position: "Pívot",
+      id: 6, firstName: "Daniel", lastName: "Gafford", number: "21",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
     {
-      id: 7, firstName: "Jaden", lastName: "Hardy", number: "1", position: "Escolta",
+      id: 7, firstName: "Jaden", lastName: "Hardy", number: "1",
       isOnCourt: false, secondsPlayed: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },

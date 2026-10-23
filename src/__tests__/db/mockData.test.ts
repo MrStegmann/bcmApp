@@ -20,25 +20,14 @@ describe("Mock Team Dataset Unit Tests", () => {
       expect(uniqueNumbers.size).toBe(numbers.length);
     });
 
-    it("should ensure all players have valid positions and names", () => {
-      const validPositions: BasketballPosition[] = [
-        "Point Guard",
-        "Shooting Guard",
-        "Small Forward",
-        "Power Forward",
-        "Center",
-        "Base",
-        "Escolta",
-        "Alero",
-        "Ala-P\u00edvot",
-        "P\u00edvot",
-      ];
-
+    it("should ensure all players have valid names, numbers, and optional jerseyName", () => {
       MOCK_TEAM_DATA.players.forEach((p) => {
         expect(p.firstName.trim().length).toBeGreaterThan(0);
         expect(p.lastName.trim().length).toBeGreaterThan(0);
         expect(p.number.trim().length).toBeGreaterThan(0);
-        expect(validPositions).toContain(p.position);
+        if (p.jerseyName !== undefined) {
+          expect(typeof p.jerseyName).toBe("string");
+        }
       });
     });
   });

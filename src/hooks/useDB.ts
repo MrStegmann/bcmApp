@@ -2,7 +2,7 @@ import { useClubStore } from "../store/ClubStore";
 import { usePlayerStore } from "../store/PlayerStore";
 import { useGameStore } from "../store/GameStore";
 import { db, players, games, playerStats } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export function useDB() {
   const clubStore = useClubStore();
@@ -166,27 +166,107 @@ export function useDB() {
           return [];
         }
       },
+      loadPlayedMatches: async (playerId: number, cb?: (matches: any[]) => void) => {
+        try {
+          const stats = await db
+            .select({
+              gameId: games.id,
+              opponent: games.opponent,
+              round: games.round,
+              date: games.date,
+              status: games.status,
+              resultC1: games.resultC1,
+              resultC2: games.resultC2,
+              resultC3: games.resultC3,
+              resultC4: games.resultC4,
+              resultExtra: games.resultExtra,
+              resultC1Opponent: games.resultC1Opponent,
+              resultC2Opponent: games.resultC2Opponent,
+              resultC3Opponent: games.resultC3Opponent,
+              resultC4Opponent: games.resultC4Opponent,
+              resultExtraOpponent: games.resultExtraOpponent,
+              foulsC1: games.foulsC1,
+              foulsC2: games.foulsC2,
+              foulsC3: games.foulsC3,
+              foulsC4: games.foulsC4,
+              foulsExtra: games.foulsExtra,
+              foulsC1Opponent: games.foulsC1Opponent,
+              foulsC2Opponent: games.foulsC2Opponent,
+              foulsC3Opponent: games.foulsC3Opponent,
+              foulsC4Opponent: games.foulsC4Opponent,
+              foulsExtraOpponent: games.foulsExtraOpponent,
+              minutes: playerStats.minutes,
+              valuation: playerStats.valuation,
+            })
+            .from(playerStats)
+            .innerJoin(games, eq(playerStats.gameId, games.id))
+            .where(eq(playerStats.playerId, playerId))
+            .orderBy(desc(games.id));
+
+          if (cb) cb(stats);
+          return stats;
+        } catch {
+          if (cb) cb([]);
+          return [];
+        }
+      },
       add: (param1: any, param2?: any, param3?: any, param4?: any, ...args: any[]) => {
         if (typeof param2 === "string") {
+          const jerseyNameArg =
+            typeof args[0] === "string" && isNaN(Number(args[0]))
+              ? args[0]
+              : typeof args[1] === "string"
+              ? args[1]
+              : typeof args[0] === "string"
+              ? args[0]
+              : null;
           return playerStore.createPlayer({
-            teamId: param1 || currentTeamId,
+            teamId: typeof param1 === "number" ? param1 : currentTeamId,
             firstName: param2,
             lastName: param3 || "",
-            number: param4 || "0",
+            number: String(param4 ?? "0"),
+            jerseyName: jerseyNameArg || null,
           });
         }
-        return playerStore.createPlayer({ teamId: currentTeamId, ...param1 });
+        return playerStore.createPlayer({
+          teamId: param1?.teamId || currentTeamId,
+          firstName: param1?.firstName || "",
+          lastName: param1?.lastName || "",
+          number: String(param1?.number ?? "0"),
+          jerseyName: param1?.jerseyName ?? null,
+        });
       },
-      create: (data: any) => playerStore.createPlayer({ teamId: currentTeamId, ...data }),
+      create: (data: any) =>
+        playerStore.createPlayer({
+          teamId: data?.teamId || currentTeamId,
+          firstName: data?.firstName || "",
+          lastName: data?.lastName || "",
+          number: String(data?.number ?? "0"),
+          jerseyName: data?.jerseyName ?? null,
+        }),
       edit: (id: number, param2: any, param3?: any, param4?: any, param5?: any, ...args: any[]) => {
         if (typeof param3 === "string") {
+          const jerseyNameArg =
+            typeof args[0] === "string" && isNaN(Number(args[0]))
+              ? args[0]
+              : typeof args[1] === "string"
+              ? args[1]
+              : typeof args[0] === "string"
+              ? args[0]
+              : null;
           return playerStore.updatePlayer(id, {
             firstName: param3,
             lastName: param4 || "",
-            number: param5 || "0",
+            number: String(param5 ?? "0"),
+            jerseyName: jerseyNameArg !== undefined ? jerseyNameArg : null,
           });
         }
-        return playerStore.updatePlayer(id, param2);
+        return playerStore.updatePlayer(id, {
+          ...(param2?.firstName !== undefined && { firstName: param2.firstName }),
+          ...(param2?.lastName !== undefined && { lastName: param2.lastName }),
+          ...(param2?.number !== undefined && { number: String(param2.number) }),
+          ...(param2?.jerseyName !== undefined && { jerseyName: param2.jerseyName }),
+        });
       },
       update: (id: number, data: any) => playerStore.updatePlayer(id, data),
       remove: (id: number) => playerStore.deletePlayer(id),
@@ -261,7 +341,7 @@ export function useDB() {
           teamId: currentTeamId,
           opponent: data.rivalTeamName || data.opponent || "",
           round: data.round ? String(data.round) : "1",
-          date: data.timeStamp || data.date || "",
+          date: data.date || data.timeStamp || "",
           status: data.status || "pending",
           ...data,
         }),
@@ -270,7 +350,7 @@ export function useDB() {
           teamId: currentTeamId,
           opponent: data.rivalTeamName || data.opponent || "",
           round: data.round ? String(data.round) : "1",
-          date: data.timeStamp || data.date || "",
+          date: data.date || data.timeStamp || "",
           status: data.status || "pending",
           ...data,
         }),

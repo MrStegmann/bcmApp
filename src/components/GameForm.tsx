@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import Button from "../framework/Button";
 import Input from "../framework/Input";
-import { validateMatchTimestamp } from "../utils/dateValidation";
+import { validateMatchDate } from "../utils/dateValidation";
 
 interface GameFormProps {
   gameData?: any;
@@ -16,8 +16,8 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
   const [wrongRivalTeamName, setWrongRivalTeamName] = useState("");
   const [round, setRound] = useState("");
   const [wrongRound, setWrongRound] = useState("");
-  const [timeStamp, setTimeStamp] = useState("");
-  const [wrongTimeStamp, setWrongTimeStamp] = useState("");
+  const [date, setDate] = useState("");
+  const [wrongDate, setWrongDate] = useState("");
 
   const club = useClubStore((state) => state.club);
 
@@ -25,7 +25,9 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
     if (gameData) {
       setRivalTeamName(gameData.rivalTeamName || gameData.opponent || "");
       setRound(gameData.round ? String(gameData.round) : "");
-      setTimeStamp(gameData.timeStamp || gameData.date || "");
+      const rawDate = gameData.date || gameData.timeStamp || "";
+      const dateOnly = rawDate.includes(" - ") ? rawDate.split(" - ")[0] : rawDate;
+      setDate(dateOnly);
     }
   }, [gameData]);
 
@@ -38,8 +40,8 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
   }, [round]);
 
   useEffect(() => {
-    if (timeStamp.trim() !== "") setWrongTimeStamp("");
-  }, [timeStamp]);
+    if (date.trim() !== "") setWrongDate("");
+  }, [date]);
 
   const handleSubmit = () => {
     let hasError = false;
@@ -54,9 +56,9 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
       hasError = true;
     }
 
-    const timeValidation = validateMatchTimestamp(timeStamp);
-    if (!timeValidation.isValid) {
-      setWrongTimeStamp(timeValidation.error || "Debe introducir la fecha del partido");
+    const dateValidation = validateMatchDate(date);
+    if (!dateValidation.isValid) {
+      setWrongDate(dateValidation.error || "Debe introducir la fecha del partido");
       hasError = true;
     }
 
@@ -68,8 +70,8 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
       rivalTeamName: rivalTeamName.trim(),
       opponent: rivalTeamName.trim(),
       round: round.trim(),
-      timeStamp: timeStamp.trim(),
-      date: timeStamp.trim(),
+      date: date.trim(),
+      timeStamp: date.trim(),
     };
 
     onSubmit(game);
@@ -95,11 +97,12 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
         />
 
         <Input
-          label="Fecha y Hora"
-          placeholder="dd/mm/aaaa - hh:mm"
-          value={timeStamp}
-          onChange={setTimeStamp}
-          wrongMsg={wrongTimeStamp}
+          type="date"
+          label="Fecha"
+          placeholder="dd/mm/aaaa"
+          value={date}
+          onChange={setDate}
+          wrongMsg={wrongDate}
         />
       </View>
 

@@ -209,6 +209,19 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
       expect(player1.isOnCourt).toBe(false);
       expect(player1.courtPositionIndex).toBeNull();
     });
+
+    it("should propagate jerseyName (or snake_case jersey_name) onto InGamePlayer objects", () => {
+      const { buildMatchRoster } = require("../../utils/roster");
+      const players = [
+        { id: 1, firstName: "Gorka", lastName: "Sanchez", jerseyName: "SANCHEZ" },
+        { id: 2, firstName: "Pablo", lastName: "Stegmann", jersey_name: "STEGMANN" },
+        { id: 3, firstName: "Alex", lastName: "Delgado" },
+      ];
+      const roster = buildMatchRoster(players, []);
+      expect(roster[0].jerseyName).toBe("SANCHEZ");
+      expect(roster[1].jerseyName).toBe("STEGMANN");
+      expect(roster[2].jerseyName).toBeNull();
+    });
   });
 });
 

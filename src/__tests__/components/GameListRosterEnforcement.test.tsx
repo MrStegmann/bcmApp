@@ -100,4 +100,51 @@ describe("GameList Roster Enforcement Unit Tests (T012 - US2)", () => {
     expect(modalVisible).toBe(false);
     expect(gameOpened).toBe(true);
   });
+
+  it("should trigger mandatory roster modal when tapping date-only pending match without roster", async () => {
+    let modalVisible = false;
+    let isMandatory = false;
+    let selectedGameForPlay: Game | null = null;
+
+    const dateOnlyPendingGame: Game = {
+      ...mockPendingGame,
+      date: "23/10/2026",
+    };
+
+    const mockLoadCalledup = jest.fn().mockResolvedValue([]);
+
+    const handleSelectMatch = async (game: Game) => {
+      const roster = await mockLoadCalledup(game.id);
+      if (game.status === "pending" && (!roster || roster.length === 0)) {
+        isMandatory = true;
+        modalVisible = true;
+        selectedGameForPlay = game;
+        return;
+      }
+      selectedGameForPlay = game;
+    };
+
+    await handleSelectMatch(dateOnlyPendingGame);
+
+    expect(mockLoadCalledup).toHaveBeenCalledWith(10);
+    expect(modalVisible).toBe(true);
+    expect(isMandatory).toBe(true);
+    expect((selectedGameForPlay as any)?.date).toBe("23/10/2026");
+  });
+
+  it("should prohibit skipping and require minimum 1 player in mandatory modal contract", () => {
+    const isMandatory = true;
+    const selectedPlayerIds: number[] = [];
+    const handleSkip = isMandatory ? undefined : jest.fn();
+
+    expect(handleSkip).toBeUndefined();
+
+    const isConfirmDisabled = isMandatory && selectedPlayerIds.length === 0;
+    expect(isConfirmDisabled).toBe(true);
+
+    selectedPlayerIds.push(1);
+    const isConfirmEnabledWithOnePlayer = !(isMandatory && selectedPlayerIds.length === 0);
+    expect(isConfirmEnabledWithOnePlayer).toBe(true);
+  });
 });
+

@@ -42,7 +42,9 @@ export const QuickAssignPlayerModal: React.FC<QuickAssignPlayerModalProps> = ({
                 >
                   <View className="flex-row items-center space-x-3">
                     <View className="w-9 h-9 rounded-full bg-slate-700 items-center justify-center">
-                      <Text className="text-white font-bold text-sm">#{player.number}</Text>
+                      <Text className="text-white font-bold text-sm">
+                        {player.number ? `#${player.number}` : "-"}
+                      </Text>
                     </View>
                     <View>
                       <Text className="text-white font-semibold text-sm">

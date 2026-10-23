@@ -26,8 +26,7 @@ export function initDatabase(): void {
       first_name TEXT NOT NULL,
       last_name TEXT NOT NULL,
       number TEXT NOT NULL,
-      position TEXT,
-      notes TEXT,
+      jersey_name TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
@@ -83,6 +82,10 @@ export function initDatabase(): void {
   `);
 
   // Migrate existing tables if columns are missing
+  try {
+    sqliteDb.execSync("ALTER TABLE players ADD COLUMN jersey_name TEXT;");
+  } catch {}
+
   try {
     sqliteDb.execSync("ALTER TABLE games ADD COLUMN status TEXT NOT NULL DEFAULT 'pending';");
   } catch {}

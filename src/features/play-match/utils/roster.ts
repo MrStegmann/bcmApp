@@ -17,11 +17,15 @@ export function buildMatchRoster(
 
   return activePlayers.map((p: any) => {
     const stat = (existingStats || []).find((s: any) => s.playerId === p.id);
+    const num = p.number != null && String(p.number).trim() !== "" ? String(p.number) : null;
+    const rawJersey = p.jerseyName ?? p.jersey_name ?? null;
+    const jerseyName = rawJersey != null && String(rawJersey).trim() !== "" ? String(rawJersey).trim() : null;
     return {
       id: p.id,
-      firstName: p.firstName || p.first_name || "Jugador",
-      lastName: p.lastName || p.last_name || `#${p.number}`,
-      number: String(p.number || "0"),
+      firstName: p.firstName ?? p.first_name ?? "",
+      lastName: p.lastName ?? p.last_name ?? "",
+      jerseyName,
+      number: num,
       position: p.position || null,
       isOnCourt: false,
       courtPositionIndex: null,

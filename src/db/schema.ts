@@ -25,8 +25,7 @@ export const players = sqliteTable("players", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   number: text("number").notNull(),
-  position: text("position"),
-  notes: text("notes"),
+  jerseyName: text("jersey_name"),
   createdAt: text("created_at")
     .notNull()
     .$defaultFn(() => new Date().toISOString()),

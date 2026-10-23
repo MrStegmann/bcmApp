@@ -134,10 +134,12 @@ export interface MatchSummaryHeaderProps {
   teamName: string;
   opponentName: string;
   date: string;
+  status?: string;
   totalTeamPoints?: number;
   totalRivalPoints?: number;
   onReturn?: () => void;
   onOpenEdit?: () => void;
+  onShareStats?: () => void;
 }
 
 export interface PeriodBreakdownTableProps {
@@ -186,6 +188,8 @@ export interface MatchDetailState {
   advancedStats: AdvancedTeamStats;
   selectedPlayer: PlayerRosterItem | null;
   isEditModalOpen: boolean;
+  isShareModalOpen: boolean;
+  isSharingProcessing: boolean;
   isLoading: boolean;
   isSaving: boolean;
   error: string | null;
@@ -195,4 +199,9 @@ export interface MatchDetailState {
   openEditModal: () => void;
   closeEditModal: () => void;
   saveMatchEdits: (buffer: MatchEditBuffer) => Promise<void>;
+  openShareModal: () => void;
+  closeShareModal: () => void;
+  setSharingProcessing: (isProcessing: boolean) => void;
 }
+
+export * from "./share";

@@ -10,15 +10,29 @@ export enum MatchStatusEnum {
 
 export interface MatchFormData {
   round: string;
-  timeStamp: string; // Format: "dd/mm/aaaa - hh:mm"
+  date: string; // Format: "dd/mm/aaaa" (e.g. "23/10/2026")
+  timeStamp?: string; // Backward compatibility alias matching date
   rivalTeamName: string;
+  opponent?: string;
   teamId: number;
 }
 
 export interface MatchFormValidationErrors {
   round?: string;
+  date?: string;
   timeStamp?: string;
   rivalTeamName?: string;
+}
+
+export interface DateValidationResult {
+  isValid: boolean;
+  error?: string;
+}
+
+export interface DateValidationContract {
+  applyDateMask: (rawText: string) => string;
+  validateMatchDate: (value: string) => DateValidationResult;
+  parseMatchDate: (value: string) => Date | null;
 }
 
 export interface RosterSelectionModalProps {

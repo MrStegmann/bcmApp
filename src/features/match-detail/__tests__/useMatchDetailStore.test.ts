@@ -51,10 +51,32 @@ describe("useMatchDetailStore Unit Tests (T010)", () => {
       },
       selectedPlayer: null,
       isEditModalOpen: false,
+      isShareModalOpen: false,
+      isSharingProcessing: false,
       isLoading: false,
       isSaving: false,
       error: null,
     });
+  });
+
+  it("should toggle share modal state with openShareModal and closeShareModal", () => {
+    expect(useMatchDetailStore.getState().isShareModalOpen).toBe(false);
+
+    useMatchDetailStore.getState().openShareModal();
+    expect(useMatchDetailStore.getState().isShareModalOpen).toBe(true);
+
+    useMatchDetailStore.getState().closeShareModal();
+    expect(useMatchDetailStore.getState().isShareModalOpen).toBe(false);
+  });
+
+  it("should update sharing processing state with setSharingProcessing", () => {
+    expect(useMatchDetailStore.getState().isSharingProcessing).toBe(false);
+
+    useMatchDetailStore.getState().setSharingProcessing(true);
+    expect(useMatchDetailStore.getState().isSharingProcessing).toBe(true);
+
+    useMatchDetailStore.getState().setSharingProcessing(false);
+    expect(useMatchDetailStore.getState().isSharingProcessing).toBe(false);
   });
 
   it("should initialize store with match data and parse regular 4 periods when no overtime was played", async () => {

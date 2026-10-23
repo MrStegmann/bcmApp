@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { HalfCourtCanvasProps, InGamePlayer } from "../types";
+import { formatPlayerIdentifier } from "../utils/formatPlayerIdentifier";
 
 export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
   courtPlayers,
@@ -42,6 +43,7 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
 
     const min = Math.floor(player.secondsPlayed / 60);
     const pts = calculatePts(player);
+    const identifier = formatPlayerIdentifier(player);
 
     return (
       <TouchableOpacity
@@ -63,18 +65,20 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
           </View>
         )}
         <View className="items-center justify-center w-full px-1">
-          {/* #JerseyNumber first and biggest */}
-          <Text className="text-amber-400 font-black text-base leading-tight">#{player.number}</Text>
-          
-          {/* playerName Below the jersey number and smallest */}
-          <Text className="text-slate-200 font-semibold text-[8px] leading-tight" numberOfLines={1}>
-            {player.firstName}
+          {/* Jersey Number above Jersey Name */}
+          <Text className="text-amber-400 font-black text-sm leading-tight">
+            #{player.number ?? "-"}
           </Text>
-          
+
+          {/* Jersey Name or fallback [First Initial]. [Last Name] */}
+          <Text className="text-slate-200 font-semibold text-[8px] leading-tight text-center" numberOfLines={1}>
+            {identifier}
+          </Text>
+
           {/* Divisor line */}
-          <View className="w-12 h-px bg-slate-700 my-0.5" />
-          
-          {/* Below the player name, separated by a divisor line: ${min}min / ${pts}pts */}
+          <View className="w-10 h-px bg-slate-700 my-0.5" />
+
+          {/* Separated by divisor line: ${min}min / ${pts}pts */}
           <Text className="text-emerald-400 font-mono font-bold text-[8px] leading-tight">
             {min}min / {pts}pts
           </Text>

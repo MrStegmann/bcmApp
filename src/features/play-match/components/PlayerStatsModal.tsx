@@ -45,7 +45,9 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           <View className="flex-row items-center justify-between border-b border-slate-800 pb-3 mb-4">
             <View className="flex-row items-center space-x-3">
               <View className="w-12 h-12 rounded-full bg-amber-500 items-center justify-center shadow-md">
-                <Text className="text-slate-950 font-black text-xl">#{player.number}</Text>
+                <Text className="text-slate-950 font-black text-xl">
+                  {player.number ? `#${player.number}` : "-"}
+                </Text>
               </View>
               <View>
                 <Text className="text-white font-black text-lg">
@@ -88,7 +90,9 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                   >
                     <View className="flex-row items-center space-x-3">
                       <View className="w-8 h-8 rounded-full bg-slate-700 items-center justify-center">
-                        <Text className="text-white font-bold text-xs">#{teammate.number}</Text>
+                        <Text className="text-white font-bold text-xs">
+                          {teammate.number ? `#${teammate.number}` : "-"}
+                        </Text>
                       </View>
                       <Text className="text-white font-semibold text-sm">
                         {teammate.firstName} {teammate.lastName}

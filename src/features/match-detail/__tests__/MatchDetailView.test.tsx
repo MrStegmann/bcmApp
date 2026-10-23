@@ -54,6 +54,8 @@ describe("MatchDetailView Integration Tests (T030 - US1/US2/US3/US4)", () => {
       },
       selectedPlayer: null,
       isEditModalOpen: false,
+      isShareModalOpen: false,
+      isSharingProcessing: false,
       isLoading: false,
       isSaving: false,
       error: null,
@@ -157,5 +159,15 @@ describe("MatchDetailView Integration Tests (T030 - US1/US2/US3/US4)", () => {
     expect(cleanedMenuState.headerTitle).toBe("Partidos");
     expect(cleanedMenuState.headerBackAction).toBeNull();
     expect(cleanedMenuState.headerAction).toBeNull();
+  });
+
+  it("should support triggering share modal for finished matches", () => {
+    expect(useMatchDetailStore.getState().isShareModalOpen).toBe(false);
+
+    useMatchDetailStore.getState().openShareModal();
+    expect(useMatchDetailStore.getState().isShareModalOpen).toBe(true);
+
+    useMatchDetailStore.getState().closeShareModal();
+    expect(useMatchDetailStore.getState().isShareModalOpen).toBe(false);
   });
 });

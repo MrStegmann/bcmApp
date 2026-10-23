@@ -9,6 +9,7 @@ import { RosterValuationList } from "./components/RosterValuationList";
 import { PlayerDetailModal } from "./components/PlayerDetailModal";
 import { TeamAdvancedAnalytics } from "./components/TeamAdvancedAnalytics";
 import { MatchEditModal } from "./components/MatchEditModal";
+import { MatchShareModal } from "./components/MatchShareModal";
 
 export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
   match,
@@ -22,12 +23,15 @@ export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
     advancedStats,
     selectedPlayer,
     isEditModalOpen,
+    isShareModalOpen,
     isLoading,
     isSaving,
     initializeMatch,
     selectPlayer,
     openEditModal,
     closeEditModal,
+    openShareModal,
+    closeShareModal,
     saveMatchEdits,
   } = useMatchDetailStore();
 
@@ -113,6 +117,8 @@ export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
         totalTeamPoints={totalTeamScore}
         totalRivalPoints={totalRivalScore}
         date={match.date}
+        status={match.status}
+        onShareStats={openShareModal}
       />
 
       <ScrollView
@@ -149,6 +155,16 @@ export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
         onSave={handleSaveEdits}
         onCancel={closeEditModal}
         isSaving={isSaving}
+      />
+
+      <MatchShareModal
+        visible={isShareModalOpen}
+        match={useMatchDetailStore.getState().match || match}
+        teamName={teamName}
+        periods={periods}
+        players={players}
+        advancedStats={advancedStats}
+        onClose={closeShareModal}
       />
     </View>
   );

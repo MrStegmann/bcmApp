@@ -36,15 +36,16 @@
 
 ### Scenario 4: Component 2 - Half-Court Canvas & Player Representation Circles
 - **Steps**:
-  1. View the half basketball court canvas.
-  2. Verify 5 position buttons are rendered representing the active quintet.
+  1. View the half basketball court canvas and bench list.
+  2. Verify 5 position buttons are rendered representing the active quintet (or dashed empty slot if unassigned).
   3. Verify each circle displays:
-     - `jerseyNumber`
-     - `name`
-     - `minutos` (accumulating live when clock runs)
-     - `pts` (calculated from $t1a \times 1 + t2a \times 2 + t3a \times 3$).
-  4. Verify the bench displays as a horizontal scrollable list below the canvas.
-- **Expected Outcome**: Accurate player circle rendering on court and bench.
+     - **Player Identification**:
+       - When jersey number is present (e.g. `23`): displays **exclusively** `#23` with no redundant player name.
+       - When jersey number is absent/empty: displays `[First Initial]. [Last Name]` (e.g., `A. Arias`).
+     - Divisor line separating identifier from statistics.
+     - Live statistics formatted as `${min}min / ${pts}pts` (where points are $t1a \times 1 + t2a \times 2 + t3a \times 3$).
+  4. Verify the bench displays as a horizontal scrollable list below the canvas following identical circle formatting rules.
+- **Expected Outcome**: Accurate player circle rendering with jersey number exclusivity and clean fallback abbreviation.
 
 ### Scenario 5: Component 2 - Stats Modal, Made/Missed Shots & Assist Prompt
 - **Steps**:
@@ -87,3 +88,14 @@
   4. Tap `+1 Foul` -> verify current period rival fouls increment and chronometer **automatically pauses**.
   5. Tap `-1 Foul` -> verify current period rival fouls decrement.
 - **Expected Outcome**: Accurate rival score and foul adjustments with auto-stop on fouls.
+
+### Scenario 9: Player Identification Fallback & Edge Cases
+- **Steps**:
+  1. Provide player with `{ number: "7", firstName: "Luka", lastName: "Doncic" }` -> verify output is `"#7"`.
+  2. Provide player with `{ number: null, firstName: "Alex", lastName: "Delgado" }` -> verify output is `"A. Delgado"`.
+  3. Provide player with `{ number: "", firstName: "  Pablo  ", lastName: " Stegmann " }` -> verify trimmed output is `"P. Stegmann"`.
+  4. Provide player with missing first name `{ number: undefined, firstName: "", lastName: "Ibaka" }` -> verify output is `"Ibaka"`.
+  5. Provide player with missing last name `{ number: null, firstName: "Ricky", lastName: "" }` -> verify output is `"Ricky"`.
+  6. Provide player with both names missing `{ number: null, firstName: null, lastName: null }` -> verify safe fallback `"Jugador"`.
+- **Expected Outcome**: 100% test pass on `formatPlayerIdentifier.test.ts` with zero exceptions.
+

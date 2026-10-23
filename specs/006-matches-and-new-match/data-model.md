@@ -1,4 +1,4 @@
-# Data Model & State Machine: Matches & New Match Workflow
+# Data Model & State Machine: Matches & New Match Workflow (Date-Only Mask & Roster Enforcement)
 
 ## 1. Entities
 
@@ -9,8 +9,8 @@
 | `id` | `INTEGER` | PRIMARY KEY, AUTOINCREMENT | Unique match ID |
 | `teamId` | `INTEGER` | NOT NULL, FK -> `teams.id` (CASCADE) | Associated club/team |
 | `rivalTeamName` / `opponent` | `TEXT` | NOT NULL | Name of the opposing team |
-| `round` | `TEXT` | NOT NULL, DEFAULT '1' | Fixture round (e.g. "Jornada 1", "Cuartos") |
-| `timeStamp` / `date` | `TEXT` | NOT NULL | Scheduled match date & time (`dd/mm/aaaa - hh:mm`) |
+| `round` | `TEXT` | NOT NULL, DEFAULT '1' | Fixture round (e.g. "Jornada 1", "Cuartos", "Round 5") |
+| `date` / `timeStamp` | `TEXT` | NOT NULL | Scheduled match date formatted strictly as `dd/mm/aaaa` (e.g. `23/10/2026`) |
 | `status` | `TEXT` | NOT NULL, DEFAULT 'pending' | Current match lifecycle state: `'pending' \| 'inProgress' \| 'finished'` |
 | `createdAt` | `TEXT` | NOT NULL, DEFAULT `(datetime('now'))` | ISO creation timestamp for recency sorting |
 | `resultC1` | `INTEGER` | DEFAULT 0 | Q1 team points |
@@ -66,7 +66,7 @@ stateDiagram-v2
    - State transition persisted immediately when the user taps play/start on the timer.
 3. **`finished`**:
    - Game concluded. Scores and statistics finalized and persisted.
-   - Match list displays completed badge/styling.
+   - Match list displays completed badge/styling. Tapping a finished match opens `MatchDetailView` for inspection.
 
 ---
 
@@ -74,7 +74,16 @@ stateDiagram-v2
 
 - **`round`**: Must be a non-empty string.
 - **`rivalTeamName`**: Must be a non-empty string.
-- **`timeStamp`**: Must strictly match `dd/mm/aaaa - hh:mm` (e.g. `12/10/2026 - 19:30`) with valid calendar days, months, hours (0-23), and minutes (0-59).
+- **`date`**:
+  - Format: Strictly `dd/mm/aaaa` (e.g. `23/10/2026`).
+  - Digits only: User inputs digits `0-9`; non-numeric characters are blocked/stripped.
+  - Slashes auto-inserted: Automatically masked as `/` between day, month, and year.
+  - Gregorian Calendar:
+    - Day: `01` to `31` (dependent on month length).
+    - Month: `01` to `12`.
+    - Year: 4 digits (e.g. `2024`, `2026`).
+    - Leap Year: `29/02` is allowed only in leap years (e.g. `2024`, `2028`); rejected in common years (`2025`, `2026`).
+    - 30-Day Months: April, June, September, November reject day 31.
 - **Roster Declaration**:
   - Maximum 12 players per match.
   - Minimum 1 player required to transition out of `pending` into `inProgress`.

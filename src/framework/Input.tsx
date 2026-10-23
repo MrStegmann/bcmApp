@@ -1,6 +1,7 @@
 import React from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { View, TextInput, Text, TextInputProps } from "react-native";
+import { applyDateMask } from "../utils/dateValidation";
 
 interface InputProps extends Omit<TextInputProps, "onChange" | "value"> {
   value?: string | number;
@@ -21,15 +22,7 @@ const Input: React.FC<InputProps> = ({
   const formatDate = (text: string) => {
     if (!onChange) return;
     if (type !== "date") return onChange(text);
-    let cleaned = text.replace(/\D/g, "");
-
-    if (cleaned.length >= 5) {
-      cleaned = cleaned.replace(/^(\d{2})(\d{2})(\d{0,4}).*/, "$1/$2/$3");
-    } else if (cleaned.length >= 3) {
-      cleaned = cleaned.replace(/^(\d{2})(\d{0,2}).*/, "$1/$2");
-    }
-
-    onChange(cleaned);
+    onChange(applyDateMask(text));
   };
 
   return (
@@ -41,6 +34,8 @@ const Input: React.FC<InputProps> = ({
       )}
       <TextInput
         className="border-2 rounded-xl border-danish-red shadow-inner shadow-danish-gold px-3 w-full bg-danish-dark-gray text-danish-white placeholder:text-danish-white text-xs"
+        keyboardType={props.keyboardType || (type === "date" ? "number-pad" : "default")}
+        maxLength={props.maxLength || (type === "date" ? 10 : undefined)}
         {...props}
         value={value !== undefined && value !== null ? `${value}` : ""}
         onChangeText={formatDate}

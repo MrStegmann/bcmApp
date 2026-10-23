@@ -23,7 +23,15 @@
     "plugins": [
       "expo-sqlite",
       "expo-font",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-sharing",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permite a Basket Club Manager guardar imágenes de estadísticas en la galería.",
+          "savePhotosPermission": "Permite a Basket Club Manager guardar imágenes de estadísticas en la galería."
+        }
+      ]
     ],
     "extra": {
       "eas": {

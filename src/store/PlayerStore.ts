@@ -56,7 +56,13 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
     try {
       await db.update(players).set(data).where(eq(players.id, playerId));
       const updatedList = get().playersList.map((p) => (p.id === playerId ? { ...p, ...data } : p));
-      set({ playersList: updatedList, players: updatedList, isLoading: false });
+      const currentSelected = get().selectedPlayer;
+      set({
+        playersList: updatedList,
+        players: updatedList,
+        selectedPlayer: currentSelected?.id === playerId ? { ...currentSelected, ...data } : currentSelected,
+        isLoading: false,
+      });
       return true;
     } catch (err: any) {
       set({ error: err.message || "Failed to update player", isLoading: false });

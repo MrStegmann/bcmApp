@@ -156,28 +156,26 @@ const PlayerList: React.FC<PlayerListProps> = ({ onReturn }) => {
 
   const handleAddPlayer = async (data: any) => {
     if (club?.id) {
-      await PlayerController.add(
-        club.id,
-        data.firstName,
-        data.lastName,
-        data.number,
-        club.id
-      );
+      await PlayerController.add({
+        teamId: club.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        number: data.number,
+        jerseyName: data.jerseyName ?? null,
+      });
       getData();
       setCreatePlayer(false);
     }
   };
 
   const handleUpdatePlayer = async (data: any) => {
-    if (club?.id) {
-      await PlayerController.edit(
-        data.id,
-        club.id,
-        data.firstName,
-        data.lastName,
-        data.number,
-        club.id
-      );
+    if (club?.id && data?.id) {
+      await PlayerController.edit(data.id, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        number: data.number,
+        jerseyName: data.jerseyName ?? null,
+      });
       getData();
       setEditPlayer(false);
       setPlayerSelected(null);

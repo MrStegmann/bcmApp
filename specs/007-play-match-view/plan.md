@@ -1,14 +1,14 @@
 # Implementation Plan: Play Match View
 
-**Branch**: `007-play-match-view` | **Date**: 2026-10-03 | **Spec**: [spec.md](./spec.md)
+**Branch**: `007-play-match-view` | **Date**: 2026-10-24 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `specs/007-play-match-view/spec.md`
+**Input**: Feature specification from `specs/007-play-match-view/spec.md` including 2026-10-24 Player Identification update.
 
 ## Summary
 
 Build an organic, modular match management view structured across three core components backed by a centralized global state store (`usePlayMatchStore`):
-1. **Component 1 (Time, Score, and Fouls Controller)**: Manages periods (`q1`, `q2`, `q3`, `q4`, `extra`) with 1-tap sequence swap and 3-second long-press period selection modal; chronometer with 1-tap start/stop and 3-second long-press manual time entry; period duration isolation (10:00 for `q1`-`q4`, 05:00 for `extra`); extra time reset preserving scores/fouls and granting +1 timeout; total score calculation from period scores; isolated period team fouls.
-2. **Component 2 (Team Management & Court Canvas)**: Half basketball court canvas with 5 position buttons representing the active quintet (with empty state support); tapping opens the stats modal (`t1a`, `t1i`, `t2a`, `t2i`, `t3a`, `t3i` with assist teammate selector including "non assistant" option on `t2a`/`t3a`; offensive and defensive rebounds both present; fouls auto-pausing crono and adding to period team fouls; assists, ball lost, ball recuperation); real-time player minute accumulation; player representation circles with `jerseyNumber`, `name`, `minutos`, `pts`; horizontal bench list; Swap button activating balanced substitution mode ($N\text{ in} = N\text{ out}$); timeout increment/decrement controls in the same row enforcing quota rules (2 for `q1`-`q2`, 3 for `q3`-`q4`, 1 for `extra` + resets).
+1. **Component 1 (Time, Score, and Fouls Controller)**: Manages periods (`q1`, `q2`, `q3`, `q4`, `extra`) with 1-tap sequence swap and 3-second long-press period selection modal; chronometer with 1-tap start/stop and 3-second long-press manual time entry; period duration isolation (10:00 for `q1`-`q4`, 05:00 for `extra`); extra time reset preserving scores/fouls and granting +1 timeout; total score calculation from period scores; isolated period team fouls. Application Header displays live match score `${teamName} ${teamTotalScore} - ${rivalTotalScore} ${rivalName}` with back and save buttons, while Component 1 renders current period score and fouls.
+2. **Component 2 (Team Management & Court Canvas)**: Half basketball court canvas with 5 position buttons representing the active quintet (with empty state support; tapping empty slot opens quick player selector modal); tapping opens the stats modal (`t1a`, `t1i`, `t2a`, `t2i`, `t3a`, `t3i` with assist teammate selector including "non assistant" option on `t2a`/`t3a`; offensive and defensive rebounds both present; fouls auto-pausing crono and adding to period team fouls; assists, ball lost, ball recuperation); real-time player minute accumulation; player representation circles showing **exclusively Jersey Number** when present, or fallback `[First Initial]. [Last Name]` when absent, separated by a divisor line from `minutos` and `pts`; horizontal bench list; Swap button activating balanced substitution mode ($N\text{ in} = N\text{ out}$); timeout increment/decrement controls in the same row enforcing quota rules (2 for `q1`-`q2`, 3 for `q3`-`q4`, 1 for `extra` + resets).
 3. **Component 3 (Rival Panel Control)**: Dedicated rival panel with controls for rival period score (+1, +2, +3, -1) and rival period team fouls (+1, -1, with +1 auto-pausing the chronometer).
 
 ## Technical Context
@@ -20,8 +20,8 @@ Build an organic, modular match management view structured across three core com
 **Target Platform**: iOS & Android (Expo managed workflow)
 **Project Type**: Mobile Application
 **Performance Goals**: 60 FPS half-court canvas animations, immediate clock toggle (<100ms response), stat recording in <3 taps (<4 seconds), gesture detection for 3-second long-press handlers
-**Constraints**: Offline-first local persistence, strict TDD workflow, NativeWind utility styling, exact 5-player court invariant, isolated quarter state boundaries
-**Scale/Scope**: 3 core UI components, centralized Zustand store, period/timer modals, stats & assist modals, substitution swap engine, timeout quota engine, rival controls
+**Constraints**: Offline-first local persistence, strict TDD workflow, NativeWind utility styling, exact 5-player court invariant, isolated quarter state boundaries, clean player circle rendering with zero text clipping
+**Scale/Scope**: 3 core UI components, centralized Zustand store, period/timer modals, stats & assist modals, substitution swap engine, timeout quota engine, rival controls, player identification formatting utility with edge case handling
 
 ## Constitution Check
 
@@ -29,12 +29,12 @@ Build an organic, modular match management view structured across three core com
 
 | Principle | Requirement | Plan Compliance | Status |
 |---|---|---|---|
-| **I. TDD First** | Unit & component tests written before implementation | Test suites for 3-component architecture: period switcher & 3s hold modal, crono start/stop & 3s hold modal, court canvas & stats/assist flows, swap mode equal-exchange rules, timeout quota rules, and rival score/foul controls | **PASSED** |
-| **II. Feature-Based Architecture** | Modular, encapsulated design | Reusable components (`TimeScoreFoulsController`, `TeamManagementCanvas`, `RivalPanelControl`, `PlayerStatsModal`, `PeriodSelectModal`, `ManualTimeModal`) cleanly structured under `src/features/play-match/` | **PASSED** |
+| **I. TDD First** | Unit & component tests written before implementation | Test suites for 3-component architecture: period switcher & 3s hold modal, crono start/stop & 3s hold modal, court canvas & stats/assist flows, swap mode equal-exchange rules, timeout quota rules, rival score/foul controls, and player identifier formatting utility asserting jersey exclusivity and fallback edge cases | **PASSED** |
+| **II. Feature-Based Architecture** | Modular, encapsulated design | Reusable components (`TimeScoreFoulsController`, `TeamManagementCanvas`, `TeamManagementPanel`, `RivalPanelControl`, `PlayerStatsModal`, `PeriodSelectModal`, `ManualTimeModal`, `QuickAssignPlayerModal`), utilities (`formatPlayerIdentifier.ts`, `roster.ts`), and store cleanly structured under `src/features/play-match/` | **PASSED** |
 | **III. Type-Safe Persistence** | Drizzle ORM + Expo SQLite schemas | Schema types inferred via Drizzle (`games`, `player_stats`) and strictly typed mutations mapped to DB schema | **PASSED** |
 | **IV. Predictable State** | Focused Zustand stores | Centralized `usePlayMatchStore` managing global match state, isolated period states (`q1`-`extra`), roster, chronometer, timeouts, and stats | **PASSED** |
 | **V. Utility-First Styling** | NativeWind / Tailwind classes | All UI styled with NativeWind `className` and basketball court tokens | **PASSED** |
-| **VI. Strict TypeScript** | Strict typing, no implicit `any` | Fully typed interfaces, props, and contracts in `contracts/play-match-contracts.ts` | **PASSED** |
+| **VI. Strict TypeScript** | Strict typing, no implicit `any` | Fully typed interfaces, props, and contracts in `contracts/play-match-contracts.ts` and `src/features/play-match/types/` | **PASSED** |
 
 ## Project Structure
 
@@ -60,14 +60,20 @@ src/
 │   └── play-match/
 │       ├── components/
 │       │   ├── TimeScoreFoulsController.tsx   # Component 1: Period control, crono, period scores & team fouls
-│       │   ├── TeamManagementCanvas.tsx       # Component 2: Half-court canvas, quintet buttons, bench, swap & timeouts
+│       │   ├── TeamManagementCanvas.tsx       # Component 2: Half-court canvas wrapper
+│       │   ├── HalfCourtCanvas.tsx            # Component 2: 5 position buttons & player representation circles
+│       │   ├── TeamManagementPanel.tsx        # Component 2: Swap mode, bench scroll list, timeouts
 │       │   ├── RivalPanelControl.tsx          # Component 3: Rival score (+1,+2,+3,-1) & rival fouls (+1,-1)
 │       │   ├── PlayerStatsModal.tsx           # Stats modal with t1/t2/t3, assists prompt ("non assistant"), rebounds, etc.
 │       │   ├── PeriodSelectModal.tsx          # 3-second long-press modal for direct period selection
 │       │   ├── ManualTimeModal.tsx            # 3-second long-press modal for manual chronometer time entry
+│       │   ├── QuickAssignPlayerModal.tsx     # Quick assignment of bench player to empty court slot
 │       │   └── StartingFiveModal.tsx          # Initial lineup selection modal for pending matches
 │       ├── store/
 │       │   └── usePlayMatchStore.ts           # Centralized Zustand global store managing match session state
+│       ├── utils/
+│       │   ├── formatPlayerIdentifier.ts      # Pure utility for jersey number priority & name fallback formatting
+│       │   └── roster.ts                      # Roster initialization and player mapping helpers
 │       ├── types/
 │       │   └── index.ts                       # Public feature type definitions re-exported from contracts
 │       └── index.ts                           # Feature public barrel export
@@ -84,11 +90,15 @@ src/
             │   └── usePlayMatchStore.test.ts          # State store unit tests (periods, crono, stats, swap, timeouts)
             ├── components/
             │   ├── TimeScoreFoulsController.test.tsx  # Component 1 tests (1-tap next, 3s hold modal, crono, fouls)
-            │   ├── TeamManagementCanvas.test.tsx      # Component 2 tests (court buttons, bench, swap mode, timeouts)
+            │   ├── HalfCourtCanvas.test.tsx           # Component 2 tests (court buttons, player circles, empty slots)
+            │   ├── TeamManagementPanel.test.tsx       # Component 2 tests (bench circles, swap mode, timeouts)
             │   ├── RivalPanelControl.test.tsx         # Component 3 tests (rival points, fouls, clock auto-stop)
             │   ├── PlayerStatsModal.test.tsx          # Stats modal & assist flow tests
             │   ├── PeriodSelectModal.test.tsx         # Period selection modal tests
-            │   └── ManualTimeModal.test.tsx           # Manual time adjustment tests
+            │   ├── ManualTimeModal.test.tsx           # Manual time adjustment tests
+            │   └── QuickAssignPlayerModal.test.tsx    # Quick assign modal tests
+            ├── utils/
+            │   └── formatPlayerIdentifier.test.ts     # Unit tests asserting jersey priority, name fallback, and edge cases
             └── page/
                 └── PlayMatch.test.tsx                 # Full integration test suite
 ```

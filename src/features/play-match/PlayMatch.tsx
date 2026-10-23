@@ -262,6 +262,13 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
   const timerRef = useRef<any>(null);
   useEffect(() => {
     if (isTimerRunning) {
+      if (match.status === "pending" || !match.status) {
+        db.update(games)
+          .set({ status: "inProgress" })
+          .where(eq(games.id, match.id))
+          .catch((err) => console.error("Failed to update match status to inProgress:", err));
+      }
+
       timerRef.current = setInterval(() => {
         usePlayMatchStore.getState().tickTimer(1);
       }, 1000);
@@ -276,7 +283,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
         timerRef.current = null;
       }
     };
-  }, [isTimerRunning]);
+  }, [isTimerRunning, match.id, match.status]);
 
   // Handle Court Position Tap
   const handleSelectCourtPosition = (positionIndex: number, player: InGamePlayer | null) => {

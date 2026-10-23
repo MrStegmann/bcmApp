@@ -76,7 +76,7 @@ export interface InGamePlayer {
   id: number;
   firstName: string;
   lastName: string;
-  number: string;
+  number?: string | null; // Optional or nullable jersey number
   position?: string | null;
   isOnCourt: boolean;
   courtPositionIndex?: number | null; // 0, 1, 2, 3, 4 for the 5 half-court positions
@@ -95,6 +95,16 @@ export interface InGamePlayer {
   falt: number; // Personal fouls
   valuation: number;
 }
+
+/**
+ * Player Identification Formatting
+ * Evaluates jersey number priority and produces fallback name representation.
+ */
+export type PlayerIdentifierInput = {
+  number?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+};
 
 export interface TimeoutBudget {
   firstHalfRemaining: number;  // Initialized to 2 (shared for q1 & q2)
@@ -173,3 +183,7 @@ stateDiagram-v2
    - Available timeouts cannot drop below 0.
 7. **Player Points Invariant**:
    $$\text{Player Pts} = (\text{t1a} \times 1) + (\text{t2a} \times 2) + (\text{t3a} \times 3)$$
+8. **Player Identification Priority & Fallback Invariant**:
+   - If `player.number` is present and non-empty after trimming, the player circle identifier MUST exclusively display `#${player.number.trim()}`.
+   - If `player.number` is missing, null, undefined, or empty/whitespace string, the identifier MUST display `[First Initial]. [Last Name]` (e.g., `A. Arias`), falling back to single name or `"Jugador"` without runtime errors or layout overflow.
+

@@ -22,8 +22,7 @@ export interface MockPlayerConfig {
   firstName: string;
   lastName: string;
   number: string;
-  position: BasketballPosition;
-  notes?: string;
+  jerseyName?: string;
 }
 
 /**

@@ -4,26 +4,40 @@
 
 **Created**: 2026-10-02
 
-**Status**: Draft
+**Last Updated**: 2026-10-23
 
-**Input**: User description: "The task is to redesign the workflow of a creating new matches: When the user is opening the Match form by clicking on Add Button, they must introduce a `round` (string), `timeStamp` (date; in format `dd/mm/aaaa - hh:mm` and `rivalTeamName` (string); each property are mandatory. When the user click over `create` button after completed the mandatory fields, it should ask for the roaster in a modal (this step can be skipped). After created the match, the user shall be redirected to the matches list and see the new match at the first. (The order of the list must priorizate the must recently match first). When the user click over the new match to start the game and has no roaster, a modal asking for the roaster shall appear. The user cannot start the game before declaring the roaster. If the user declare the roaster, then, the view switch to `PlayMatch.tsx`. A match shall have 3 state: pending (not-played), inProgress (playing), finished (played). A match is pending when is created and has not start yet. A match is inProgress when the match has started (user enter in PlayMatch.tsx and click over crono), and is finished when the play has ended (when the user click to save & finish match)."
+**Status**: Ready for Planning
+
+**Input**: User description: "The task is to update the match form date field. We dont need no longer hour format in the input field date. We only will use date format. Also, the field must automaticly formatting the date to the correct format `dd/mm/aaaa`, allowing the user to only type numbers.
+What To Do:
+* Remove Time Component: Update the match form date input to remove the hour/time selection, changing it to a date-only field.
+* Restrict Input to Numbers: Implement a keydown or input listener on the date field to block letters, symbols, and non-numeric characters.
+* Implement Automatic Formatting Mask: Add auto-formatting logic that inserts slashes automatically as the user types, enforcing the `dd/mm/aaaa` structure.
+* Update State & Payloads: Adjust the form state handling, validation schemas, and outgoing API payloads to process the date-only format without time zone or hour offsets.
+Acceptance Criteria:
+* Date-Only Interface: The match form date input field no longer displays, accepts, or requires time values.
+* Numeric Restriction: The input field strictly allows only numeric keystrokes (`0-9`), preventing invalid characters from being entered.
+* Auto-Formatting (`dd/mm/aaaa`): Typing continuous numbers automatically formats the value into the `dd/mm/aaaa` pattern (e.g., typing `23102026` renders as `23/10/2026`).
+* Clean Submission: Form submission correctly validates and passes the date-only string payload to the backend."
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Create Match with Mandatory Fields and Optional Roster (Priority: P1)
+### User Story 1 - Create Match with Date-Only Numeric Input and Optional Roster (Priority: P1)
 
-As a team manager or coach, I want to create a new match with essential scheduling details (round, timestamp, rival team name) and have the option to set up the roster immediately or defer it, so that I can quickly schedule upcoming fixtures without being forced to finalize player attendance immediately.
+As a team manager or coach, I want to create a new match by inputting the round, date (in a streamlined `dd/mm/aaaa` format without hours), and rival team name, with automated formatting and numeric-only entry, so that I can quickly and accurately schedule fixtures without typing delimiters or dealing with time-of-day offsets.
 
-**Why this priority**: Match creation is the core entry point for all game management and tracking workflows.
+**Why this priority**: Match scheduling is the primary entry point for all game tracking. Simplifying the date entry to date-only with auto-masking prevents data entry errors and speeds up match creation.
 
-**Independent Test**: Can be fully tested by opening the Match Creation form, providing valid inputs for `round`, `timeStamp`, and `rivalTeamName`, proceeding through the optional roster modal (either selecting players or skipping), and verifying that the match is saved in `pending` state and appears at the top of the matches list.
+**Independent Test**: Can be fully tested by opening the Match Creation form, typing numeric characters into the date field, verifying auto-formatting to `dd/mm/aaaa` and rejection of non-numeric characters, filling round and rival team name, completing or skipping roster selection, and confirming the match saves with the exact date-only value and appears at the top of the matches list.
 
 **Acceptance Scenarios**:
 
-1. **Given** the user is on the Matches screen, **When** they tap the "Add" button, **Then** the Match Creation form is presented with fields for Round, Timestamp (`dd/mm/aaaa - hh:mm`), and Rival Team Name.
-2. **Given** the user is filling the Match Creation form, **When** any mandatory field (`round`, `timeStamp`, or `rivalTeamName`) is empty or contains an invalid date/time format, **Then** the form prevents submission and indicates which fields require correction.
-3. **Given** all mandatory fields are valid, **When** the user taps "Create", **Then** a roster selection modal appears allowing the user to select players or skip the step.
-4. **Given** the roster modal is displayed, **When** the user selects a roster or taps "Skip", **Then** the match is persisted in the `pending` state and the user is redirected to the matches list with the newly created match positioned at the top of the list.
+1. **Given** the user opens the Match Creation form, **When** the form is displayed, **Then** the date input field is presented as a date-only input (`dd/mm/aaaa`) with no hour or minute selection elements.
+2. **Given** the user is typing into the date field, **When** they type non-numeric characters (letters, punctuation, symbols), **Then** those characters are blocked and not entered into the field.
+3. **Given** the user inputs digits into the date field, **When** typing continuous numbers (e.g., `23102026`), **Then** the field automatically inserts slashes to format the entry into `dd/mm/aaaa` structure (e.g., `23/10/2026`).
+4. **Given** the user is filling the Match Creation form, **When** any mandatory field (`round`, date, or `rivalTeamName`) is empty or contains an invalid calendar date (e.g., incomplete date or non-existent date like `31/02/2026`), **Then** the form prevents submission and provides clear validation feedback.
+5. **Given** all mandatory fields are valid with a date-only value, **When** the user taps "Create", **Then** the roster selection prompt appears allowing the user to select players or skip.
+6. **Given** the roster prompt is completed or skipped, **When** the match is saved, **Then** the match is persisted in `pending` state with the date-only value and the user is redirected to the matches list with the new match placed at the top.
 
 ---
 
@@ -63,33 +77,42 @@ As a user tracking tournament or season progress, I want matches to transition a
 
 ### Edge Cases
 
-- **Invalid Date/Time Format**: What happens if the user inputs text that does not match `dd/mm/aaaa - hh:mm` (e.g. invalid days like `32/01/2026` or incorrect delimiters)? The form validation MUST reject the input and clearly guide the user to provide a valid date and time in `dd/mm/aaaa - hh:mm` format.
-- **Roster Selection with Empty Player List**: What happens if the team has no registered players in the club/team database when the roster modal appears? The modal must display a clear message indicating that no team players are available and guide the user to add players to the team first.
-- **App Interruption During `inProgress` Match**: What happens if the app closes while a match is `inProgress`? The match remains in `inProgress` state so the user can resume tracking upon returning.
-- **Revisiting a Finished Match**: What happens if the user taps on a `finished` match from the list? The match details/summary view should be presented rather than restarting the game or re-prompting for roster declaration.
+- **Non-Numeric Character Input**: When a user attempts to paste or type non-digit characters (including letters, spaces, and punctuation) into the date field, the input rejects or strips all non-numeric characters immediately.
+- **Incomplete Date Entry**: When a user enters fewer than 8 digits (e.g., `23/10/` or `23`), submission is blocked and an error message prompts the user to provide a complete 8-digit date in `dd/mm/aaaa` format.
+- **Invalid Calendar Date**: When a user inputs an impossible calendar date (e.g., `31/02/2026`, `31/04/2026`, or month `13`), the validation flags the field as invalid and guides the user to enter a valid date.
+- **Leap Year Handling**: February 29th is validated against leap years (e.g., `29/02/2024` is valid, but `29/02/2025` is invalid).
+- **Backspace and Deletion**: When deleting digits with backspace, the auto-masking allows natural backward deletion across slashes without cursor trapping or jumping.
+- **Roster Selection with Empty Player List**: If the team has no registered players in the club/team database when the roster modal appears, the modal displays a message indicating no players are available and guides the user to add players first.
+- **App Interruption During `inProgress` Match**: If the app closes while a match is `inProgress`, the match remains in `inProgress` state so the user can resume tracking upon reopening.
+- **Revisiting a Finished Match**: When the user taps on a `finished` match from the list, the match details/summary view is displayed rather than restarting the game or re-prompting for roster declaration.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: The system MUST provide an "Add" action on the Matches screen that opens the Match Creation form.
-- **FR-002**: The Match Creation form MUST require and validate three mandatory inputs before submission: `round` (string), `timeStamp` (date formatted as `dd/mm/aaaa - hh:mm`), and `rivalTeamName` (string).
-- **FR-003**: The system MUST prevent creation of a match if any mandatory field is missing, whitespace-only, or if the `timeStamp` does not adhere to valid `dd/mm/aaaa - hh:mm` values.
-- **FR-004**: Upon valid form submission, the system MUST display an optional roster prompt modal allowing the user to select team players or skip roster assignment.
-- **FR-005**: Upon completing or skipping the roster prompt, the system MUST persist the new match with an initial state of `pending` and redirect the user to the Matches list.
-- **FR-006**: The Matches list MUST display matches ordered chronologically/recency-based prioritizing the most recent matches at the top of the list.
-- **FR-007**: When a user selects a `pending` match that has no roster assigned, the system MUST display a blocking roster modal requiring player selection before entry into the live match play view.
-- **FR-008**: When a valid roster is assigned (or was previously declared) and the user initiates match start, the system MUST navigate to the live match play view (`PlayMatch`).
-- **FR-009**: The system MUST manage three distinct match states: `pending` (created, not started), `inProgress` (match clock started in live play view), and `finished` (game ended and saved by the user).
-- **FR-010**: When the user starts the chronograph/timer in the live match play view, the system MUST transition the match state from `pending` to `inProgress`.
-- **FR-011**: When the user triggers the "Save & Finish" action in the live match play view, the system MUST transition the match state to `finished` and persist the final outcome.
+- **FR-002**: The Match Creation form MUST require and validate three mandatory inputs before submission: `round` (string), match date (date-only formatted strictly as `dd/mm/aaaa`), and `rivalTeamName` (string).
+- **FR-003**: The match form date field MUST display as a date-only input, without any hour, minute, or time selection controls or prompts.
+- **FR-004**: The date field MUST restrict user input to numeric characters only (`0-9`), blocking all alphabetical and special characters.
+- **FR-005**: The date field MUST automatically apply an input formatting mask that inserts `/` separators as the user enters digits, formatting the text into `dd/mm/aaaa` structure (e.g., typing `23102026` formats to `23/10/2026`).
+- **FR-006**: The system MUST validate that the entered date is a complete and valid calendar date according to the Gregorian calendar (valid day within the specific month, valid month 01–12, and valid leap year handling).
+- **FR-007**: The system MUST persist and transmit the match date as a clean date-only value without timezone offsets or artificial hour/minute components.
+- **FR-008**: The system MUST prevent creation of a match if any mandatory field is missing, whitespace-only, or if the date fails validation.
+- **FR-009**: Upon valid form submission, the system MUST display an optional roster prompt modal allowing the user to select team players or skip roster assignment.
+- **FR-010**: Upon completing or skipping the roster prompt, the system MUST persist the new match with an initial state of `pending` and redirect the user to the Matches list.
+- **FR-011**: The Matches list MUST display matches ordered prioritizing the most recent matches at the top of the list.
+- **FR-012**: When a user selects a `pending` match that has no roster assigned, the system MUST display a blocking roster modal requiring player selection before entry into the live match play view.
+- **FR-013**: When a valid roster is assigned (or was previously declared) and the user initiates match start, the system MUST navigate to the live match play view (`PlayMatch`).
+- **FR-014**: The system MUST manage three distinct match states: `pending` (created, not started), `inProgress` (match clock started in live play view), and `finished` (game ended and saved by the user).
+- **FR-015**: When the user starts the chronograph/timer in the live match play view, the system MUST transition the match state from `pending` to `inProgress`.
+- **FR-016**: When the user triggers the "Save & Finish" action in the live match play view, the system MUST transition the match state to `finished` and persist the final outcome.
 
 ### Key Entities *(include if feature involves data)*
 
 - **Match**: Represents a basketball game fixture. Key attributes include:
   - `id`: Unique identifier.
   - `round`: Name/number of the fixture round (e.g. "Round 1", "Jornada 4").
-  - `timeStamp`: Scheduled match date and time (`dd/mm/aaaa - hh:mm`).
+  - `date`: Scheduled match date in date-only format (`dd/mm/aaaa`).
   - `rivalTeamName`: Name of the opposing team.
   - `state`: Current match lifecycle state (`pending`, `inProgress`, `finished`).
   - `roster`: Collection of player identifiers assigned to this match.
@@ -101,15 +124,21 @@ As a user tracking tournament or season progress, I want matches to transition a
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of newly created matches without mandatory fields (`round`, `timeStamp`, `rivalTeamName`) are blocked from submission with immediate validation feedback.
-- **SC-002**: Users can complete match creation in under 30 seconds when skipping roster selection and under 60 seconds when declaring a roster.
-- **SC-003**: 100% of newly saved matches appear at the very top of the matches list immediately after creation without requiring a manual refresh.
-- **SC-004**: 0% of matches can enter the live match play screen without a confirmed roster containing at least one player.
-- **SC-005**: Match state transitions between `pending`, `inProgress`, and `finished` occur reliably with 100% persistence accuracy across app sessions.
+- **SC-001**: 100% of non-numeric keystrokes or inputs into the date field are blocked or filtered out immediately.
+- **SC-002**: 100% of sequential 8-digit inputs automatically display in the standard `dd/mm/aaaa` format without manual separator entry.
+- **SC-003**: 100% of match creation attempts with invalid, incomplete, or non-existent calendar dates are rejected with immediate validation feedback.
+- **SC-004**: Users can input and format a match date in under 5 seconds with zero required time/hour selections.
+- **SC-005**: 100% of created matches persist and retrieve date-only representations without unintended timezone shifts or hour-related discrepancies.
+- **SC-006**: Users can complete match creation in under 30 seconds when skipping roster selection and under 60 seconds when declaring a roster.
+- **SC-007**: 100% of newly saved matches appear at the very top of the matches list immediately after creation without requiring a manual refresh.
+- **SC-008**: 0% of matches can enter the live match play screen without a confirmed roster containing at least one player.
+- **SC-009**: Match state transitions between `pending`, `inProgress`, and `finished` occur reliably with 100% persistence accuracy across app sessions.
 
 ## Assumptions
 
-- The date format `dd/mm/aaaa - hh:mm` uses 2-digit day, 2-digit month, 4-digit year, 2-digit 24-hour time, and 2-digit minute (e.g., `15/10/2026 - 18:30`).
+- The date format `dd/mm/aaaa` uses 2-digit day, 2-digit month, and 4-digit year (e.g., `23/10/2026`).
+- Match scheduling does not require time-of-day precision; ordering and scheduling rely on the calendar date and match round.
+- Mobile numeric keyboards (number-pad) or standard inputs supply numerical values `0-9`.
 - Existing club/team players in the local database serve as the source pool for roster selection.
 - Minimum valid roster requirement is at least 1 player to allow solo or reduced-squad training/scrimmage scenarios, though standard matches typically declare 5 or more players.
 - The live match play view (`PlayMatch`) contains the chronograph/timer controls and the "Save & Finish" match trigger.

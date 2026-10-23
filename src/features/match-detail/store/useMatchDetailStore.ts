@@ -114,6 +114,8 @@ export const useMatchDetailStore = create<MatchDetailState>((set, get) => ({
   },
   selectedPlayer: null,
   isEditModalOpen: false,
+  isShareModalOpen: false,
+  isSharingProcessing: false,
   isLoading: false,
   isSaving: false,
   error: null,
@@ -236,6 +238,18 @@ export const useMatchDetailStore = create<MatchDetailState>((set, get) => ({
 
   closeEditModal: () => {
     set({ isEditModalOpen: false });
+  },
+
+  openShareModal: () => {
+    set({ isShareModalOpen: true });
+  },
+
+  closeShareModal: () => {
+    set({ isShareModalOpen: false });
+  },
+
+  setSharingProcessing: (isProcessing: boolean) => {
+    set({ isSharingProcessing: isProcessing });
   },
 
   saveMatchEdits: async (buffer: MatchEditBuffer) => {

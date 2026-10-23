@@ -22,7 +22,7 @@ export interface InGamePlayer {
   id: number;
   firstName: string;
   lastName: string;
-  number: string;
+  number?: string | null;
   position?: string | null;
   isOnCourt: boolean;
   courtPositionIndex?: number | null; // 0..4 for position on court
@@ -160,3 +160,15 @@ export interface PlayMatchProps {
   onFinishMatch: () => void;
   onReturn: () => void;
 }
+
+// ==========================================
+// Player Identification Contract
+// ==========================================
+export interface PlayerIdentifierInput {
+  number?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+}
+
+export type FormatPlayerIdentifierFn = (player: PlayerIdentifierInput) => string;
+

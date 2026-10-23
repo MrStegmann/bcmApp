@@ -21,8 +21,7 @@ function getMemDb() {
         first_name TEXT NOT NULL,
         last_name TEXT NOT NULL,
         number TEXT NOT NULL,
-        position TEXT,
-        notes TEXT,
+        jersey_name TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 

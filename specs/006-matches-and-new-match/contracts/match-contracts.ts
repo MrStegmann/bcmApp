@@ -1,20 +1,52 @@
 /**
  * Type and Interface Contracts for Matches & New Match Workflow
+ * (Includes Date-Only Auto-Masking & Roster Enforcement)
  */
 
 export type MatchStatus = "pending" | "inProgress" | "finished";
 
+export enum MatchStatusEnum {
+  PENDING = "pending",
+  IN_PROGRESS = "inProgress",
+  FINISHED = "finished",
+}
+
 export interface MatchFormData {
   round: string;
-  timeStamp: string; // "dd/mm/aaaa - hh:mm"
+  date: string; // Format: "dd/mm/aaaa" (e.g. "23/10/2026")
+  timeStamp?: string; // Backward compatibility alias matching date
   rivalTeamName: string;
+  opponent?: string;
   teamId: number;
 }
 
 export interface MatchFormValidationErrors {
   round?: string;
+  date?: string;
   timeStamp?: string;
   rivalTeamName?: string;
+}
+
+export interface DateValidationResult {
+  isValid: boolean;
+  error?: string;
+}
+
+export interface DateValidationContract {
+  /**
+   * Auto-formats raw numeric text into dd/mm/aaaa structure, stripping non-numeric characters.
+   */
+  applyDateMask: (rawText: string) => string;
+
+  /**
+   * Validates calendar boundaries, month length, leap years, and dd/mm/aaaa format.
+   */
+  validateMatchDate: (value: string) => DateValidationResult;
+
+  /**
+   * Parses dd/mm/aaaa (or legacy dd/mm/aaaa - hh:mm) into a JavaScript Date instance.
+   */
+  parseMatchDate: (value: string) => Date | null;
 }
 
 export interface RosterSelectionModalProps {

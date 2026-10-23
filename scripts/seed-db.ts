@@ -71,8 +71,7 @@ export async function seedDatabase(
         firstName: p.firstName,
         lastName: p.lastName,
         number: p.number,
-        position: p.position,
-        notes: p.notes,
+        jerseyName: p.jerseyName,
       })
       .returning();
 
@@ -176,7 +175,7 @@ export async function seedDatabase(
 
 export default seedDatabase;
 
-if (require.main === module) {
+if (typeof require !== "undefined" && (require as any).main === (typeof module !== "undefined" ? (module as any) : undefined)) {
   seedDatabase()
     .then((summary) => {
       console.log("Seeding summary result:", JSON.stringify(summary, null, 2));

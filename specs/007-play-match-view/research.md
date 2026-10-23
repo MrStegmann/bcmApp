@@ -109,3 +109,34 @@ Tapping an active on-court player button opens the `PlayerStatsModal` displaying
   - Period Score: `+1`, `+2`, `+3`, and `-1` (floor at 0).
   - Period Team Fouls: `+1` (which automatically pauses the running chronometer) and `-1` (floor at 0).
 - Automatically maintains period isolation and updates total rival score as the sum of all period scores.
+
+---
+
+## 8. Player Identification Display & Fallback Name Formatting
+
+### Decision
+Implement a pure utility `formatPlayerIdentifier(player)` for player identification display in all player representation circles (court canvas and bench):
+1. **Jersey Number Priority**:
+   - Check if `player.number` exists, is non-null, and has non-empty trimmed content (`player.number?.trim()`).
+   - If present, format as `#${player.number.trim()}` (or `${player.number.trim()}`) and display **exclusively** as the player identifier in the circle. Omit redundant name text completely.
+2. **Fallback Name Formatting (`[First Initial]. [Last Name]`)**:
+   - When jersey number is absent, null, undefined, or empty/whitespace string `""`:
+     - Trim surrounding whitespace on `firstName` and `lastName`.
+     - If both `firstName` and `lastName` are non-empty: Return `${firstName.trim().charAt(0).toUpperCase()}. ${lastName.trim()}` (e.g., `A. Arias`, `A. Delgado`, `P. Stegmann`).
+     - If `firstName` is absent/empty and `lastName` is non-empty: Return `${lastName.trim()}`.
+     - If `lastName` is absent/empty and `firstName` is non-empty: Return `${firstName.trim()}`.
+     - If both `firstName` and `lastName` are absent/empty: Return safe neutral default `"Jugador"`.
+3. **Circle Visual Layout**:
+   - Top section: Single identifier string (either `#23` or `A. Arias`) centered in the circle with `numberOfLines={1}`.
+   - Middle section: Horizontal separator/divisor line (`w-10 h-px bg-slate-700 my-0.5`).
+   - Bottom section: Minutes and points formatted as `${min}min / ${pts}pts` with monospace font.
+
+### Rationale
+- In live basketball scorekeeping, coaches identify players primarily by their jersey numbers. Displaying only the jersey number when available keeps the player circle clean, highly legible, and free from text clutter inside compact touch targets (w-20 h-20, 80x80 dp).
+- When jersey numbers are missing (e.g., casual games or incomplete rosters), standard sports shorthand (`[First Initial]. [Last Name]`) provides concise yet unambiguous player identification without overflowing the circle width.
+- Graceful edge-case handling guarantees zero runtime null pointer crashes and zero UI layout breaks even with messy user input (e.g., untrimmed strings, single names, or unpopulated fields).
+
+### Alternatives Considered
+- **Displaying both jersey number and player name**: Rejected per user specification update (2026-10-24). Redundant name text cramps the circle and forces small, illegible fonts (6-8px).
+- **Displaying full player name when jersey number is missing**: Rejected because long names (e.g., "Alejandro Delgado") overflow an 80px circle or truncate awkwardly. The abbreviated initial pattern (`A. Delgado`) fits neatly within mobile dimensions.
+

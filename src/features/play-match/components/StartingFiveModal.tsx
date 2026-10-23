@@ -63,7 +63,7 @@ export const StartingFiveModal: React.FC<StartingFiveModalProps> = ({
                   <View className="flex-row items-center space-x-3">
                     <View className={`w-10 h-10 rounded-full items-center justify-center ${isSelected ? "bg-amber-500" : "bg-slate-700"}`}>
                       <Text className={`font-bold text-base ${isSelected ? "text-slate-950" : "text-white"}`}>
-                        #{player.number}
+                        {player.number ? `#${player.number}` : "-"}
                       </Text>
                     </View>
                     <View>
