@@ -14,7 +14,6 @@ export const teams = sqliteTable("teams", {
 export const teamsRelations = relations(teams, ({ many }) => ({
   players: many(players),
   games: many(games),
-  trainings: many(trainings),
 }));
 
 // 2. PLAYERS SCHEMA
@@ -39,7 +38,6 @@ export const playersRelations = relations(players, ({ one, many }) => ({
     references: [teams.id],
   }),
   playerStats: many(playerStats),
-  trainingPlayers: many(trainingPlayers),
 }));
 
 // 3. GAMES SCHEMA
@@ -65,6 +63,16 @@ export const games = sqliteTable("games", {
   resultC3Opponent: integer("result_c3_opponent").default(0),
   resultC4Opponent: integer("result_c4_opponent").default(0),
   resultExtraOpponent: integer("result_extra_opponent").default(0),
+  foulsC1: integer("fouls_c1").default(0),
+  foulsC2: integer("fouls_c2").default(0),
+  foulsC3: integer("fouls_c3").default(0),
+  foulsC4: integer("fouls_c4").default(0),
+  foulsExtra: integer("fouls_extra").default(0),
+  foulsC1Opponent: integer("fouls_c1_opponent").default(0),
+  foulsC2Opponent: integer("fouls_c2_opponent").default(0),
+  foulsC3Opponent: integer("fouls_c3_opponent").default(0),
+  foulsC4Opponent: integer("fouls_c4_opponent").default(0),
+  foulsExtraOpponent: integer("fouls_extra_opponent").default(0),
 });
 
 export const gamesRelations = relations(games, ({ one, many }) => ({
@@ -107,70 +115,6 @@ export const playerStatsRelations = relations(playerStats, ({ one }) => ({
   }),
   player: one(players, {
     fields: [playerStats.playerId],
-    references: [players.id],
-  }),
-}));
-
-// 5. TRAININGS SCHEMA
-export const trainings = sqliteTable("trainings", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  teamId: integer("team_id")
-    .notNull()
-    .references(() => teams.id, { onDelete: "cascade" }),
-  trainingNumber: integer("training_number").notNull(),
-  date: text("date").notNull(),
-  warmup1: text("warmup1"),
-  warmup1Explanation: text("warmup1_explanation"),
-  warmup2: text("warmup2"),
-  warmup2Explanation: text("warmup2_explanation"),
-  warmup3: text("warmup3"),
-  warmup3Explanation: text("warmup3_explanation"),
-  exercise1: text("exercise1"),
-  exercise1Explanation: text("exercise1_explanation"),
-  exercise2: text("exercise2"),
-  exercise2Explanation: text("exercise2_explanation"),
-  exercise3: text("exercise3"),
-  exercise3Explanation: text("exercise3_explanation"),
-  exercise4: text("exercise4"),
-  exercise4Explanation: text("exercise4_explanation"),
-  exercise5: text("exercise5"),
-  exercise5Explanation: text("exercise5_explanation"),
-  exercise6: text("exercise6"),
-  exercise6Explanation: text("exercise6_explanation"),
-  cooldown1: text("cooldown1"),
-  cooldown1Explanation: text("cooldown1_explanation"),
-  cooldown2: text("cooldown2"),
-  cooldown2Explanation: text("cooldown2_explanation"),
-});
-
-export const trainingsRelations = relations(trainings, ({ one, many }) => ({
-  team: one(teams, {
-    fields: [trainings.teamId],
-    references: [teams.id],
-  }),
-  trainingPlayers: many(trainingPlayers),
-}));
-
-// 6. TRAINING PLAYERS ATTENDANCE SCHEMA
-export const trainingPlayers = sqliteTable("training_players", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  trainingId: integer("training_id")
-    .notNull()
-    .references(() => trainings.id, { onDelete: "cascade" }),
-  playerId: integer("player_id")
-    .notNull()
-    .references(() => players.id, { onDelete: "cascade" }),
-  attended: integer("attended").notNull().default(1),
-  notes: text("notes"),
-});
-
-export const trainingPlayersRelations = relations(trainingPlayers, ({ one }) => ({
-  training: one(trainings, {
-    fields: [trainingPlayers.trainingId],
-    references: [trainings.id],
-  }),
-  player: one(players, {
-    fields: [trainingPlayers.playerId],
     references: [players.id],
   }),
 }));

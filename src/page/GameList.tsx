@@ -8,6 +8,7 @@ import DeleteModal from "../framework/DeleteModal";
 import GameForm from "../components/GameForm";
 import PlayMatch from "./PlayMatch";
 import RosterSelectionModal from "../components/RosterSelectionModal";
+import { MatchDetailView } from "../features/match-detail";
 
 import { useClubStore } from "../store/ClubStore";
 import { useMenuStore } from "../store/MenuStore";
@@ -76,14 +77,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
         testID: "header-back-button",
       });
     } else if (gameSelected) {
-      setHeaderAction(null);
-      setHeaderBackAction({
-        label: "Volver",
-        iconName: "chevron-left",
-        iconFamily: "Feather",
-        onPress: () => setGameSelected(null),
-        testID: "header-back-button",
-      });
+      // PlayMatch manages its own header actions and custom score header
     } else {
       setHeaderAction({
         label: "Añadir",
@@ -150,7 +144,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
   const setMainMenu = () => {
     setTopMenu([
       {
-        id: TopMenuEnums.ADD_NEW_SESSION,
+        id: TopMenuEnums.GAMES,
         name: "Añadir Partido",
         onPress: () => setCreateGame(true),
         children: () => <Ionicons name="basketball-sharp" size={18} color="white" />,
@@ -187,8 +181,12 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
     setRosterModalVisible(true);
   };
 
-  // Selection of match to start or inspect (US2 & US3 Roster Enforcement and Transition to PlayMatch)
+  // Selection of match to start or inspect (US2 & US3 Roster Enforcement, finished matches go to MatchDetailView)
   const handleSelectGame = async (game: Game) => {
+    if (game.status === "finished") {
+      setGameSelected(game);
+      return;
+    }
     if (game.status === "pending" || !game.status) {
       const roster = await GameController.getRoster(game.id);
       if (!roster || roster.length === 0) {
@@ -298,6 +296,10 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
     setGameSelected(null);
   };
 
+  const handleReturnFromPlayMatch = useCallback(() => {
+    setGameSelected(null);
+  }, []);
+
   return (
     <View className="w-full h-full justify-start items-center px-2">
       <DeleteModal
@@ -344,11 +346,25 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
       {!createGame &&
         !editGame &&
         (gameSelected ? (
-          <PlayMatch
-            match={gameSelected}
-            onFinishMatch={handleFinishMatch}
-            onReturn={() => setGameSelected(null)}
-          />
+          gameSelected.status === "finished" ? (
+            <MatchDetailView
+              match={gameSelected}
+              onReturn={() => {
+                setGameSelected(null);
+                getData();
+              }}
+              onMatchUpdated={(updated) => {
+                setGameSelected(updated);
+                getData();
+              }}
+            />
+          ) : (
+            <PlayMatch
+              match={gameSelected}
+              onFinishMatch={handleFinishMatch}
+              onReturn={handleReturnFromPlayMatch}
+            />
+          )
         ) : (
           <GameCards
             games={games}

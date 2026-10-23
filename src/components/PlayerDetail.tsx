@@ -118,18 +118,12 @@ interface PlayerDetailProps {
 }
 
 const PlayerDetail: React.FC<PlayerDetailProps> = ({ data }) => {
-  const { PlayerController, PlayerStatsController, TraningPlayersController } = useDB();
+  const { PlayerController, PlayerStatsController } = useDB();
   const [playerAllStats, setPlayerAllStats] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([]);
-  const [totalTrainings, setTotalTrainings] = useState<number>(0);
-  const [totalTrainingsAssis, setTotalTrainingsAssis] = useState<number>(0);
 
   useEffect(() => {
     if (data?.id) {
-      TraningPlayersController.loadByPlayer(data.id, (results: any[]) => {
-        setTotalTrainings(results.length);
-        setTotalTrainingsAssis(results.filter((tp) => tp.assistance || tp.attended).length);
-      });
       PlayerController.loadStats(data.id, (items: any[]) => {
         setPlayerAllStats(items);
       });
@@ -158,22 +152,10 @@ const PlayerDetail: React.FC<PlayerDetailProps> = ({ data }) => {
             </Text>
           </View>
         </View>
-        <View className="w-full mt-2 flex flex-row flex-wrap gap-2 justify-between">
+        <View className="w-full mt-2 flex flex-row flex-wrap gap-2">
           <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
             <Text className="font-bold text-danish-white">P. J</Text>
             <Text className="font-bold text-danish-white">{`${stats.length}`}</Text>
-          </View>
-          <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
-            <Text className="font-bold text-danish-white">E. A</Text>
-            <Text className="font-bold text-danish-white">
-              {totalTrainingsAssis}/{totalTrainings}
-            </Text>
-          </View>
-          <View className="w-14 border border-danish-red rounded-lg p-1 flex flex-col items-center justify-center">
-            <Text className="font-bold text-danish-white">E. F</Text>
-            <Text className="font-bold text-danish-white">
-              {totalTrainings - totalTrainingsAssis}
-            </Text>
           </View>
         </View>
       </View>

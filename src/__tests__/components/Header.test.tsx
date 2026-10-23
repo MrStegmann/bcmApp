@@ -134,44 +134,6 @@ describe("Header Action - GameList Context (US2 / T011)", () => {
   });
 });
 
-describe("Header Action - TrainingList Context (US2 / T012)", () => {
-  beforeEach(() => {
-    useMenuStore.setState({
-      activeTab: TopMenuEnums.TRAININGS,
-      headerTitle: "Entrenamientos",
-      headerAction: null,
-      bottomMenuItems: [],
-    });
-  });
-
-  it("should set headerAction with 'Añadir' when TrainingList list view is active", () => {
-    const addTrainingAction: HeaderAction = {
-      label: "Añadir",
-      iconName: "plus-circle",
-      iconFamily: "Feather",
-      onPress: jest.fn(),
-      testID: "header-add-training",
-    };
-
-    useMenuStore.getState().setHeaderAction(addTrainingAction);
-
-    const action = useMenuStore.getState().headerAction;
-    expect(action?.testID).toBe("header-add-training");
-    expect(action?.label).toBe("Añadir");
-  });
-
-  it("should clear headerAction when TrainingList enters create or edit mode", () => {
-    const addAction: HeaderAction = {
-      label: "Añadir",
-      iconName: "plus-circle",
-      onPress: jest.fn(),
-    };
-    useMenuStore.getState().setHeaderAction(addAction);
-    useMenuStore.getState().setHeaderAction(null);
-
-    expect(useMenuStore.getState().headerAction).toBeNull();
-  });
-});
 
 describe("Header Safe Area - Top Margin (US3 / T013)", () => {
   it("should expose useSafeAreaInsets from the mock returning zero insets", () => {
@@ -250,6 +212,37 @@ describe("Header Component - headerBackAction Rendering (US2 & US3 / T015)", () 
 
     useMenuStore.getState().setHeaderBackAction(null);
     expect(useMenuStore.getState().headerBackAction).toBeNull();
+  });
+});
+
+describe("Header Component - headerCustomComponent Rendering (Spec 007)", () => {
+  beforeEach(() => {
+    useMenuStore.setState({
+      activeTab: TopMenuEnums.GAMES,
+      headerTitle: "Partidos",
+      headerAction: null,
+      headerBackAction: null,
+      headerCustomComponent: null,
+      bottomMenuItems: [],
+    });
+  });
+
+  it("should initialize with null headerCustomComponent in store", () => {
+    expect(useMenuStore.getState().headerCustomComponent).toBeNull();
+  });
+
+  it("should set and update headerCustomComponent in store", () => {
+    useMenuStore.getState().setHeaderCustomComponent({ type: "View", props: { testID: "global-match-score-header" } } as any);
+    expect(useMenuStore.getState().headerCustomComponent).not.toBeNull();
+  });
+
+  it("should reset headerCustomComponent when setHeaderTitle is called", () => {
+    useMenuStore.getState().setHeaderCustomComponent({ type: "View" } as any);
+    expect(useMenuStore.getState().headerCustomComponent).not.toBeNull();
+
+    useMenuStore.getState().setHeaderTitle("Gestión de Equipos");
+    expect(useMenuStore.getState().headerCustomComponent).toBeNull();
+    expect(useMenuStore.getState().headerTitle).toBe("Gestión de Equipos");
   });
 });
 

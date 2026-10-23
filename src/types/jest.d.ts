@@ -18,6 +18,12 @@ interface JestMatchers {
   toHaveBeenCalled(): void;
   toHaveBeenCalledTimes(count: number): void;
   toHaveBeenCalledWith(...args: any[]): void;
+  toHaveLength(length: number): void;
+  toBeCloseTo(expected: number, numDigits?: number): void;
+  toBeGreaterThan(expected: number): void;
+  toBeLessThan(expected: number): void;
+  toBeGreaterThanOrEqual(expected: number): void;
+  toBeLessThanOrEqual(expected: number): void;
   not: JestMatchers;
 }
 

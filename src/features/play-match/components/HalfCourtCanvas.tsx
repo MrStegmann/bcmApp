@@ -8,14 +8,9 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
   selectedCourtPlayerIds,
   onSelectCourtPosition,
 }) => {
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
   const calculatePts = (p: InGamePlayer): number => {
-    return p.t1a * 1 + p.t2a * 2 + p.t3a * 3;
+    if (!p) return 0;
+    return Number(p.t1a || 0) * 1 + Number(p.t2a || 0) * 2 + Number(p.t3a || 0) * 3;
   };
 
   // 5 positional layout anchors for half-court:
@@ -25,7 +20,10 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
   // 3: Left Post (Low Left)
   // 4: Right Post (Low Right)
   const renderPlayerSlot = (index: number, player: InGamePlayer | null) => {
-    const isSelected = player ? selectedCourtPlayerIds.includes(player.id) : false;
+    const pId = player ? Number(player.id) : null;
+    const isSelected = pId !== null
+      ? selectedCourtPlayerIds.some((id) => Number(id) === pId)
+      : false;
 
     if (!player) {
       return (
@@ -33,14 +31,16 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
           key={`slot-${index}`}
           activeOpacity={0.7}
           onPress={() => onSelectCourtPosition(index, null)}
-          className="items-center justify-center w-20 h-20 rounded-full border-2 border-dashed border-amber-500/50 bg-slate-900/80 p-1 shadow-lg active:bg-amber-500/20"
+          testID={`court-slot-${index}`}
+          className="items-center justify-center w-20 h-20 rounded-full border-2 border-dashed border-amber-500 bg-slate-900 p-1 shadow-lg"
         >
           <Text className="text-amber-400 font-extrabold text-base">+</Text>
-          <Text className="text-amber-300 font-semibold text-[10px] text-center">Pos #{index + 1}</Text>
+          <Text className="text-amber-300 font-semibold text-[9px] text-center">Pos #{index + 1}</Text>
         </TouchableOpacity>
       );
     }
 
+    const min = Math.floor(player.secondsPlayed / 60);
     const pts = calculatePts(player);
 
     return (
@@ -48,27 +48,36 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
         key={`player-${player.id}`}
         activeOpacity={0.8}
         onPress={() => onSelectCourtPosition(index, player)}
-        className={`items-center justify-center w-20 h-20 rounded-full border-2 shadow-xl p-1 ${
+        testID={`court-player-${player.id}`}
+        className={`items-center justify-center w-20 h-20 rounded-full shadow-lg p-1 relative ${
           isSelected
-            ? "border-amber-400 bg-amber-500/30 scale-105 shadow-amber-500/50"
+            ? "border-4 border-amber-400 bg-amber-900"
             : isSwapMode
-            ? "border-slate-500 bg-slate-800/90"
-            : "border-amber-500/80 bg-slate-900/90 shadow-slate-950"
+            ? "border-2 border-slate-500 bg-slate-800"
+            : "border-2 border-amber-500 bg-slate-900"
         }`}
       >
-        <View className="items-center">
-          <View className="flex-row items-center space-x-1">
-            <Text className="text-amber-400 font-black text-sm">#{player.number}</Text>
-            <Text className="text-white font-bold text-[10px]" numberOfLines={1}>
-              {player.firstName}
-            </Text>
+        {isSelected && (
+          <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 items-center justify-center border border-slate-950 z-20">
+            <Text className="text-slate-950 font-black text-[9px]">✓</Text>
           </View>
-          <Text className="text-emerald-400 font-mono font-bold text-[9px]">
-            {formatTime(player.secondsPlayed)}
+        )}
+        <View className="items-center justify-center w-full px-1">
+          {/* #JerseyNumber first and biggest */}
+          <Text className="text-amber-400 font-black text-base leading-tight">#{player.number}</Text>
+          
+          {/* playerName Below the jersey number and smallest */}
+          <Text className="text-slate-200 font-semibold text-[8px] leading-tight" numberOfLines={1}>
+            {player.firstName}
           </Text>
-          <View className="bg-amber-500/20 px-1.5 py-0.5 rounded mt-0.5 border border-amber-500/40">
-            <Text className="text-amber-300 font-extrabold text-[9px]">{pts} PTS</Text>
-          </View>
+          
+          {/* Divisor line */}
+          <View className="w-12 h-px bg-slate-700 my-0.5" />
+          
+          {/* Below the player name, separated by a divisor line: ${min}min / ${pts}pts */}
+          <Text className="text-emerald-400 font-mono font-bold text-[8px] leading-tight">
+            {min}min / {pts}pts
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -79,15 +88,24 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
       {/* Basketball Half-Court Visual Lines */}
       <View className="h-72 w-full relative items-center justify-between p-3 bg-slate-950">
         {/* Outer 3-Point Arc */}
-        <View className="absolute top-0 w-64 h-56 rounded-b-full border-2 border-slate-800/80 pointer-events-none" />
+        <View
+          pointerEvents="none"
+          className="absolute top-0 w-64 h-56 rounded-b-full border-2 border-slate-800/80"
+        />
 
         {/* Free Throw Key / Paint Area */}
-        <View className="absolute top-0 w-36 h-40 border-x-2 border-b-2 border-slate-800/80 bg-slate-900/40 pointer-events-none items-center">
+        <View
+          pointerEvents="none"
+          className="absolute top-0 w-36 h-40 border-x-2 border-b-2 border-slate-800/80 bg-slate-900/40 items-center"
+        >
           {/* Free Throw Circle */}
-          <View className="absolute bottom-[-24px] w-24 h-24 rounded-full border-2 border-slate-800/80 pointer-events-none" />
+          <View
+            pointerEvents="none"
+            className="absolute bottom-[-24px] w-24 h-24 rounded-full border-2 border-slate-800/80"
+          />
           {/* Basket Ring & Backboard */}
-          <View className="w-16 h-1 bg-amber-500/60 mt-2 rounded" />
-          <View className="w-6 h-6 rounded-full border border-orange-500/80 mt-1" />
+          <View pointerEvents="none" className="w-16 h-1 bg-amber-500/60 mt-2 rounded" />
+          <View pointerEvents="none" className="w-6 h-6 rounded-full border border-orange-500/80 mt-1" />
         </View>
 
         {/* Court Positions Layout */}
@@ -111,3 +129,4 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
     </View>
   );
 };
+

@@ -1,15 +1,13 @@
 import { useClubStore } from "../store/ClubStore";
 import { usePlayerStore } from "../store/PlayerStore";
 import { useGameStore } from "../store/GameStore";
-import { useTrainingStore } from "../store/TrainingStore";
-import { db, players, games, playerStats, trainingPlayers } from "../db";
+import { db, players, games, playerStats } from "../db";
 import { eq } from "drizzle-orm";
 
 export function useDB() {
   const clubStore = useClubStore();
   const playerStore = usePlayerStore();
   const gameStore = useGameStore();
-  const trainingStore = useTrainingStore();
 
   const currentTeamId = clubStore.currentTeam?.id || 1;
 
@@ -330,91 +328,6 @@ export function useDB() {
       edit: (data: any) => gameStore.savePlayerStat(data),
       save: (data: any) => gameStore.savePlayerStat(data),
       batchSave: (statsList: any[]) => gameStore.batchSavePlayerStats(statsList),
-    },
-
-    // Training Controller
-    TrainingController: {
-      getAll: (teamId?: number) => trainingStore.fetchTrainings(teamId || currentTeamId),
-      load: async (param1?: any, param2?: any) => {
-        const teamId = typeof param1 === "number" ? param1 : currentTeamId;
-        const cb = typeof param1 === "function" ? param1 : typeof param2 === "function" ? param2 : undefined;
-        const list = await trainingStore.fetchTrainings(teamId);
-        if (cb) cb(list);
-        return list;
-      },
-      loadTPlayers: async (trainingId: number, cb?: (res: any[]) => void) => {
-        const roster = await playerStore.fetchPlayers(currentTeamId);
-        const attMap = await trainingStore.fetchTrainingAttendance(trainingId);
-        const result = roster.map((p) => ({
-          ...p,
-          first_name: p.firstName,
-          last_name: p.lastName,
-          assistance: attMap[p.id] ? attMap[p.id].attended === 1 : false,
-        }));
-        if (cb) cb(result);
-        return result;
-      },
-      add: (data: any) => trainingStore.createTraining({ teamId: currentTeamId, ...data }),
-      create: (data: any) => trainingStore.createTraining({ teamId: currentTeamId, ...data }),
-      edit: (data: any) => Promise.resolve(true),
-      remove: (id: number) => trainingStore.deleteTraining(id),
-      delete: (id: number) => trainingStore.deleteTraining(id),
-    },
-
-    // Training Players Attendance Controller
-    TraningPlayersController: {
-      getAll: (trainingId: number) => trainingStore.fetchTrainingAttendance(trainingId),
-      load: async (cb?: (attendanceMap: any) => void, trainingId?: number) => {
-        if (!trainingId) return {};
-        const map = await trainingStore.fetchTrainingAttendance(trainingId);
-        if (cb) cb(map);
-        return map;
-      },
-      loadByPlayer: async (playerId: number, cb?: (results: any[]) => void) => {
-        try {
-          const list = await db.select().from(trainingPlayers).where(eq(trainingPlayers.playerId, playerId));
-          const mapped = list.map((tp) => ({
-            ...tp,
-            assistance: tp.attended === 1,
-          }));
-          if (cb) cb(mapped);
-          return mapped;
-        } catch {
-          if (cb) cb([]);
-          return [];
-        }
-      },
-      edit: (data: any) =>
-        trainingStore.togglePlayerAttendance(data.trainingId || data.training_id, data.playerId || data.player_id, data.assistance || data.attended),
-      toggle: (trainingId: number, playerId: number, attended: boolean) =>
-        trainingStore.togglePlayerAttendance(trainingId, playerId, attended),
-    },
-    TrainingPlayersController: {
-      getAll: (trainingId: number) => trainingStore.fetchTrainingAttendance(trainingId),
-      load: async (cb?: (attendanceMap: any) => void, trainingId?: number) => {
-        if (!trainingId) return {};
-        const map = await trainingStore.fetchTrainingAttendance(trainingId);
-        if (cb) cb(map);
-        return map;
-      },
-      loadByPlayer: async (playerId: number, cb?: (results: any[]) => void) => {
-        try {
-          const list = await db.select().from(trainingPlayers).where(eq(trainingPlayers.playerId, playerId));
-          const mapped = list.map((tp) => ({
-            ...tp,
-            assistance: tp.attended === 1,
-          }));
-          if (cb) cb(mapped);
-          return mapped;
-        } catch {
-          if (cb) cb([]);
-          return [];
-        }
-      },
-      edit: (data: any) =>
-        trainingStore.togglePlayerAttendance(data.trainingId || data.training_id, data.playerId || data.player_id, data.assistance || data.attended),
-      toggle: (trainingId: number, playerId: number, attended: boolean) =>
-        trainingStore.togglePlayerAttendance(trainingId, playerId, attended),
     },
   };
 }

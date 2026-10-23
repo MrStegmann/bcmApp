@@ -34,8 +34,8 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
     onClose();
   };
 
-  const availableAssistTeammates = courtTeammates.filter((t) => t.id !== player.id);
-  const currentPts = player.t1a * 1 + player.t2a * 2 + player.t3a * 3;
+  const availableAssistTeammates = courtTeammates.filter((t) => Number(t.id) !== Number(player.id));
+  const currentPts = Number(player.t1a || 0) * 1 + Number(player.t2a || 0) * 2 + Number(player.t3a || 0) * 3;
 
   return (
     <Modal visible={visible} transparent animationType="slide">

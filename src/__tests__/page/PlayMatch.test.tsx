@@ -21,6 +21,16 @@ describe("PlayMatch Component & State Transition Tests (T014 - US3)", () => {
     resultC3Opponent: 0,
     resultC4Opponent: 0,
     resultExtraOpponent: 0,
+    foulsC1: 0,
+    foulsC2: 0,
+    foulsC3: 0,
+    foulsC4: 0,
+    foulsExtra: 0,
+    foulsC1Opponent: 0,
+    foulsC2Opponent: 0,
+    foulsC3Opponent: 0,
+    foulsC4Opponent: 0,
+    foulsExtraOpponent: 0,
   };
 
   it("should initialize match in pending state and allow timer start", async () => {

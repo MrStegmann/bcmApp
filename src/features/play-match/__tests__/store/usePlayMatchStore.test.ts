@@ -256,7 +256,9 @@ describe("usePlayMatchStore (T003 - Foundational Store)", () => {
 
     // Disallow toggle swap when timer running
     store.toggleTimer();
-    expect(() => store.toggleSwapMode()).toThrow();
+    expect(usePlayMatchStore.getState().isTimerRunning).toBe(true);
+    store.toggleSwapMode();
+    expect(usePlayMatchStore.getState().swap.isSwapMode).toBe(false); // Guarded, remains false
     store.toggleTimer(); // Pause
 
     store.toggleSwapMode();
@@ -275,6 +277,89 @@ describe("usePlayMatchStore (T003 - Foundational Store)", () => {
     expect(state.players.find((p) => p.id === 1)?.isOnCourt).toBe(false);
     expect(state.players.find((p) => p.id === 6)?.isOnCourt).toBe(true);
     expect(state.getActiveCourtPlayers().filter((p) => p !== null).length).toBe(5);
+  });
+
+  it("should support selecting multiple court and bench players and swapping simultaneously", () => {
+    const extendedRoster = [
+      ...mockRoster,
+      {
+        id: 7,
+        firstName: "Jaden",
+        lastName: "Hardy",
+        number: "1",
+        position: "Guard",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+    ];
+
+    const store = usePlayMatchStore.getState();
+    store.initMatch(101, extendedRoster, [1, 2, 3, 4, 5]);
+
+    store.toggleSwapMode();
+    // Select 2 court players (1, 2) and 2 bench players (6, 7)
+    store.selectSwapCourtPlayer(1);
+    store.selectSwapCourtPlayer(2);
+    store.selectSwapBenchPlayer(6);
+    store.selectSwapBenchPlayer(7);
+
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds).toEqual([1, 2]);
+    expect(usePlayMatchStore.getState().swap.selectedBenchPlayerIds).toEqual([6, 7]);
+
+    store.confirmSwap();
+
+    const state = usePlayMatchStore.getState();
+    expect(state.swap.isSwapMode).toBe(false);
+    expect(state.players.find((p) => p.id === 1)?.isOnCourt).toBe(false);
+    expect(state.players.find((p) => p.id === 2)?.isOnCourt).toBe(false);
+    expect(state.players.find((p) => p.id === 6)?.isOnCourt).toBe(true);
+    expect(state.players.find((p) => p.id === 7)?.isOnCourt).toBe(true);
+    expect(state.getActiveCourtPlayers().filter((p) => p !== null).length).toBe(5);
+  });
+
+  it("should allow deselecting selected court and bench players by tapping them again", () => {
+    const store = usePlayMatchStore.getState();
+    store.initMatch(101, mockRoster, [1, 2, 3, 4, 5]);
+
+    store.toggleSwapMode();
+    // Select court player 1
+    store.selectSwapCourtPlayer(1);
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds).toEqual([1]);
+
+    // Deselect court player 1
+    store.selectSwapCourtPlayer(1);
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds).toEqual([]);
+
+    // Select bench player 6
+    store.selectSwapBenchPlayer(6);
+    expect(usePlayMatchStore.getState().swap.selectedBenchPlayerIds).toEqual([6]);
+
+    // Deselect bench player 6
+    store.selectSwapBenchPlayer(6);
+    expect(usePlayMatchStore.getState().swap.selectedBenchPlayerIds).toEqual([]);
+  });
+
+  it("should reset swap state and exit swap mode when cancelSwap is called", () => {
+    const store = usePlayMatchStore.getState();
+    store.initMatch(101, mockRoster, [1, 2, 3, 4, 5]);
+
+    store.toggleSwapMode();
+    store.selectSwapCourtPlayer(1);
+    store.selectSwapBenchPlayer(6);
+    expect(usePlayMatchStore.getState().swap.isSwapMode).toBe(true);
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds.length).toBe(1);
+
+    store.cancelSwap();
+
+    const state = usePlayMatchStore.getState();
+    expect(state.swap.isSwapMode).toBe(false);
+    expect(state.swap.selectedCourtPlayerIds).toEqual([]);
+    expect(state.swap.selectedBenchPlayerIds).toEqual([]);
+    // Players on court unchanged
+    expect(state.players.find((p) => p.id === 1)?.isOnCourt).toBe(true);
+    expect(state.players.find((p) => p.id === 6)?.isOnCourt).toBe(false);
   });
 
   it("should enforce phase-based timeout allowances and floor at 0", () => {
@@ -297,5 +382,172 @@ describe("usePlayMatchStore (T003 - Foundational Store)", () => {
     // Switch to Q3 -> 3 timeouts for second half
     store.setPeriod("q3");
     expect(usePlayMatchStore.getState().getAvailableTimeouts()).toBe(3);
+  });
+
+  it("should handle selecting 3 court players, deselecting 1, selecting 2 bench players, and confirming swap", () => {
+    const extendedRoster = [
+      ...mockRoster,
+      {
+        id: 7,
+        firstName: "Jaden",
+        lastName: "Hardy",
+        number: "1",
+        position: "Guard",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+    ];
+
+    const store = usePlayMatchStore.getState();
+    store.initMatch(101, extendedRoster, [1, 2, 3, 4, 5]);
+
+    store.toggleSwapMode();
+    // Select 3 court players: 1, 2, 3
+    store.selectSwapCourtPlayer(1);
+    store.selectSwapCourtPlayer(2);
+    store.selectSwapCourtPlayer(3);
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds).toEqual([1, 2, 3]);
+
+    // Deselect player 2
+    store.selectSwapCourtPlayer(2);
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds).toEqual([1, 3]);
+
+    // Select 2 bench players: 6, 7
+    store.selectSwapBenchPlayer(6);
+    store.selectSwapBenchPlayer(7);
+    expect(usePlayMatchStore.getState().swap.selectedBenchPlayerIds).toEqual([6, 7]);
+
+    // Confirm balanced swap (2 in / 2 out)
+    store.confirmSwap();
+
+    const state = usePlayMatchStore.getState();
+    expect(state.swap.isSwapMode).toBe(false);
+    expect(state.players.find((p) => p.id === 1)?.isOnCourt).toBe(false);
+    expect(state.players.find((p) => p.id === 2)?.isOnCourt).toBe(true); // Player 2 stayed on court
+    expect(state.players.find((p) => p.id === 3)?.isOnCourt).toBe(false);
+    expect(state.players.find((p) => p.id === 6)?.isOnCourt).toBe(true);
+    expect(state.players.find((p) => p.id === 7)?.isOnCourt).toBe(true);
+
+    const activeCourt = state.getActiveCourtPlayers();
+    expect(activeCourt.filter((p) => p !== null).length).toBe(5);
+  });
+
+  it("should cleanly cancel swap mode when multiple players are selected on court and bench", () => {
+    const extendedRoster = [
+      ...mockRoster,
+      {
+        id: 7,
+        firstName: "Jaden",
+        lastName: "Hardy",
+        number: "1",
+        position: "Guard",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+    ];
+
+    const store = usePlayMatchStore.getState();
+    store.initMatch(101, extendedRoster, [1, 2, 3, 4, 5]);
+
+    store.toggleSwapMode();
+    store.selectSwapCourtPlayer(1);
+    store.selectSwapCourtPlayer(2);
+    store.selectSwapCourtPlayer(3);
+    store.selectSwapBenchPlayer(6);
+    store.selectSwapBenchPlayer(7);
+
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds.length).toBe(3);
+    expect(usePlayMatchStore.getState().swap.selectedBenchPlayerIds.length).toBe(2);
+
+    store.cancelSwap();
+
+    const state = usePlayMatchStore.getState();
+    expect(state.swap.isSwapMode).toBe(false);
+    expect(state.swap.selectedCourtPlayerIds).toEqual([]);
+    expect(state.swap.selectedBenchPlayerIds).toEqual([]);
+    // All 5 original players still on court
+    expect(state.getActiveCourtPlayers().filter((p) => p !== null).length).toBe(5);
+    expect(state.players.find((p) => p.id === 1)?.isOnCourt).toBe(true);
+    expect(state.players.find((p) => p.id === 2)?.isOnCourt).toBe(true);
+    expect(state.players.find((p) => p.id === 3)?.isOnCourt).toBe(true);
+  });
+
+  it("should support full 5-player quintet swap simultaneously", () => {
+    const full10Roster: InGamePlayer[] = [
+      ...mockRoster,
+      {
+        id: 7,
+        firstName: "Jaden",
+        lastName: "Hardy",
+        number: "1",
+        position: "Guard",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+      {
+        id: 8,
+        firstName: "Naji",
+        lastName: "Marshall",
+        number: "13",
+        position: "Forward",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+      {
+        id: 9,
+        firstName: "Maxi",
+        lastName: "Kleber",
+        number: "42",
+        position: "Forward",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+      {
+        id: 10,
+        firstName: "Quentin",
+        lastName: "Grimes",
+        number: "5",
+        position: "Guard",
+        isOnCourt: false,
+        secondsPlayed: 0,
+        t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+        oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+      },
+    ];
+
+    const store = usePlayMatchStore.getState();
+    store.initMatch(101, full10Roster, [1, 2, 3, 4, 5]);
+
+    store.toggleSwapMode();
+    // Select all 5 court players (1..5)
+    [1, 2, 3, 4, 5].forEach((id) => store.selectSwapCourtPlayer(id));
+    // Select all 5 bench players (6..10)
+    [6, 7, 8, 9, 10].forEach((id) => store.selectSwapBenchPlayer(id));
+
+    expect(usePlayMatchStore.getState().swap.selectedCourtPlayerIds.length).toBe(5);
+    expect(usePlayMatchStore.getState().swap.selectedBenchPlayerIds.length).toBe(5);
+
+    store.confirmSwap();
+
+    const state = usePlayMatchStore.getState();
+    expect(state.swap.isSwapMode).toBe(false);
+    expect(state.players.filter((p) => p.isOnCourt).length).toBe(5);
+    expect(state.getActiveCourtPlayers().filter((p) => p !== null).length).toBe(5);
+    [1, 2, 3, 4, 5].forEach((id) => {
+      expect(state.players.find((p) => p.id === id)?.isOnCourt).toBe(false);
+    });
+    [6, 7, 8, 9, 10].forEach((id) => {
+      expect(state.players.find((p) => p.id === id)?.isOnCourt).toBe(true);
+    });
   });
 });

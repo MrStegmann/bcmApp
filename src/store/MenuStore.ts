@@ -33,11 +33,20 @@ export interface HeaderBackAction {
   testID?: string;
 }
 
+export interface MatchHeaderInfo {
+  teamName: string;
+  teamScore: number;
+  rivalScore: number;
+  rivalName: string;
+}
+
 export interface MenuStoreState {
   activeTab: TopMenuEnums;
   headerTitle: string;
   headerAction: HeaderAction | null;
   headerBackAction: HeaderBackAction | null;
+  headerCustomComponent: React.ReactNode | null;
+  matchHeaderInfo: MatchHeaderInfo | null;
   bottomMenuItems: BottomMenuItem[];
   topMenu: TopMenuEnums | TopMenuItem[];
   topMenuItems: TopMenuItem[];
@@ -46,6 +55,8 @@ export interface MenuStoreState {
   setHeaderTitle: (title: string) => void;
   setHeaderAction: (action: HeaderAction | null) => void;
   setHeaderBackAction: (action: HeaderBackAction | null) => void;
+  setHeaderCustomComponent: (component: React.ReactNode | null) => void;
+  setMatchHeaderInfo: (info: MatchHeaderInfo | null) => void;
   setBottomMenu: (items: BottomMenuItem[]) => void;
   setTopMenu: (menu: TopMenuEnums | TopMenuItem[]) => void;
 }
@@ -55,14 +66,18 @@ export const useMenuStore = create<MenuStoreState>((set) => ({
   headerTitle: "Gestión de Equipos",
   headerAction: null,
   headerBackAction: null,
+  headerCustomComponent: null,
+  matchHeaderInfo: null,
   bottomMenuItems: [],
   topMenu: TopMenuEnums.MAIN,
   topMenuItems: [],
 
   setActiveTab: (tab: TopMenuEnums) => set({ activeTab: tab }),
-  setHeaderTitle: (title: string) => set({ headerTitle: title }),
+  setHeaderTitle: (title: string) => set({ headerTitle: title, headerCustomComponent: null }),
   setHeaderAction: (action: HeaderAction | null) => set({ headerAction: action }),
   setHeaderBackAction: (action: HeaderBackAction | null) => set({ headerBackAction: action }),
+  setHeaderCustomComponent: (component: React.ReactNode | null) => set({ headerCustomComponent: component }),
+  setMatchHeaderInfo: (info: MatchHeaderInfo | null) => set({ matchHeaderInfo: info }),
   setBottomMenu: (items: BottomMenuItem[]) => set({ bottomMenuItems: items }),
 
   setTopMenu: (menu: TopMenuEnums | TopMenuItem[]) => {

@@ -78,18 +78,17 @@ describe("BottomNavBar Home Button & Item Order (US1 / T010)", () => {
       { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
-      { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setBottomMenu(teamMenuItems);
 
     const items = useMenuStore.getState().bottomMenuItems;
+    expect(items.length).toBe(4);
     expect(items[0].id).toBe(TopMenuEnums.MAIN);
     expect(items[1].id).toBe(TopMenuEnums.PLAYERS);
     expect(items[2].id).toBe(TopMenuEnums.GAMES);
-    expect(items[3].id).toBe(TopMenuEnums.TRAININGS);
-    expect(items[4].id).toBe(TopMenuEnums.GO_BACK);
+    expect(items[3].id).toBe(TopMenuEnums.GO_BACK);
   });
 
   it("should set activeTab to MAIN when Home button onPress is triggered", () => {

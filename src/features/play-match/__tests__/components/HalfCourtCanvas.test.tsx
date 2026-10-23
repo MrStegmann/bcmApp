@@ -51,4 +51,13 @@ describe("HalfCourtCanvas (T013 - US2)", () => {
     const points = player.t1a * 1 + player.t2a * 2 + player.t3a * 3;
     expect(points).toBe(2 * 1 + 4 * 2 + 2 * 3); // 2 + 8 + 6 = 16 pts
   });
+
+  it("should format player statistics display as ${min}min / ${pts}pts", () => {
+    const player = mockCourtPlayers[0]!;
+    const min = Math.floor(player.secondsPlayed / 60);
+    const pts = player.t1a * 1 + player.t2a * 2 + player.t3a * 3;
+    const statText = `${min}min / ${pts}pts`;
+    expect(statText).toBe("3min / 16pts");
+  });
 });
+

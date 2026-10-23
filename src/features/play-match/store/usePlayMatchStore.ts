@@ -147,13 +147,14 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
 
   setStartingFive: (playerIds) => {
     if (!Array.isArray(playerIds) || playerIds.length !== 5) {
-      throw new Error("Starting five must contain exactly 5 unique player IDs");
+      return;
     }
-    const startingSet = new Set(playerIds);
+    const startingSet = new Set(playerIds.map((id) => Number(id)));
     set((state) => ({
       players: state.players.map((p) => {
-        const isOnCourt = startingSet.has(p.id);
-        const courtPositionIndex = isOnCourt ? playerIds.indexOf(p.id) : null;
+        const pId = Number(p.id);
+        const isOnCourt = startingSet.has(pId);
+        const courtPositionIndex = isOnCourt ? playerIds.map(Number).indexOf(pId) : null;
         return {
           ...p,
           isOnCourt,
@@ -165,13 +166,15 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
 
   assignBenchPlayerToPosition: (playerId, positionIndex) => {
     if (positionIndex < 0 || positionIndex > 4) return;
+    const targetId = Number(playerId);
     set((state) => {
       // Find if another player occupies this position
       const players = state.players.map((p) => {
-        if (p.id === playerId) {
+        const pId = Number(p.id);
+        if (pId === targetId) {
           return { ...p, isOnCourt: true, courtPositionIndex: positionIndex };
         }
-        if (p.courtPositionIndex === positionIndex && p.id !== playerId) {
+        if (p.courtPositionIndex === positionIndex && pId !== targetId) {
           return { ...p, isOnCourt: false, courtPositionIndex: null };
         }
         return p;
@@ -375,7 +378,7 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
   toggleSwapMode: () => {
     const { isTimerRunning, swap } = get();
     if (isTimerRunning) {
-      throw new Error("Cannot enter substitution Swap mode while chronometer is running");
+      return;
     }
     set({
       swap: {
@@ -387,47 +390,124 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
   },
 
   selectSwapCourtPlayer: (playerId) => {
+    const pId = Number(playerId);
     set((state) => {
-      const isSelected = state.swap.selectedCourtPlayerIds.includes(playerId);
+      const isSelected = state.swap.selectedCourtPlayerIds.some((id) => Number(id) === pId);
       const selectedCourtPlayerIds = isSelected
-        ? state.swap.selectedCourtPlayerIds.filter((id) => id !== playerId)
-        : [...state.swap.selectedCourtPlayerIds, playerId];
-      return { swap: { ...state.swap, selectedCourtPlayerIds } };
+        ? state.swap.selectedCourtPlayerIds.filter((id) => Number(id) !== pId)
+        : [...state.swap.selectedCourtPlayerIds, pId];
+      return {
+        swap: {
+          ...state.swap,
+          selectedCourtPlayerIds,
+        },
+      };
     });
   },
 
   selectSwapBenchPlayer: (playerId) => {
+    const pId = Number(playerId);
     set((state) => {
-      const isSelected = state.swap.selectedBenchPlayerIds.includes(playerId);
+      const isSelected = state.swap.selectedBenchPlayerIds.some((id) => Number(id) === pId);
       const selectedBenchPlayerIds = isSelected
-        ? state.swap.selectedBenchPlayerIds.filter((id) => id !== playerId)
-        : [...state.swap.selectedBenchPlayerIds, playerId];
-      return { swap: { ...state.swap, selectedBenchPlayerIds } };
+        ? state.swap.selectedBenchPlayerIds.filter((id) => Number(id) !== pId)
+        : [...state.swap.selectedBenchPlayerIds, pId];
+      return {
+        swap: {
+          ...state.swap,
+          selectedBenchPlayerIds,
+        },
+      };
     });
   },
 
   confirmSwap: () => {
-    const { swap, players } = get();
-    const { selectedCourtPlayerIds, selectedBenchPlayerIds } = swap;
-    if (selectedCourtPlayerIds.length === 0 || selectedCourtPlayerIds.length !== selectedBenchPlayerIds.length) {
+    const { swap, players, isTimerRunning } = get();
+    if (isTimerRunning) {
+      return;
+    }
+    const selectedCourtPlayerIds = swap.selectedCourtPlayerIds.map((id) => Number(id));
+    const selectedBenchPlayerIds = swap.selectedBenchPlayerIds.map((id) => Number(id));
+
+    if (
+      selectedCourtPlayerIds.length === 0 ||
+      selectedCourtPlayerIds.length !== selectedBenchPlayerIds.length
+    ) {
       return;
     }
 
-    // Capture court positions of the outgoing players
-    const outgoingPositions = selectedCourtPlayerIds.map((courtId) => {
-      const p = players.find((pl) => pl.id === courtId);
-      return p?.courtPositionIndex ?? null;
+    // Get current active court slots (exactly 5 slots 0..4)
+    const currentCourt = get().getActiveCourtPlayers();
+
+    // Map each selected court player to their slot index on the court
+    const outgoingSlots: number[] = [];
+    selectedCourtPlayerIds.forEach((courtId) => {
+      const slotIndex = currentCourt.findIndex(
+        (cp) => cp !== null && Number(cp.id) === courtId
+      );
+      if (slotIndex !== -1 && !outgoingSlots.includes(slotIndex)) {
+        outgoingSlots.push(slotIndex);
+      } else {
+        const p = players.find((pl) => Number(pl.id) === courtId);
+        if (
+          p?.courtPositionIndex !== null &&
+          p?.courtPositionIndex !== undefined &&
+          p.courtPositionIndex >= 0 &&
+          p.courtPositionIndex < 5 &&
+          !outgoingSlots.includes(p.courtPositionIndex)
+        ) {
+          outgoingSlots.push(p.courtPositionIndex);
+        }
+      }
     });
 
+    // Slots occupied by remaining on-court players
+    const remainingCourtSlots = new Set<number>();
+    currentCourt.forEach((cp, idx) => {
+      if (cp !== null && !selectedCourtPlayerIds.includes(Number(cp.id))) {
+        remainingCourtSlots.add(idx);
+      }
+    });
+
+    // Assign positions to incoming bench players
+    const benchToSlotMap = new Map<number, number>();
+    selectedBenchPlayerIds.forEach((benchId, i) => {
+      let targetSlot = outgoingSlots[i];
+      if (targetSlot === undefined || remainingCourtSlots.has(targetSlot)) {
+        // Find first slot 0..4 not used by remaining court players or already assigned bench players
+        for (let s = 0; s < 5; s++) {
+          if (!remainingCourtSlots.has(s) && !Array.from(benchToSlotMap.values()).includes(s)) {
+            targetSlot = s;
+            break;
+          }
+        }
+      }
+      if (targetSlot !== undefined) {
+        benchToSlotMap.set(benchId, targetSlot);
+      }
+    });
+
+    // Update all player records
     const updatedPlayers = players.map((p) => {
-      if (selectedCourtPlayerIds.includes(p.id)) {
-        return { ...p, isOnCourt: false, courtPositionIndex: null };
+      const pId = Number(p.id);
+      if (selectedCourtPlayerIds.includes(pId)) {
+        return {
+          ...p,
+          id: pId,
+          isOnCourt: false,
+          courtPositionIndex: null,
+        };
       }
-      const benchIndex = selectedBenchPlayerIds.indexOf(p.id);
-      if (benchIndex !== -1) {
-        return { ...p, isOnCourt: true, courtPositionIndex: outgoingPositions[benchIndex] };
+      if (benchToSlotMap.has(pId)) {
+        const slot = benchToSlotMap.get(pId) ?? null;
+        return {
+          ...p,
+          id: pId,
+          isOnCourt: true,
+          courtPositionIndex: slot,
+        };
       }
-      return p;
+      return { ...p, id: pId };
     });
 
     set({
@@ -491,19 +571,27 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
   getActiveCourtPlayers: () => {
     const { players } = get();
     const court: (InGamePlayer | null)[] = [null, null, null, null, null];
-    players
-      .filter((p) => p.isOnCourt)
-      .forEach((p) => {
-        if (p.courtPositionIndex !== null && p.courtPositionIndex !== undefined && p.courtPositionIndex >= 0 && p.courtPositionIndex < 5) {
-          court[p.courtPositionIndex] = p;
-        } else {
-          // Fill first empty slot
-          const emptyIndex = court.findIndex((slot) => slot === null);
-          if (emptyIndex !== -1) {
-            court[emptyIndex] = p;
-          }
+    const onCourtPlayers = players.filter((p) => p.isOnCourt);
+
+    // First pass: Place players with unique valid positions
+    onCourtPlayers.forEach((p) => {
+      const pos = p.courtPositionIndex;
+      if (pos !== null && pos !== undefined && pos >= 0 && pos < 5 && court[pos] === null) {
+        court[pos] = p;
+      }
+    });
+
+    // Second pass: Place remaining on-court players into empty slots
+    onCourtPlayers.forEach((p) => {
+      const alreadyPlaced = court.some((cp) => cp !== null && Number(cp.id) === Number(p.id));
+      if (!alreadyPlaced) {
+        const emptyIndex = court.findIndex((slot) => slot === null);
+        if (emptyIndex !== -1) {
+          court[emptyIndex] = p;
         }
-      });
+      }
+    });
+
     return court;
   },
 

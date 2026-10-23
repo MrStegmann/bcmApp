@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useRef, memo } from "react";
 import { Text, View } from "react-native";
 
 import PlayerList from "./PlayerList";
-import TrainingList from "./TrainingList";
 import GameList from "./GameList";
 
 import { useClubStore } from "../store/ClubStore";
@@ -21,8 +20,6 @@ const getTabTitle = (option: TopMenuEnums, clubName?: string): string => {
       return "Plantilla de Jugadores";
     case TopMenuEnums.GAMES:
       return "Partidos";
-    case TopMenuEnums.TRAININGS:
-      return "Entrenamientos";
     case TopMenuEnums.MAIN:
     default:
       return clubName ? `Equipo: ${clubName}` : "Panel del Equipo";
@@ -86,13 +83,6 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
         onPress: () => handleSelectTab(TopMenuEnums.GAMES),
       },
       {
-        id: TopMenuEnums.TRAININGS,
-        label: "Entrenamientos",
-        iconName: "clipboard-notes",
-        iconFamily: "Foundation",
-        onPress: () => handleSelectTab(TopMenuEnums.TRAININGS),
-      },
-      {
         id: TopMenuEnums.GO_BACK,
         label: "Volver",
         iconName: "door-open",
@@ -118,7 +108,7 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
               </Text>
             ) : null}
             <Text className="text-gray-400 text-base text-center">
-              Selecciona una opción del menú inferior para gestionar la plantilla, partidos o entrenamientos.
+              Selecciona una opción del menú inferior para gestionar la plantilla o partidos.
             </Text>
           </View>
         </View>
@@ -126,9 +116,6 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
 
       {option === TopMenuEnums.PLAYERS && (
         <PlayerList onReturn={handleReturnToMain} />
-      )}
-      {option === TopMenuEnums.TRAININGS && (
-        <TrainingList onReturn={handleReturnToMain} />
       )}
       {option === TopMenuEnums.GAMES && (
         <GameList onReturn={handleReturnToMain} />

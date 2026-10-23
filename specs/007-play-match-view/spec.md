@@ -113,16 +113,16 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 
 ### Functional Requirements
 
-#### Component 1: Time, Score, and Fouls Controller
+#### Component 1: Time, Score, and Fouls Controller & Global Header
 - **FR-001**: System MUST manage 5 game periods: `q1`, `q2`, `q3`, `q4`, and `extra`.
 - **FR-002**: Tapping the period indicator once MUST advance to the next period in sequence (`q1` -> `q2` -> `q3` -> `q4` -> `extra`).
 - **FR-003**: Pressing and holding the period indicator for 3 seconds MUST open a period selection modal displaying all available periods for direct selection.
-- **FR-004**: System MUST isolate remaining time, home period score, rival period score, home period team fouls, and rival period team fouls per period.
-- **FR-005**: System MUST compute and display the total match score as the aggregate sum of all individual period scores for both home and rival teams.
+- **FR-005**: Application Header MUST display the live match score formatted as `${teamName} ${teamTotalScore} - ${rivalTotalScore} ${rivalName}` without text truncation (wrapping team names over new lines as needed), integrated with a "go back arrow" icon button to exit and a "save" icon button to finalize/save the match, replacing any internal duplicate view header.
+- **FR-005b**: Component 1 (Time, Score, and Fouls Controller) MUST render ONLY the current period score and current period team fouls for both teams.
 - **FR-006**: Regular periods (`q1` through `q4`) MUST initialize with a duration of 10 minutes (10:00), and `extra` time MUST initialize with a duration of 5 minutes (05:00).
 - **FR-007**: Tapping the crono widget once MUST toggle between starting and pausing the timer.
 - **FR-008**: Pressing and holding the crono widget for 3 seconds MUST open a manual time entry modal to adjust remaining minutes and seconds.
-- **FR-009**: In `extra` time, the system MUST provide a crono reset action that restores the timer to 5:00 without resetting or modifying existing scores, team fouls, or player statistics.
+- **FR-009**: In `extra` time, the crono reset action MUST be rendered strictly as an Icon and MUST only be enabled when the extra time crono is at 00:00 (restores timer to 5:00 without wiping score/fouls).
 - **FR-010**: Resetting the extra time crono MUST grant +1 additional timeout to the user's available timeout count.
 
 #### Component 2: Team Management & Court Canvas
@@ -141,10 +141,14 @@ As a coach or scorekeeper, I want a dedicated rival control panel to adjust riva
 - **FR-015**: Recording `t2a` or `t3a` MUST transition the modal to an assist prompt listing on-court teammates and a "non assistant" option.
 - **FR-016**: Recording a personal foul (`fault`) MUST increment the player's personal fouls, increment the active period's team fouls by 1, and automatically pause the running chronometer.
 - **FR-017**: All 5 on-court quintet players MUST automatically accumulate playing time (`minutos`) in real time while the chronometer is running.
-- **FR-018**: Each player (on court and on bench) MUST be visually represented as a circle displaying `jerseyNumber`, `name`, `minutos`, and `pts` (where `pts` is calculated as `t1a * 1 + t2a * 2 + t3a * 3`).
+- **FR-018**: Each player (on court and on bench) MUST be visually formatted with:
+  1. `#JerseyNumber` first and biggest.
+  2. `playerName` below the jersey number and smallest.
+  3. Divisor line below player name.
+  4. Player minutes and points in `${min}min / ${pts}pts` format below divisor line.
 - **FR-019**: Bench players MUST be displayed in a horizontal scrollable list beneath the court canvas.
 - **FR-020**: System MUST provide a "Swap" button that activates Swap Mode for player substitutions between the court quintet and the bench.
-- **FR-021**: Swap Mode MUST enforce strict equal-count substitutions (the number of selected bench players entering the court MUST equal the number of selected quintet players leaving to the bench).
+- **FR-021**: Swap Mode MUST allow selecting multiple court and bench players and enforce balanced substitutions ($N\text{ in} = N\text{ out} \ge 1$) when confirming.
 - **FR-022**: Player substitutions MUST be restricted to when the chronometer is paused.
 - **FR-023**: System MUST provide timeout increase (`+`) and decrease (`-`) controls positioned in the same row as the Swap button (spaced between).
 - **FR-024**: System MUST enforce timeout quota allocations:

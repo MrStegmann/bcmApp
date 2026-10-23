@@ -8,16 +8,12 @@ describe("Relational Foreign Key Cascade Policy Tests (T010)", () => {
     // Games -> Team foreign key
     expect(schema.games.teamId).toBeDefined();
 
-    // Trainings -> Team foreign key
-    expect(schema.trainings.teamId).toBeDefined();
-
     // PlayerStats -> Game & Player foreign keys
     expect(schema.playerStats.gameId).toBeDefined();
     expect(schema.playerStats.playerId).toBeDefined();
 
-    // TrainingPlayers -> Training & Player foreign keys
-    expect(schema.trainingPlayers.trainingId).toBeDefined();
-    expect(schema.trainingPlayers.playerId).toBeDefined();
+    expect((schema as any).trainings).toBeUndefined();
+    expect((schema as any).trainingPlayers).toBeUndefined();
   });
 
   it("should verify Drizzle schema relations exist for all entities", () => {
@@ -25,8 +21,8 @@ describe("Relational Foreign Key Cascade Policy Tests (T010)", () => {
     expect(schema.playersRelations).toBeDefined();
     expect(schema.gamesRelations).toBeDefined();
     expect(schema.playerStatsRelations).toBeDefined();
-    expect(schema.trainingsRelations).toBeDefined();
-    expect(schema.trainingPlayersRelations).toBeDefined();
+    expect((schema as any).trainingsRelations).toBeUndefined();
+    expect((schema as any).trainingPlayersRelations).toBeUndefined();
     expect((schema as any).feesRelations).toBe(undefined);
   });
 });

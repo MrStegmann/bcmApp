@@ -7,6 +7,12 @@
       "skillPath": "skills/.experimental/drizzle-sqlite/SKILL.md",
       "computedHash": "1bebe1aa4176e1615b80425d7d360754e765a16bd83ef302dd088dd1544ba215"
     },
+    "feature-arch": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/feature-arch/SKILL.md",
+      "computedHash": "8218c136eb2f367ec8d03733b37d376a253719fa8fedd22388f8eb615091926d"
+    },
     "vercel-react-native-skills": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

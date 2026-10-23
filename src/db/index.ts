@@ -10,6 +10,9 @@ export function initDatabase(): void {
   sqliteDb.execSync("PRAGMA journal_mode = WAL;");
 
   sqliteDb.execSync(`
+    DROP TABLE IF EXISTS training_players;
+    DROP TABLE IF EXISTS trainings;
+
     CREATE TABLE IF NOT EXISTS teams (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -45,7 +48,17 @@ export function initDatabase(): void {
       result_c2_opponent INTEGER DEFAULT 0,
       result_c3_opponent INTEGER DEFAULT 0,
       result_c4_opponent INTEGER DEFAULT 0,
-      result_extra_opponent INTEGER DEFAULT 0
+      result_extra_opponent INTEGER DEFAULT 0,
+      fouls_c1 INTEGER DEFAULT 0,
+      fouls_c2 INTEGER DEFAULT 0,
+      fouls_c3 INTEGER DEFAULT 0,
+      fouls_c4 INTEGER DEFAULT 0,
+      fouls_extra INTEGER DEFAULT 0,
+      fouls_c1_opponent INTEGER DEFAULT 0,
+      fouls_c2_opponent INTEGER DEFAULT 0,
+      fouls_c3_opponent INTEGER DEFAULT 0,
+      fouls_c4_opponent INTEGER DEFAULT 0,
+      fouls_extra_opponent INTEGER DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS player_stats (
@@ -67,32 +80,6 @@ export function initDatabase(): void {
       falt INTEGER DEFAULT 0,
       valuation INTEGER DEFAULT 0
     );
-
-    CREATE TABLE IF NOT EXISTS trainings (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-      training_number INTEGER NOT NULL,
-      date TEXT NOT NULL,
-      warmup1 TEXT, warmup1_explanation TEXT,
-      warmup2 TEXT, warmup2_explanation TEXT,
-      warmup3 TEXT, warmup3_explanation TEXT,
-      exercise1 TEXT, exercise1_explanation TEXT,
-      exercise2 TEXT, exercise2_explanation TEXT,
-      exercise3 TEXT, exercise3_explanation TEXT,
-      exercise4 TEXT, exercise4_explanation TEXT,
-      exercise5 TEXT, exercise5_explanation TEXT,
-      exercise6 TEXT, exercise6_explanation TEXT,
-      cooldown1 TEXT, cooldown1_explanation TEXT,
-      cooldown2 TEXT, cooldown2_explanation TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS training_players (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      training_id INTEGER NOT NULL REFERENCES trainings(id) ON DELETE CASCADE,
-      player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
-      attended INTEGER NOT NULL DEFAULT 1,
-      notes TEXT
-    );
   `);
 
   // Migrate existing tables if columns are missing
@@ -103,6 +90,24 @@ export function initDatabase(): void {
   try {
     sqliteDb.execSync("ALTER TABLE games ADD COLUMN created_at TEXT NOT NULL DEFAULT (datetime('now'));");
   } catch {}
+
+  const foulColumns = [
+    "fouls_c1",
+    "fouls_c2",
+    "fouls_c3",
+    "fouls_c4",
+    "fouls_extra",
+    "fouls_c1_opponent",
+    "fouls_c2_opponent",
+    "fouls_c3_opponent",
+    "fouls_c4_opponent",
+    "fouls_extra_opponent",
+  ];
+  for (const col of foulColumns) {
+    try {
+      sqliteDb.execSync(`ALTER TABLE games ADD COLUMN ${col} INTEGER DEFAULT 0;`);
+    } catch {}
+  }
 }
 
 export * from "./schema";

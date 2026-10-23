@@ -30,19 +30,18 @@ describe("ClubProfile Streamlined Layout & Settings Removal Unit Tests (US2 / T0
     });
   });
 
-  it("should configure 5 core bottom navigation tabs in team layout without EDIT_TEAM", () => {
+  it("should configure 4 core bottom navigation tabs in team layout without EDIT_TEAM or TRAININGS", () => {
     const bottomItems: BottomMenuItem[] = [
+      { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
-      { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
-      { id: TopMenuEnums.CALENDAR, label: "Cuotas", iconName: "calendar", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
     useMenuStore.getState().setBottomMenu(bottomItems);
 
     const menuIds = useMenuStore.getState().bottomMenuItems.map((item) => item.id);
-    expect(menuIds.length).toBe(5);
+    expect(menuIds.length).toBe(4);
     expect(menuIds).not.toContain(TopMenuEnums.EDIT_TEAM);
   });
 
@@ -102,12 +101,11 @@ describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004
     });
   });
 
-  it("should configure exactly 5 bottom items with Home (MAIN) at index 0 and no CALENDAR or Fees", () => {
+  it("should configure exactly 4 bottom items with Home (MAIN) at index 0 and no CALENDAR or TRAININGS", () => {
     const bottomItems: BottomMenuItem[] = [
       { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
-      { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 
@@ -116,12 +114,11 @@ describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004
     const state = useMenuStore.getState();
     const menuIds = state.bottomMenuItems.map((item) => item.id);
 
-    expect(menuIds.length).toBe(5);
+    expect(menuIds.length).toBe(4);
     expect(menuIds[0]).toBe(TopMenuEnums.MAIN);
     expect(menuIds[1]).toBe(TopMenuEnums.PLAYERS);
     expect(menuIds[2]).toBe(TopMenuEnums.GAMES);
-    expect(menuIds[3]).toBe(TopMenuEnums.TRAININGS);
-    expect(menuIds[4]).toBe(TopMenuEnums.GO_BACK);
+    expect(menuIds[3]).toBe(TopMenuEnums.GO_BACK);
     expect(menuIds).not.toContain(TopMenuEnums.CALENDAR);
     expect(menuIds).not.toContain(TopMenuEnums.EDIT_TEAM);
   });
@@ -131,7 +128,6 @@ describe("ClubProfile Bottom Navbar - Home Button & No Calendar/Fees (US1 / T004
       { id: TopMenuEnums.MAIN, label: "Inicio", iconName: "home", iconFamily: "Feather", onPress: jest.fn() },
       { id: TopMenuEnums.PLAYERS, label: "Plantilla", iconName: "users", iconFamily: "Entypo", onPress: jest.fn() },
       { id: TopMenuEnums.GAMES, label: "Partidos", iconName: "basketball-hoop-outline", iconFamily: "MaterialCommunityIcons", onPress: jest.fn() },
-      { id: TopMenuEnums.TRAININGS, label: "Entrenamientos", iconName: "clipboard-notes", iconFamily: "Foundation", onPress: jest.fn() },
       { id: TopMenuEnums.GO_BACK, label: "Volver", iconName: "door-open", iconFamily: "FontAwesome5", onPress: jest.fn() },
     ];
 

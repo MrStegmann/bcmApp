@@ -2,6 +2,10 @@ import React from "react";
 import { PeriodData, TimeScoreFoulsControllerProps } from "../../types";
 
 declare const jest: any;
+declare const require: any;
+declare const __dirname: string;
+const fs = require("fs");
+const path = require("path");
 
 describe("TimeScoreFoulsController (T009 - US1 Component 1)", () => {
   const mockPeriodData: PeriodData = {
@@ -70,4 +74,37 @@ describe("TimeScoreFoulsController (T009 - US1 Component 1)", () => {
     expect(formatTime(300)).toBe("05:00");
     expect(formatTime(5)).toBe("00:05");
   });
+
+  it("should evaluate extra time reset button enabled only when chrono is 00:00", () => {
+    const isResetEnabled = (period: string, remainingSeconds: number) => {
+      return period === "extra" && remainingSeconds === 0;
+    };
+
+    expect(isResetEnabled("q1", 0)).toBe(false);
+    expect(isResetEnabled("extra", 300)).toBe(false);
+    expect(isResetEnabled("extra", 120)).toBe(false);
+    expect(isResetEnabled("extra", 1)).toBe(false);
+    expect(isResetEnabled("extra", 0)).toBe(true);
+  });
+
+  it("should use Pressable and static styling without dynamic animation or shadow classes to prevent NativeWind freeze", () => {
+    // Read the actual component source file to guarantee no animation classes exist
+    const componentPath = path.resolve(__dirname, "../../components/TimeScoreFoulsController.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    // Must not contain animate-pulse or any animate- classes which cause conditional Reanimated hook calls in NativeWind
+    expect(componentSource).not.toContain("animate-pulse");
+    expect(componentSource).not.toContain("animate-");
+
+    // Must not contain shadow-lg on chronometer to prevent VariableContext.Provider runtime remounts in NativeWind v4
+    expect(componentSource).not.toContain("shadow-lg");
+
+    // Must use Pressable for chronometer button
+    expect(componentSource).toContain("<Pressable");
+    expect(componentSource).toContain('testID="chronometer-button"');
+    expect(componentSource).toContain('testID="chronometer-status-dot"');
+  });
 });
+
+
+

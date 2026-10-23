@@ -7,8 +7,6 @@ import {
   NewGame,
   PlayerStat,
   NewPlayerStat,
-  Training,
-  NewTraining,
 } from "./database";
 import { TopMenuEnums } from "./enums";
 
@@ -57,20 +55,7 @@ export interface GameState {
   setSelectedGame: (game: Game | null) => void;
 }
 
-// 4. TRAINING STORE CONTRACT
-export interface TrainingState {
-  trainingsList: Training[];
-  selectedTraining: Training | null;
-  isLoading: boolean;
-
-  // Actions
-  fetchTrainings: (teamId: number) => Promise<Training[]>;
-  createTraining: (training: NewTraining) => Promise<Training | null>;
-  deleteTraining: (trainingId: number) => Promise<boolean>;
-  setSelectedTraining: (training: Training | null) => void;
-}
-
-// 5. MENU STORE CONTRACT
+// 4. MENU STORE CONTRACT
 export interface MenuState {
   activeTab: TopMenuEnums;
   setActiveTab: (tab: TopMenuEnums) => void;

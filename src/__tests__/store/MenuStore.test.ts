@@ -185,7 +185,7 @@ describe("Routing Performance Unit Tests (US3 / T012)", () => {
     const tabs = [
       TopMenuEnums.PLAYERS,
       TopMenuEnums.GAMES,
-      TopMenuEnums.TRAININGS,
+      TopMenuEnums.ROSTER,
       TopMenuEnums.MAIN,
     ];
 

@@ -43,6 +43,8 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
   const storeHeaderTitle = useMenuStore((state) => state.headerTitle);
   const headerAction = useMenuStore((state) => state.headerAction);
   const headerBackAction = useMenuStore((state) => state.headerBackAction);
+  const headerCustomComponent = useMenuStore((state) => state.headerCustomComponent);
+  const matchHeaderInfo = useMenuStore((state) => state.matchHeaderInfo);
   const displayTitle = title ?? storeHeaderTitle;
 
   // Reserve space for the device status bar using the measured top inset.
@@ -56,41 +58,84 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
       style={{ paddingTop: topPadding }}
       testID="header-safe-wrapper"
     >
-      <View className="w-full flex-row justify-between items-center bg-danish-dark-gray border-b-2 border-danish-red shadow-xl shadow-red-900/50 px-4 py-3">
+      <View className="w-full flex-row justify-between items-center bg-danish-dark-gray border-b-2 border-danish-red shadow-xl px-3 py-2.5">
         {headerBackAction ? (
           <TouchableOpacity
             onPress={headerBackAction.onPress}
-            className="w-10 h-10 items-center justify-center rounded-xl bg-gray-800/80 border border-gray-700/60 active:bg-gray-700"
+            className="w-10 h-10 items-center justify-center rounded-xl bg-gray-800 border border-gray-700 active:bg-gray-700"
             testID={headerBackAction.testID || "header-back-button"}
             accessibilityLabel={headerBackAction.label || "Volver"}
           >
             {headerBackAction.iconName ? (
               renderActionIcon(headerBackAction as HeaderAction)
             ) : (
-              <Feather name="chevron-left" size={24} color="#ffffff" />
+              <Feather name="arrow-left" size={22} color="#ffffff" />
             )}
           </TouchableOpacity>
         ) : (
           <View className="w-10" />
         )}
 
-        <Text
-          className="flex-1 text-danish-white text-xl font-bold text-center tracking-wide"
-          numberOfLines={1}
-          testID="header-title"
-        >
-          {displayTitle}
-        </Text>
+        {matchHeaderInfo ? (
+          <View
+            className="flex-1 items-center justify-center px-1"
+            testID="global-match-score-header"
+          >
+            <View className="flex-row items-center justify-center w-full">
+              {/* Local Team: Wraps without truncation, right-aligned next to score */}
+              <View className="flex-1 items-end pr-1.5 justify-center">
+                <Text
+                  className="text-amber-400 font-extrabold text-xs text-right leading-tight"
+                  testID="header-local-team-name"
+                >
+                  {matchHeaderInfo.teamName}
+                </Text>
+              </View>
+
+              {/* Center Score Badge */}
+              <View className="flex-row items-center bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-700">
+                <Text className="text-amber-300 font-black text-sm">{matchHeaderInfo.teamScore}</Text>
+                <Text className="text-slate-400 font-black text-xs mx-1">-</Text>
+                <Text className="text-sky-300 font-black text-sm">{matchHeaderInfo.rivalScore}</Text>
+              </View>
+
+              {/* Rival Team: Wraps without truncation, left-aligned next to score */}
+              <View className="flex-1 items-start pl-1.5 justify-center">
+                <Text
+                  className="text-sky-400 font-extrabold text-xs text-left leading-tight"
+                  testID="header-rival-team-name"
+                >
+                  {matchHeaderInfo.rivalName}
+                </Text>
+              </View>
+            </View>
+          </View>
+        ) : headerCustomComponent ? (
+          <View className="flex-1 items-center justify-center px-1" testID="header-custom-content">
+            {headerCustomComponent}
+          </View>
+        ) : (
+          <Text
+            className="flex-1 text-danish-white text-xl font-bold text-center tracking-wide"
+            numberOfLines={1}
+            testID="header-title"
+          >
+            {displayTitle}
+          </Text>
+        )}
 
         {headerAction ? (
           <TouchableOpacity
             onPress={headerAction.onPress}
-            className="w-10 h-10 items-center justify-center rounded-xl bg-red-700/70 border border-red-600/60 active:bg-red-900"
+            className="w-10 h-10 items-center justify-center rounded-xl bg-red-700 border border-red-600 active:bg-red-900"
             testID={headerAction.testID || "header-action-button"}
+            accessibilityLabel={headerAction.label || "Acción"}
           >
-            {headerAction.iconName
-              ? renderActionIcon(headerAction)
-              : <Text className="text-white text-lg font-bold">+</Text>}
+            {headerAction.iconName ? (
+              renderActionIcon(headerAction)
+            ) : (
+              <Text className="text-white text-lg font-bold">+</Text>
+            )}
           </TouchableOpacity>
         ) : (
           <View className="w-10" />
