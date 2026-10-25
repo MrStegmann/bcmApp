@@ -44,7 +44,7 @@ describe("GameCards Roster Button Unit Tests (T014 - US3)", () => {
     return {
       testID: `roster-button-${game.id}`,
       disabled: !isEnabled,
-      className: `p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark ${
+      className: `p-2 min-w-[42px] min-h-[42px] items-center justify-center rounded-lg bg-slate-dark ${
         isEnabled ? "active:bg-slate-card" : "opacity-30"
       }`,
       iconName: "users",
@@ -62,8 +62,8 @@ describe("GameCards Roster Button Unit Tests (T014 - US3)", () => {
     const btnProps = getRosterButtonProps(pendingGame, onSelectRosterMock);
 
     expect(btnProps.disabled).toBe(false);
-    expect(btnProps.className).toContain("min-w-[40px]");
-    expect(btnProps.className).toContain("min-h-[40px]");
+    expect(btnProps.className).toContain("min-w-[42px]");
+    expect(btnProps.className).toContain("min-h-[42px]");
     expect(btnProps.className).not.toContain("opacity-30");
     expect(btnProps.iconColor).toBe("#F97316");
 

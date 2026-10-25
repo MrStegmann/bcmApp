@@ -12,9 +12,11 @@ import { MatchDetailView } from "../features/match-detail";
 
 import { useClubStore } from "../store/ClubStore";
 import { useMenuStore } from "../store/MenuStore";
+import { useGameStore } from "../store/GameStore";
 import TopMenuEnums from "../Enums/TopMenuEnums";
 import useDB from "../hooks/useDB";
 import { Game, Player } from "../types/database";
+import { DirectResultModal, DirectResultBuffer, calculateValuation } from "../features/direct-result";
 
 interface GameListProps {
   onReturn?: () => void;
@@ -44,6 +46,12 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
   const [pendingMatchToEditRoster, setPendingMatchToEditRoster] = useState<Game | null>(null);
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const [selectedRosterIds, setSelectedRosterIds] = useState<number[]>([]);
+
+  // Direct Result Modal States
+  const [directResultModalVisible, setDirectResultModalVisible] = useState<boolean>(false);
+  const [matchForDirectResult, setMatchForDirectResult] = useState<Game | null>(null);
+  const [directResultPlayers, setDirectResultPlayers] = useState<Player[]>([]);
+  const [isSavingDirectResult, setIsSavingDirectResult] = useState<boolean>(false);
 
   useEffect(() => {
     getData();
@@ -204,6 +212,85 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
     setRosterModalVisible(true);
   };
 
+  const handleOpenSetResult = async (game: Game) => {
+    if (game.status !== "pending" && game.status) return;
+
+    setMatchForDirectResult(game);
+
+    if (game.id) {
+      const calledUp = await GameController.getCalledUpPlayers(game.id);
+      if (calledUp && calledUp.length > 0) {
+        const calledUpIds = calledUp.map((c: any) => c.playerId || c.player_id);
+        const resolved = availablePlayers.filter((p) => calledUpIds.includes(p.id));
+        setDirectResultPlayers(resolved.length > 0 ? resolved : availablePlayers);
+      } else {
+        setDirectResultPlayers(availablePlayers);
+      }
+    } else {
+      setDirectResultPlayers(availablePlayers);
+    }
+
+    setDirectResultModalVisible(true);
+  };
+
+  const handleSaveDirectResult = async (matchId: number, buffer: DirectResultBuffer) => {
+    setIsSavingDirectResult(true);
+    try {
+      const finalScores = {
+        status: "finished" as const,
+        resultC1: buffer.periods.q1.teamPoints,
+        resultC2: buffer.periods.q2.teamPoints,
+        resultC3: buffer.periods.q3.teamPoints,
+        resultC4: buffer.periods.q4.teamPoints,
+        resultExtra: buffer.hasExtraTime ? buffer.periods.extra.teamPoints : 0,
+        resultC1Opponent: buffer.periods.q1.rivalPoints,
+        resultC2Opponent: buffer.periods.q2.rivalPoints,
+        resultC3Opponent: buffer.periods.q3.rivalPoints,
+        resultC4Opponent: buffer.periods.q4.rivalPoints,
+        resultExtraOpponent: buffer.hasExtraTime ? buffer.periods.extra.rivalPoints : 0,
+        foulsC1: buffer.periods.q1.teamFouls,
+        foulsC2: buffer.periods.q2.teamFouls,
+        foulsC3: buffer.periods.q3.teamFouls,
+        foulsC4: buffer.periods.q4.teamFouls,
+        foulsExtra: buffer.hasExtraTime ? buffer.periods.extra.teamFouls : 0,
+        foulsC1Opponent: buffer.periods.q1.rivalFouls,
+        foulsC2Opponent: buffer.periods.q2.rivalFouls,
+        foulsC3Opponent: buffer.periods.q3.rivalFouls,
+        foulsC4Opponent: buffer.periods.q4.rivalFouls,
+        foulsExtraOpponent: buffer.hasExtraTime ? buffer.periods.extra.rivalFouls : 0,
+      };
+
+      const statsToSave = Object.values(buffer.players).map((stat) => ({
+        gameId: matchId,
+        playerId: stat.playerId,
+        minutes: stat.minutes,
+        t1a: stat.t1a,
+        t1i: stat.t1i,
+        t2a: stat.t2a,
+        t2i: stat.t2i,
+        t3a: stat.t3a,
+        t3i: stat.t3i,
+        oreb: stat.oreb,
+        dreb: stat.dreb,
+        asis: stat.asis,
+        rec: stat.rec,
+        per: stat.per,
+        falt: stat.falt,
+        valuation: calculateValuation(stat),
+      }));
+
+      const gameStore = useGameStore.getState();
+      await gameStore.batchSavePlayerStats(statsToSave);
+      await gameStore.finishMatch(matchId, finalScores);
+
+      await getData();
+      setDirectResultModalVisible(false);
+      setMatchForDirectResult(null);
+    } finally {
+      setIsSavingDirectResult(false);
+    }
+  };
+
   const handleInitiateCreateGame = (gameData: any) => {
     setPendingGameData(gameData);
     setIsRosterMandatory(false);
@@ -325,6 +412,18 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
         }}
       />
 
+      <DirectResultModal
+        visible={directResultModalVisible}
+        match={matchForDirectResult}
+        availablePlayers={directResultPlayers}
+        onSave={handleSaveDirectResult}
+        onClose={() => {
+          setDirectResultModalVisible(false);
+          setMatchForDirectResult(null);
+        }}
+        isSaving={isSavingDirectResult}
+      />
+
       {createGame && !editGame && (
         <GameForm
           onSubmit={handleInitiateCreateGame}
@@ -372,6 +471,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
             onEdit={handleOpenEditForm}
             onDelete={handleOpenDeleteModal}
             onSelectRoster={handleSelectRoster}
+            onSetResult={handleOpenSetResult}
           />
         ))}
     </View>

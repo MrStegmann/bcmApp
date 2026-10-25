@@ -4,13 +4,42 @@ import Feather from "@expo/vector-icons/Feather";
 import { Text, View, ScrollView, TouchableOpacity } from "react-native";
 import { Game } from "../types/database";
 
-interface GameCardsProps {
+export interface GameCardsProps {
   games: Game[];
   onSelect: (game: Game) => void;
   onEdit: (game: Game) => void;
   onDelete: (game: Game) => void;
   onSelectRoster?: (game: Game) => void;
+  onSetResult?: (game: Game) => void;
 }
+
+export const ACTION_GRID_CONTAINER_CLASS =
+  "flex flex-row flex-wrap w-[100px] justify-end items-center gap-1.5 pl-2 border-l border-slate-border";
+
+export const isSetResultButtonEnabled = (status?: string | null): boolean => {
+  return status === "pending" || !status;
+};
+
+export const getSetResultButtonProps = (
+  game: Game,
+  onSetResult?: (game: Game) => void
+) => {
+  const isEnabled = isSetResultButtonEnabled(game.status);
+  return {
+    testID: `set-result-button-${game.id}`,
+    disabled: !isEnabled,
+    className: `p-2 min-w-[42px] min-h-[42px] items-center justify-center rounded-lg bg-slate-dark ${
+      isEnabled ? "active:bg-slate-card" : "opacity-30"
+    }`,
+    iconName: "check-square" as const,
+    iconColor: isEnabled ? "#10B981" : "#A78B7D",
+    onPress: () => {
+      if (isEnabled && onSetResult) {
+        onSetResult(game);
+      }
+    },
+  };
+};
 
 const GameCards: React.FC<GameCardsProps> = ({
   games = [],
@@ -18,6 +47,7 @@ const GameCards: React.FC<GameCardsProps> = ({
   onEdit,
   onDelete,
   onSelectRoster,
+  onSetResult,
 }) => {
   if (games.length === 0) {
     return (
@@ -132,13 +162,15 @@ const GameCards: React.FC<GameCardsProps> = ({
 
                 {(() => {
                   const isRosterEnabled = game.status === "pending" || !game.status;
+                  const isSetResultEnabled = isSetResultButtonEnabled(game.status);
                   return (
-                    <View className="flex flex-row justify-end items-center gap-1.5 pl-2 border-l border-slate-border">
+                    <View className={ACTION_GRID_CONTAINER_CLASS}>
+                      {/* Row 1: Roster & Set Result */}
                       <TouchableOpacity
                         testID={`roster-button-${game.id}`}
                         disabled={!isRosterEnabled}
                         onPress={() => onSelectRoster && onSelectRoster(game)}
-                        className={`p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark ${
+                        className={`p-2 min-w-[42px] min-h-[42px] items-center justify-center rounded-lg bg-slate-dark ${
                           isRosterEnabled ? "active:bg-slate-card" : "opacity-30"
                         }`}
                       >
@@ -149,14 +181,30 @@ const GameCards: React.FC<GameCardsProps> = ({
                         />
                       </TouchableOpacity>
                       <TouchableOpacity
+                        testID={`set-result-button-${game.id}`}
+                        disabled={!isSetResultEnabled}
+                        onPress={() => onSetResult && onSetResult(game)}
+                        className={`p-2 min-w-[42px] min-h-[42px] items-center justify-center rounded-lg bg-slate-dark ${
+                          isSetResultEnabled ? "active:bg-slate-card" : "opacity-30"
+                        }`}
+                      >
+                        <Feather
+                          name="check-square"
+                          size={16}
+                          color={isSetResultEnabled ? "#10B981" : "#A78B7D"}
+                        />
+                      </TouchableOpacity>
+
+                      {/* Row 2: Edit & Delete */}
+                      <TouchableOpacity
                         onPress={() => onEdit(game)}
-                        className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
+                        className="p-2 min-w-[42px] min-h-[42px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
                       >
                         <Feather name="edit" size={16} color="#0EA5E9" />
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => onDelete(game)}
-                        className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
+                        className="p-2 min-w-[42px] min-h-[42px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
                       >
                         <Feather name="trash" size={16} color="#EF4444" />
                       </TouchableOpacity>
