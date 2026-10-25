@@ -1,10 +1,9 @@
 import "./index.css";
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Text, ActivityIndicator, LogBox } from "react-native";
+import { View, StyleSheet, ActivityIndicator, LogBox } from "react-native";
 import ClubManage from "./src/page/ClubManage";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { initDatabase } from "./src/db";
-import { seedDatabase } from "./src/db/seed";
 import { useNotificationLifecycle } from "./src/features/notifications/hooks/useNotificationLifecycle";
 
 // Ignore third-party library registration of deprecated React Native SafeAreaView (e.g. react-native-css-interop)
@@ -19,7 +18,6 @@ export default function App() {
     async function prepare() {
       try {
         initDatabase();
-        await seedDatabase();
         setIsReady(true);
       } catch (err: any) {
         console.error("Database initialization error:", err);
@@ -34,7 +32,7 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <View style={styles.container}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#F97316" />
         </View>
       </SafeAreaProvider>
     );
@@ -42,7 +40,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View className="flex-1 bg-gray-900" style={styles.container}>
+      <View className="flex-1 bg-surface" style={styles.container}>
         <ClubManage />
       </View>
     </SafeAreaProvider>
@@ -52,6 +50,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: "#0B1326",
   },
 });

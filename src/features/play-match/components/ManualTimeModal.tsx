@@ -46,10 +46,10 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View className="flex-1 bg-black/75 justify-center items-center p-4">
-        <View className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+        <View className="bg-surface-container border border-slate-border w-full max-w-sm rounded-2xl p-5 shadow-2xl">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-xl font-bold text-white">Ajustar Tiempo</Text>
-            <TouchableOpacity onPress={onClose} className="p-1">
+            <TouchableOpacity onPress={onClose} className="p-2 min-h-[48px] min-w-[48px] items-center justify-center">
               <Text className="text-slate-400 font-bold text-lg">✕</Text>
             </TouchableOpacity>
           </View>
@@ -59,15 +59,15 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
           </Text>
 
           {/* Digital Time Picker Display */}
-          <View className="flex-row justify-center items-center py-4 bg-slate-950 border border-slate-800 rounded-2xl mb-4">
+          <View className="flex-row justify-center items-center py-4 bg-surface-dim border border-slate-border rounded-2xl mb-4">
             {/* Minutes Column */}
             <View className="items-center mx-3">
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => adjustMins(1)}
-                className="w-10 h-8 rounded-lg bg-slate-800 border border-slate-700 items-center justify-center mb-1"
+                className="w-12 h-10 rounded-lg bg-surface-elevated border border-slate-border items-center justify-center mb-1 active:bg-slate-border"
               >
-                <Text className="text-amber-400 font-extrabold text-base">▲</Text>
+                <Text className="text-court-orange font-extrabold text-base">▲</Text>
               </TouchableOpacity>
               <Text className="text-4xl font-extrabold text-white tracking-widest my-1 font-mono">
                 {mins.toString().padStart(2, "0")}
@@ -75,23 +75,23 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => adjustMins(-1)}
-                className="w-10 h-8 rounded-lg bg-slate-800 border border-slate-700 items-center justify-center mt-1"
+                className="w-12 h-10 rounded-lg bg-surface-elevated border border-slate-border items-center justify-center mt-1 active:bg-slate-border"
               >
-                <Text className="text-amber-400 font-extrabold text-base">▼</Text>
+                <Text className="text-court-orange font-extrabold text-base">▼</Text>
               </TouchableOpacity>
               <Text className="text-slate-400 text-xs mt-1">MIN</Text>
             </View>
 
-            <Text className="text-4xl font-extrabold text-amber-500 font-mono mb-5">:</Text>
+            <Text className="text-4xl font-extrabold text-court-orange font-mono mb-5">:</Text>
 
             {/* Seconds Column */}
             <View className="items-center mx-3">
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => adjustSecs(5)}
-                className="w-10 h-8 rounded-lg bg-slate-800 border border-slate-700 items-center justify-center mb-1"
+                className="w-12 h-10 rounded-lg bg-surface-elevated border border-slate-border items-center justify-center mb-1 active:bg-slate-border"
               >
-                <Text className="text-amber-400 font-extrabold text-base">▲</Text>
+                <Text className="text-court-orange font-extrabold text-base">▲</Text>
               </TouchableOpacity>
               <Text className="text-4xl font-extrabold text-white tracking-widest my-1 font-mono">
                 {secs.toString().padStart(2, "0")}
@@ -99,9 +99,9 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => adjustSecs(-5)}
-                className="w-10 h-8 rounded-lg bg-slate-800 border border-slate-700 items-center justify-center mt-1"
+                className="w-12 h-10 rounded-lg bg-surface-elevated border border-slate-border items-center justify-center mt-1 active:bg-slate-border"
               >
-                <Text className="text-amber-400 font-extrabold text-base">▼</Text>
+                <Text className="text-court-orange font-extrabold text-base">▼</Text>
               </TouchableOpacity>
               <Text className="text-slate-400 text-xs mt-1">SEG</Text>
             </View>
@@ -111,25 +111,25 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
           <View className="flex-row justify-between mb-4">
             <TouchableOpacity
               onPress={() => setPreset(maxMins, 0)}
-              className="flex-1 mr-1 py-1.5 bg-slate-800 border border-slate-700 rounded-lg items-center"
+              className="flex-1 mr-1 py-2 min-h-[36px] bg-surface-elevated border border-slate-border rounded-lg items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-semibold text-xs">{maxMins}:00</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setPreset(5, 0)}
-              className="flex-1 mx-1 py-1.5 bg-slate-800 border border-slate-700 rounded-lg items-center"
+              className="flex-1 mx-1 py-2 min-h-[36px] bg-surface-elevated border border-slate-border rounded-lg items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-semibold text-xs">05:00</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setPreset(1, 0)}
-              className="flex-1 mx-1 py-1.5 bg-slate-800 border border-slate-700 rounded-lg items-center"
+              className="flex-1 mx-1 py-2 min-h-[36px] bg-surface-elevated border border-slate-border rounded-lg items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-semibold text-xs">01:00</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setPreset(0, 0)}
-              className="flex-1 ml-1 py-1.5 bg-slate-800 border border-slate-700 rounded-lg items-center"
+              className="flex-1 ml-1 py-2 min-h-[36px] bg-surface-elevated border border-slate-border rounded-lg items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-semibold text-xs">00:00</Text>
             </TouchableOpacity>
@@ -139,7 +139,7 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={handleSave}
-            className="py-3.5 rounded-xl bg-amber-500 items-center justify-center mb-2"
+            className="py-3.5 min-h-[48px] rounded-xl bg-court-orange items-center justify-center mb-2 active:bg-court-orange-dark shadow-md"
           >
             <Text className="text-slate-950 font-bold text-base">Guardar Tiempo</Text>
           </TouchableOpacity>
@@ -147,7 +147,7 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={onClose}
-            className="py-2.5 rounded-xl bg-slate-800 border border-slate-700 items-center justify-center"
+            className="py-3 min-h-[48px] rounded-xl bg-surface-elevated border border-slate-border items-center justify-center active:bg-slate-border"
           >
             <Text className="text-slate-400 font-semibold text-sm">Cancelar</Text>
           </TouchableOpacity>

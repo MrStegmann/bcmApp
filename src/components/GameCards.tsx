@@ -23,12 +23,12 @@ const GameCards: React.FC<GameCardsProps> = ({
         <MaterialCommunityIcons
           name="book-open-blank-variant-outline"
           size={36}
-          color="#9CA3AF"
+          color="#A78B7D"
         />
-        <Text className="text-lg font-bold text-danish-light-gray text-center px-4 mt-2">
+        <Text className="text-lg font-bold text-on-surface-variant text-center px-4 mt-2">
           Parece que aún no has registrado ningún partido
         </Text>
-        <Text className="text-xs text-gray-500 text-center px-6 mt-1">
+        <Text className="text-xs text-outline text-center px-6 mt-1">
           Pulsa en Añadir para programar tu primer partido.
         </Text>
       </View>
@@ -39,21 +39,21 @@ const GameCards: React.FC<GameCardsProps> = ({
     switch (status) {
       case "finished":
         return (
-          <View className="px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/80">
-            <Text className="text-[10px] font-bold text-emerald-400">Finalizado</Text>
+          <View className="px-2 py-0.5 rounded-full bg-court-green/20 border border-court-green/60">
+            <Text className="text-[10px] font-bold text-court-green">Finalizado</Text>
           </View>
         );
       case "inProgress":
         return (
-          <View className="px-2 py-0.5 rounded-full bg-amber-950 border border-amber-500/80">
-            <Text className="text-[10px] font-bold text-amber-400">En Juego</Text>
+          <View className="px-2 py-0.5 rounded-full bg-court-orange/20 border border-court-orange/60">
+            <Text className="text-[10px] font-bold text-court-orange">En Juego</Text>
           </View>
         );
       case "pending":
       default:
         return (
-          <View className="px-2 py-0.5 rounded-full bg-blue-950 border border-blue-500/80">
-            <Text className="text-[10px] font-bold text-blue-400">Pendiente</Text>
+          <View className="px-2 py-0.5 rounded-full bg-tactical-blue/20 border border-tactical-blue/60">
+            <Text className="text-[10px] font-bold text-tactical-blue-light">Pendiente</Text>
           </View>
         );
     }
@@ -94,20 +94,20 @@ const GameCards: React.FC<GameCardsProps> = ({
               className="my-1.5 w-full active:opacity-85"
             >
               <View
-                className={`w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg border ${
+                className={`w-full flex flex-row justify-between px-4 py-3 bg-slate-card rounded-xl shadow-md border ${
                   game.status === "finished" && isWinning
-                    ? "border-danish-gold shadow-danish-gold"
-                    : "border-danish-red shadow-danish-red"
+                    ? "border-court-orange"
+                    : "border-slate-border"
                 }`}
               >
                 <View className="w-[75%] flex flex-row justify-between items-center pr-2">
                   <View className="flex flex-col items-start w-[38%]">
                     <View className="flex-row items-center gap-1.5 mb-1">
-                      <Text className="text-xs text-danish-gold font-bold truncate">
+                      <Text className="text-xs text-primary font-bold truncate">
                         {roundLabel}
                       </Text>
                     </View>
-                    <Text className="text-[11px] text-gray-400">
+                    <Text className="text-[11px] text-on-surface-variant">
                       {game.date}
                     </Text>
                     <View className="mt-1.5">
@@ -116,28 +116,28 @@ const GameCards: React.FC<GameCardsProps> = ({
                   </View>
 
                   <View className="flex flex-col items-center justify-center w-[35%] px-1">
-                    <Text className="text-xs font-bold text-danish-white text-center truncate">
+                    <Text className="text-xs font-bold text-white text-center truncate">
                       vs {game.opponent}
                     </Text>
                   </View>
 
                   <View className="flex flex-col items-end w-[27%]">
-                    <Text className="text-sm font-extrabold text-danish-white text-right">
+                    <Text className="text-sm font-extrabold text-white text-right">
                       {result} - {resultOpponent}
                     </Text>
                   </View>
                 </View>
 
-                <View className="w-[25%] flex flex-row justify-end items-center gap-3 pl-1 border-l border-gray-800">
+                <View className="w-[25%] flex flex-row justify-end items-center gap-2 pl-1 border-l border-slate-border">
                   <TouchableOpacity
                     onPress={() => onEdit(game)}
-                    className="p-1.5 rounded-lg bg-gray-800 active:bg-gray-700"
+                    className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
                   >
-                    <Feather name="edit" size={16} color="#F3F4F6" />
+                    <Feather name="edit" size={16} color="#0EA5E9" />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => onDelete(game)}
-                    className="p-1.5 rounded-lg bg-gray-800 active:bg-gray-700"
+                    className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
                   >
                     <Feather name="trash" size={16} color="#EF4444" />
                   </TouchableOpacity>

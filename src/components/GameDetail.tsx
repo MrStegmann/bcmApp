@@ -102,154 +102,134 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     Number(rec) -
     Number(per) -
     Number(falt) -
-    (Number(pt.t2i) - Number(pt.t2a)) -
-    (Number(pt.t3i) - Number(pt.t3a)) -
-    (Number(pt.t1i) - Number(pt.t1a));
+    Math.max(0, Number(pt.t2i) - Number(pt.t2a)) -
+    Math.max(0, Number(pt.t3i) - Number(pt.t3a)) -
+    Math.max(0, Number(pt.t1i) - Number(pt.t1a));
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View className="w-full h-full flex justify-center items-center bg-black/80">
-        <View
-          className="w-[95%] flex flex-col border-2 shadow shadow-danish-red bg-danish-dark-gray border-danish-red rounded-xl p-2 mx-2"
-        >
-          <View className="w-full flex flex-row justify-between items-center mb-1">
-            <View className="w-1/2 flex flex-col px-2 items-center justify-center">
-              <Text className="w-full text-danish-white text-center text-sm">
-                {playerInf.number}{" "}
-                {`${playerInf.first_name || ""} ${playerInf.last_name || ""}`}
-              </Text>
-            </View>
-            <View className="w-1/4">
-              <View className="w-full flex flex-col justify-center items-center">
-                <Text className="text-danish-white text-sm">PTS</Text>
-                <Text className="text-danish-white text-sm">{`${pts}`}</Text>
-              </View>
-            </View>
-            <View className="w-1/4">
-              <View className="w-full flex flex-col justify-center items-center">
-                <Text className="text-danish-white text-sm">Val</Text>
-                <Text className="text-danish-white text-sm">{`${val}`}</Text>
-              </View>
-            </View>
-          </View>
-          <View className="w-full flex flex-row flex-wrap mb-1 gap-y-1">
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">Mins</Text>
+    <Modal animationType="slide" transparent={true} visible={visible}>
+      <View className="w-full h-full flex justify-center items-center bg-black/80 px-4">
+        <View className="w-full max-w-md bg-surface-container rounded-2xl border border-slate-border shadow-2xl p-5">
+          <Text className="w-full text-center text-lg font-bold text-white mb-3">
+            {playerInf.number}{" "}
+            {`${playerInf.first_name || ""} ${playerInf.last_name || ""}`}
+          </Text>
+
+          <View className="w-full flex flex-row justify-between items-center mb-4">
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1.5 flex flex-col items-center justify-center">
+              <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">Mins</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-sm text-white w-12 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={minutes}
                 onChangeText={setMinutes}
                 selectTextOnFocus={true}
               />
             </View>
-            {[1, 2, 3].map((key) => {
-              const aKey = `t${key}a` as keyof typeof pt;
-              const iKey = `t${key}i` as keyof typeof pt;
-              const perKey = `t${key}Per`;
-              return (
-                <RowData key={key}>
-                  <View className="w-1/4 flex flex-col justify-center items-center">
-                    <Text className="text-danish-white text-sm">T{key}A</Text>
-                    <TextInput
-                      className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
-                      keyboardType="numeric"
-                      value={pt[aKey]}
-                      onChangeText={(value) =>
-                        setPT({
-                          ...pt,
-                          [aKey]: value,
-                        })
-                      }
-                      selectTextOnFocus={true}
-                    />
-                  </View>
-                  <View className="w-1/4 flex flex-col justify-center items-center">
-                    <Text className="text-danish-white text-sm">T{key}I</Text>
-                    <TextInput
-                      className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
-                      keyboardType="numeric"
-                      value={pt[iKey]}
-                      onChangeText={(value) =>
-                        setPT({ ...pt, [iKey]: value })
-                      }
-                      selectTextOnFocus={true}
-                    />
-                  </View>
-                  <View className="w-1/4 flex flex-col justify-center items-center">
-                    <Text className="text-danish-white text-sm">T{key}%</Text>
-                    <View className="w-full flex justify-center items-center h-10">
-                      <Text className="text-danish-white text-sm">
-                        {`${(percent[perKey] || 0).toFixed(1)}%`}
-                      </Text>
-                    </View>
-                  </View>
-                </RowData>
-              );
-            })}
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1.5 flex flex-col items-center justify-center">
+              <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">PTS</Text>
+              <Text className="text-court-orange font-bold text-sm">{`${pts}`}</Text>
+            </View>
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1.5 flex flex-col items-center justify-center">
+              <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">Val</Text>
+              <Text className="text-tactical-blue-light font-bold text-sm">{`${val}`}</Text>
+            </View>
+          </View>
 
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">OReb</Text>
+          <View className="w-full flex flex-row flex-wrap justify-between items-center gap-y-2">
+            {[1, 2, 3].map((key) => (
+              <RowData key={key}>
+                <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col items-center justify-center">
+                  <Text className="text-on-surface-variant text-[10px] font-semibold">T{key}A</Text>
+                  <TextInput
+                    className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
+                    keyboardType="numeric"
+                    value={pt[`t${key}a` as keyof typeof pt]}
+                    onChangeText={(valInput) =>
+                      setPT((prev) => ({
+                        ...prev,
+                        [`t${key}a`]: valInput,
+                      }))
+                    }
+                    selectTextOnFocus={true}
+                  />
+                </View>
+                <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col items-center justify-center">
+                  <Text className="text-on-surface-variant text-[10px] font-semibold">T{key}I</Text>
+                  <TextInput
+                    className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
+                    keyboardType="numeric"
+                    value={pt[`t${key}i` as keyof typeof pt]}
+                    onChangeText={(valInput) =>
+                      setPT((prev) => ({
+                        ...prev,
+                        [`t${key}i`]: valInput,
+                      }))
+                    }
+                    selectTextOnFocus={true}
+                  />
+                </View>
+                <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col items-center justify-center">
+                  <Text className="text-on-surface-variant text-[10px] font-semibold">T{key}%</Text>
+                  <Text className="text-white font-bold text-xs">{`${(percent[`t${key}Per`] || 0).toFixed(0)}%`}</Text>
+                </View>
+              </RowData>
+            ))}
+
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col justify-center items-center">
+              <Text className="text-on-surface-variant text-[10px] font-semibold">OReb</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={oreb}
                 onChangeText={setOReb}
                 selectTextOnFocus={true}
               />
             </View>
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">DReb</Text>
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col justify-center items-center">
+              <Text className="text-on-surface-variant text-[10px] font-semibold">DReb</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={dreb}
                 onChangeText={setDReb}
                 selectTextOnFocus={true}
               />
             </View>
-
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">Asis</Text>
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col justify-center items-center">
+              <Text className="text-on-surface-variant text-[10px] font-semibold">Asis</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={asis}
                 onChangeText={setAsis}
                 selectTextOnFocus={true}
               />
             </View>
-
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">Rec</Text>
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col justify-center items-center">
+              <Text className="text-on-surface-variant text-[10px] font-semibold">Rec</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={rec}
                 onChangeText={setRec}
                 selectTextOnFocus={true}
               />
             </View>
-
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">PER</Text>
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col justify-center items-center">
+              <Text className="text-on-surface-variant text-[10px] font-semibold">PER</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={per}
                 onChangeText={setPer}
                 selectTextOnFocus={true}
               />
             </View>
-            <View className="w-1/4 flex flex-col justify-center items-center">
-              <Text className="text-danish-white text-sm">FALT</Text>
+            <View className="w-16 border border-slate-border bg-slate-card rounded-lg p-1 flex flex-col justify-center items-center">
+              <Text className="text-on-surface-variant text-[10px] font-semibold">FALT</Text>
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-xs text-white w-10 px-1 bg-slate-dark border border-slate-border rounded"
                 keyboardType="numeric"
                 value={falt}
                 onChangeText={setFalt}
@@ -258,18 +238,18 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
             </View>
           </View>
 
-          <View className="w-full flex flex-row justify-between items-center px-5 mt-5">
+          <View className="w-full flex flex-row justify-between items-center px-2 mt-5 gap-3">
             <TouchableOpacity
-              className="px-4 py-2 border-danish-red border-2 bg-danish-dark-gray shadow-inner shadow-danish-red rounded-lg"
+              className="flex-1 min-h-[48px] px-4 py-3 bg-court-orange rounded-xl items-center justify-center active:bg-court-orange-dark shadow-md"
               onPress={handleUpdate}
             >
-              <Text className="text-danish-white">Guardar</Text>
+              <Text className="text-white font-bold">Guardar</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="px-4 py-2 border-danish-white border-2 bg-danish-dark-gray shadow-inner shadow-danish-white rounded-lg"
+              className="flex-1 min-h-[48px] px-4 py-3 bg-slate-dark border border-slate-border rounded-xl items-center justify-center active:bg-slate-card"
               onPress={onClose}
             >
-              <Text className="text-danish-white">Cerrar</Text>
+              <Text className="text-on-surface font-semibold">Cerrar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -416,27 +396,27 @@ const GameDetail: React.FC<GameDetailProps> = ({ data, onUpdateResults }) => {
         onUpdated={handleUpdatedPlayerDetails}
       />
 
-      <View className="mb-2 bg-danish-dark-gray shadow-danish-red border-2 border-danish-red rounded-lg p-4 shadow">
-        <Text className="text-center text-xs text-danish-white mb-2">
+      <View className="mb-2 bg-slate-card border border-slate-border rounded-xl p-4 shadow-md">
+        <Text className="text-center text-xs text-primary font-bold mb-2">
           Jornada {data.round} - {data.date}
         </Text>
-        <View className="flex flex-row justify-between items-center w-full">
-          <Text className="text-center font-bold text-danish-white text-sm w-1/3">
+        <View className="flex flex-row justify-between items-center w-full mb-2">
+          <Text className="text-center font-bold text-white text-sm w-1/3">
             {club?.name || "Club"}
           </Text>
-          <Text className="mx-2 font-bold text-danish-white text-sm">vs</Text>
-          <Text className="text-center font-bold text-danish-white text-sm w-1/3">
+          <Text className="mx-2 font-bold text-on-surface-variant text-sm">vs</Text>
+          <Text className="text-center font-bold text-white text-sm w-1/3">
             {data.opponent}
           </Text>
         </View>
         {["c1", "c2", "c3", "c4", "extra"].map((quarter) => (
           <View
             key={quarter}
-            className="flex-row justify-between items-center py-1 border-b border-danish-white w-full"
+            className="flex-row justify-between items-center py-1.5 border-b border-slate-border w-full"
           >
             <View className="w-1/3 flex justify-center items-center">
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-sm text-white w-12 px-1 bg-slate-dark border border-slate-border rounded-lg min-h-[36px]"
                 keyboardType="numeric"
                 value={clubResults[quarter]}
                 selectTextOnFocus={true}
@@ -468,12 +448,12 @@ const GameDetail: React.FC<GameDetailProps> = ({ data, onUpdateResults }) => {
               />
             </View>
 
-            <Text className="text-center font-bold text-sm text-danish-white uppercase w-12">
+            <Text className="text-center font-bold text-sm text-on-surface-variant uppercase w-12">
               {quarter}
             </Text>
             <View className="w-1/3 flex justify-center items-center">
               <TextInput
-                className="text-center font-bold text-sm text-danish-red w-12 px-1 bg-danish-white rounded-lg"
+                className="text-center font-bold text-sm text-white w-12 px-1 bg-slate-dark border border-slate-border rounded-lg min-h-[36px]"
                 keyboardType="numeric"
                 value={opponentResults[quarter]}
                 selectTextOnFocus={true}
@@ -507,35 +487,40 @@ const GameDetail: React.FC<GameDetailProps> = ({ data, onUpdateResults }) => {
           </View>
         ))}
         <View className="flex-row justify-between items-center pt-2 mt-2">
-          <Text className="flex-1 text-center font-bold text-sm text-danish-white">
+          <Text className="flex-1 text-center font-extrabold text-sm text-court-orange">
             {totalResult}
           </Text>
-          <Text className="flex-1 text-center font-bold text-sm text-danish-white">
+          <Text className="flex-1 text-center font-bold text-sm text-on-surface-variant">
             Total
           </Text>
-          <Text className="flex-1 text-center font-bold text-sm text-danish-white">
+          <Text className="flex-1 text-center font-extrabold text-sm text-tactical-blue-light">
             {totalOpponentResult}
           </Text>
         </View>
       </View>
 
-      <View className="w-full my-5">
+      <View className="w-full my-4">
         <ScrollView horizontal={false}>
           <View className="w-full flex flex-row flex-wrap justify-between items-center gap-2">
             {players_stats
               .sort((a, b) => (a.number || 0) - (b.number || 0))
               .map((ps) => {
+                const isSelected = playerDetails?.id === ps.id;
                 return (
                   <TouchableOpacity
                     key={ps.id}
                     onPress={() => handleOpenPlayerDetails(ps)}
-                    className="hover:bg-danish-red active:bg-danish-red"
+                    className="active:opacity-80"
                   >
                     <View
-                      className={`border border-danish-red rounded-lg w-28 p-2 ${playerDetails?.id === ps.id ? "bg-danish-red" : ""}`}
+                      className={`border rounded-xl w-28 p-2.5 min-h-[48px] items-center justify-center shadow-sm ${
+                        isSelected
+                          ? "bg-court-orange border-court-orange"
+                          : "bg-slate-card border-slate-border"
+                      }`}
                     >
-                      <Text className="text-xs text-danish-white text-center">
-                        {ps.number} {`${ps.first_name || ""} ${ps.last_name || ""}`}
+                      <Text className={`text-xs font-bold text-center ${isSelected ? "text-slate-dark" : "text-white"}`}>
+                        #{ps.number} {`${ps.first_name || ""} ${ps.last_name || ""}`}
                       </Text>
                     </View>
                   </TouchableOpacity>

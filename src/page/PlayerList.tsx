@@ -207,7 +207,7 @@ const PlayerList: React.FC<PlayerListProps> = ({ onReturn }) => {
   };
 
   return (
-    <View className="w-full h-full px-5">
+    <View className="w-full h-full px-4 bg-surface">
       <DeleteModal
         title={`¿Estás seguro de que quieres eliminar el jugador ${itemToDelete?.firstName || ""} ${itemToDelete?.lastName || ""}?`}
         visible={modalVisible}

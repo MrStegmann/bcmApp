@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CourtVisionKineticThemeContract",
+  "description": "Tailwind configuration schema and exact token contract derived from DESIGN.md for NativeWind v4",
+  "type": "object",
+  "properties": {
+    "colors": {
+      "type": "object",
+      "required": [
+        "surface",
+        "surface-container",
+        "surface-container-high",
+        "primary",
+        "primary-container",
+        "secondary",
+        "secondary-container",
+        "outline",
+        "outline-variant",
+        "error",
+        "court-orange",
+        "tactical-blue",
+        "slate-dark",
+        "slate-card",
+        "slate-border"
+      ],
+      "properties": {
+        "surface": { "type": "string", "enum": ["#0b1326", "#0B1326"] },
+        "surface-dim": { "type": "string", "enum": ["#0b1326", "#0B1326"] },
+        "surface-bright": { "type": "string", "enum": ["#31394d", "#31394D"] },
+        "surface-container-lowest": { "type": "string", "enum": ["#060e20", "#060E20"] },
+        "surface-container-low": { "type": "string", "enum": ["#131b2e", "#131B2E"] },
+        "surface-container": { "type": "string", "enum": ["#171f33", "#171F33"] },
+        "surface-container-high": { "type": "string", "enum": ["#222a3d", "#222A3D"] },
+        "surface-container-highest": { "type": "string", "enum": ["#2d3449", "#2D3449"] },
+        "on-surface": { "type": "string", "enum": ["#dae2fd", "#DAE2FD"] },
+        "on-surface-variant": { "type": "string", "enum": ["#e0c0b1", "#E0C0B1"] },
+        "outline": { "type": "string", "enum": ["#a78b7d", "#A78B7D"] },
+        "outline-variant": { "type": "string", "enum": ["#584237", "#584237"] },
+        "primary": { "type": "string", "enum": ["#ffb690", "#FFB690"] },
+        "primary-container": { "type": "string", "enum": ["#f97316", "#F97316"] },
+        "on-primary-container": { "type": "string", "enum": ["#582200", "#582200"] },
+        "secondary": { "type": "string", "enum": ["#89ceff", "#89CEFF"] },
+        "secondary-container": { "type": "string", "enum": ["#00a2e6", "#00A2E6"] },
+        "court-orange": { "type": "string", "enum": ["#f97316", "#F97316"] },
+        "court-orange-dark": { "type": "string", "enum": ["#ea580c", "#EA580C"] },
+        "tactical-blue": { "type": "string", "enum": ["#0ea5e9", "#0EA5E9"] },
+        "tactical-blue-light": { "type": "string", "enum": ["#38bdf8", "#38BDF8"] },
+        "slate-dark": { "type": "string", "enum": ["#0f172a", "#0F172A"] },
+        "slate-card": { "type": "string", "enum": ["#1e293b", "#1E293B"] },
+        "slate-border": { "type": "string", "enum": ["#334155", "#334155"] }
+      }
+    },
+    "spacing": {
+      "type": "object",
+      "required": ["gutter", "gutter-sm", "margin", "space-xs", "space-sm", "space-md", "space-lg", "space-xl"],
+      "properties": {
+        "gutter": { "type": "string", "enum": ["1rem", "16px"] },
+        "gutter-sm": { "type": "string", "enum": ["0.75rem", "12px"] },
+        "margin": { "type": "string", "enum": ["1rem", "16px"] },
+        "margin-tablet": { "type": "string", "enum": ["1.5rem", "24px"] },
+        "space-xs": { "type": "string", "enum": ["0.25rem", "4px"] },
+        "space-sm": { "type": "string", "enum": ["0.5rem", "8px"] },
+        "space-md": { "type": "string", "enum": ["1rem", "16px"] },
+        "space-lg": { "type": "string", "enum": ["1.5rem", "24px"] },
+        "space-xl": { "type": "string", "enum": ["2rem", "32px"] }
+      }
+    },
+    "borderRadius": {
+      "type": "object",
+      "required": ["sm", "DEFAULT", "md", "lg", "xl", "full"],
+      "properties": {
+        "sm": { "type": "string", "enum": ["0.25rem", "4px"] },
+        "DEFAULT": { "type": "string", "enum": ["0.5rem", "8px"] },
+        "md": { "type": "string", "enum": ["0.75rem", "12px"] },
+        "lg": { "type": "string", "enum": ["1rem", "16px"] },
+        "xl": { "type": "string", "enum": ["1.5rem", "24px"] },
+        "full": { "type": "string", "enum": ["9999px"] }
+      }
+    }
+  }
+}

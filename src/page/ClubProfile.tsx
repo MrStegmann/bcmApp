@@ -32,7 +32,7 @@ const getTabTitle = (
       return "Partidos";
     case TopMenuEnums.MAIN:
     default:
-      return clubName ? `Equipo: ${clubName}` : "Panel del Equipo";
+      return clubName ? `${clubName}` : "Panel del Equipo";
   }
 };
 
@@ -132,7 +132,7 @@ const ClubProfile: React.FC<ClubProfileProps> = memo(({ handleReturn }) => {
   ]);
 
   return (
-    <View className="w-full h-full flex flex-col justify-center items-center">
+    <View className="w-full h-full flex flex-col justify-center items-center bg-surface">
       {matchDetailGame ? (
         <MatchDetailView
           match={matchDetailGame}

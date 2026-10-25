@@ -15,12 +15,12 @@ export const RivalControlPanel: React.FC<RivalControlPanelProps> = ({
     activeQuarterKey === "extra" ? "PR" : activeQuarterKey.toUpperCase();
 
   return (
-    <View className="w-full bg-slate-900 border border-red-900/60 rounded-2xl p-3 my-2 shadow-lg">
+    <View className="w-full bg-surface-container border border-slate-border rounded-2xl p-3 my-2 shadow-lg">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center space-x-2">
-          <View className="w-2.5 h-2.5 rounded-full bg-red-500" />
-          <Text className="text-red-400 font-bold text-xs uppercase tracking-wider">
+          <View className="w-2.5 h-2.5 rounded-full bg-tactical-blue" />
+          <Text className="text-tactical-blue-light font-bold text-xs uppercase tracking-wider">
             Control Rival ({quarterLabel})
           </Text>
         </View>
@@ -33,7 +33,7 @@ export const RivalControlPanel: React.FC<RivalControlPanelProps> = ({
       {/* Quick Controls Grid */}
       <View className="flex-row items-center justify-between gap-2">
         {/* Score Adjustments */}
-        <View className="flex-1 bg-slate-800/80 rounded-xl p-2 border border-slate-700/60">
+        <View className="flex-1 bg-surface-dim rounded-xl p-2.5 border border-slate-border">
           <View className="flex-row items-center justify-between mb-1.5">
             <Text className="text-slate-400 text-[11px] font-semibold">
               Puntos {quarterLabel}
@@ -45,25 +45,25 @@ export const RivalControlPanel: React.FC<RivalControlPanelProps> = ({
           <View className="flex-row items-center justify-between gap-1">
             <TouchableOpacity
               onPress={() => onAdjustRivalScore(1)}
-              className="flex-1 py-1.5 rounded-lg bg-red-950/80 border border-red-800 items-center justify-center active:bg-red-900"
+              className="flex-1 py-2 min-h-[36px] rounded-lg bg-tactical-blue/20 border border-tactical-blue/40 items-center justify-center active:bg-tactical-blue/40"
             >
-              <Text className="text-red-300 font-extrabold text-xs">+1</Text>
+              <Text className="text-tactical-blue-light font-extrabold text-xs">+1</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onAdjustRivalScore(2)}
-              className="flex-1 py-1.5 rounded-lg bg-red-950/80 border border-red-800 items-center justify-center active:bg-red-900"
+              className="flex-1 py-2 min-h-[36px] rounded-lg bg-tactical-blue/30 border border-tactical-blue/50 items-center justify-center active:bg-tactical-blue/50"
             >
-              <Text className="text-red-300 font-extrabold text-xs">+2</Text>
+              <Text className="text-tactical-blue-light font-extrabold text-xs">+2</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onAdjustRivalScore(3)}
-              className="flex-1 py-1.5 rounded-lg bg-red-950/80 border border-red-800 items-center justify-center active:bg-red-900"
+              className="flex-1 py-2 min-h-[36px] rounded-lg bg-tactical-blue/40 border border-tactical-blue items-center justify-center active:bg-tactical-blue/60"
             >
-              <Text className="text-red-300 font-extrabold text-xs">+3</Text>
+              <Text className="text-white font-extrabold text-xs">+3</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onAdjustRivalScore(-1)}
-              className="px-2 py-1.5 rounded-lg bg-slate-700/80 border border-slate-600 items-center justify-center active:bg-slate-600"
+              className="px-2 py-2 min-h-[36px] rounded-lg bg-surface-elevated border border-slate-border items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-bold text-xs">-1</Text>
             </TouchableOpacity>
@@ -71,26 +71,26 @@ export const RivalControlPanel: React.FC<RivalControlPanelProps> = ({
         </View>
 
         {/* Fouls Adjustments */}
-        <View className="flex-1 bg-slate-800/80 rounded-xl p-2 border border-slate-700/60">
+        <View className="flex-1 bg-surface-dim rounded-xl p-2.5 border border-slate-border">
           <View className="flex-row items-center justify-between mb-1.5">
             <Text className="text-slate-400 text-[11px] font-semibold">
               Faltas {quarterLabel}
             </Text>
-            <Text className="text-red-400 font-extrabold text-sm">
+            <Text className="text-rose-400 font-extrabold text-sm">
               {rivalQuarterFouls}
             </Text>
           </View>
           <View className="flex-row items-center justify-between gap-1">
             <TouchableOpacity
               onPress={() => onAdjustRivalFouls(1)}
-              className="flex-1 py-1.5 rounded-lg bg-red-900/60 border border-red-700 flex-row items-center justify-center gap-1 active:bg-red-800"
+              className="flex-1 py-2 min-h-[36px] rounded-lg bg-error-container/40 border border-error-container flex-row items-center justify-center gap-1 active:bg-error-container/60"
             >
               <Feather name="alert-triangle" size={11} color="#F87171" />
-              <Text className="text-red-200 font-extrabold text-xs">+1</Text>
+              <Text className="text-rose-200 font-extrabold text-xs">+1</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onAdjustRivalFouls(-1)}
-              className="px-2 py-1.5 rounded-lg bg-slate-700/80 border border-slate-600 items-center justify-center active:bg-slate-600"
+              className="px-2 py-2 min-h-[36px] rounded-lg bg-surface-elevated border border-slate-border items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-bold text-xs">-1</Text>
             </TouchableOpacity>

@@ -61,15 +61,15 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
 
   return (
     <View
-      className="w-full z-20 relative"
+      className="w-full z-20 relative bg-surface-container"
       style={{ paddingTop: topPadding }}
       testID="header-safe-wrapper"
     >
-      <View className="w-full flex-row justify-between items-center bg-danish-dark-gray border-b-2 border-danish-red shadow-xl px-3 py-2.5">
+      <View className="w-full flex-row justify-between items-center bg-surface-container border-b border-slate-border shadow-xl px-3 py-2.5">
         {headerBackAction ? (
           <TouchableOpacity
             onPress={headerBackAction.onPress}
-            className="w-10 h-10 items-center justify-center rounded-xl bg-gray-800 border border-gray-700 active:bg-gray-700"
+            className="w-10 h-10 items-center justify-center rounded-xl bg-slate-card border border-slate-border active:bg-slate-dark"
             testID={headerBackAction.testID || "header-back-button"}
             accessibilityLabel={headerBackAction.label || "Volver"}
           >
@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
               {/* Local Team: Wraps without truncation, right-aligned next to score */}
               <View className="flex-1 items-end pr-1.5 justify-center">
                 <Text
-                  className="text-amber-400 font-extrabold text-xs text-right leading-tight"
+                  className="text-court-orange font-extrabold text-xs text-right leading-tight"
                   testID="header-local-team-name"
                 >
                   {matchHeaderInfo.teamName}
@@ -100,16 +100,16 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
               </View>
 
               {/* Center Score Badge */}
-              <View className="flex-row items-center bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-700">
-                <Text className="text-amber-300 font-black text-sm">{matchHeaderInfo.teamScore}</Text>
+              <View className="flex-row items-center bg-slate-dark px-2.5 py-1 rounded-lg border border-slate-border">
+                <Text className="text-white font-black text-sm">{matchHeaderInfo.teamScore}</Text>
                 <Text className="text-slate-400 font-black text-xs mx-1">-</Text>
-                <Text className="text-sky-300 font-black text-sm">{matchHeaderInfo.rivalScore}</Text>
+                <Text className="text-tactical-blue-light font-black text-sm">{matchHeaderInfo.rivalScore}</Text>
               </View>
 
               {/* Rival Team: Wraps without truncation, left-aligned next to score */}
               <View className="flex-1 items-start pl-1.5 justify-center">
                 <Text
-                  className="text-sky-400 font-extrabold text-xs text-left leading-tight"
+                  className="text-tactical-blue font-extrabold text-xs text-left leading-tight"
                   testID="header-rival-team-name"
                 >
                   {matchHeaderInfo.rivalName}
@@ -123,7 +123,7 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
           </View>
         ) : (
           <Text
-            className="flex-1 text-danish-white text-xl font-bold text-center tracking-wide"
+            className="flex-1 text-white text-xl font-bold text-center tracking-wide"
             numberOfLines={1}
             testID="header-title"
           >
@@ -140,7 +140,7 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
           {headerAction ? (
             <TouchableOpacity
               onPress={headerAction.onPress}
-              className="w-10 h-10 items-center justify-center rounded-xl bg-red-700 border border-red-600 active:bg-red-900"
+              className="w-10 h-10 items-center justify-center rounded-xl bg-court-orange border border-court-orange-dark active:bg-court-orange-dark shadow-md"
               testID={headerAction.testID || "header-action-button"}
               accessibilityLabel={headerAction.label || "Acción"}
             >

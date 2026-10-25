@@ -19,10 +19,10 @@ export const PeriodSelectModal: React.FC<PeriodSelectModalProps> = ({
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View className="flex-1 bg-black/75 justify-center items-center p-4">
-        <View className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+        <View className="bg-surface-container border border-slate-border w-full max-w-sm rounded-2xl p-5 shadow-2xl">
           <View className="flex-row justify-between items-center mb-3">
             <Text className="text-xl font-bold text-white">Seleccionar Periodo</Text>
-            <TouchableOpacity onPress={onClose} className="p-1">
+            <TouchableOpacity onPress={onClose} className="p-2 min-h-[48px] min-w-[48px] items-center justify-center">
               <Text className="text-slate-400 font-bold text-lg">✕</Text>
             </TouchableOpacity>
           </View>
@@ -42,16 +42,16 @@ export const PeriodSelectModal: React.FC<PeriodSelectModalProps> = ({
                     onSelectPeriod(item.key);
                     onClose();
                   }}
-                  className={`flex-row items-center justify-between p-3 rounded-xl border mb-2 ${
+                  className={`flex-row items-center justify-between p-3 min-h-[48px] rounded-xl border mb-2 ${
                     isActive
-                      ? "bg-amber-500/20 border-amber-500"
-                      : "bg-slate-800/80 border-slate-700 hover:bg-slate-750"
+                      ? "bg-court-orange/20 border-court-orange"
+                      : "bg-surface-elevated/80 border-slate-border active:bg-surface-elevated"
                   }`}
                 >
                   <View className="flex-row items-center space-x-3">
                     <View
                       className={`w-10 h-10 rounded-lg items-center justify-center font-bold ${
-                        isActive ? "bg-amber-500" : "bg-slate-700"
+                        isActive ? "bg-court-orange" : "bg-slate-border"
                       }`}
                     >
                       <Text
@@ -67,7 +67,7 @@ export const PeriodSelectModal: React.FC<PeriodSelectModalProps> = ({
                       <Text className="text-slate-400 text-xs">{item.desc}</Text>
                     </View>
                   </View>
-                  {isActive && <Text className="text-amber-400 font-bold text-base">✓</Text>}
+                  {isActive && <Text className="text-court-orange font-bold text-base">✓</Text>}
                 </TouchableOpacity>
               );
             })}
@@ -76,7 +76,7 @@ export const PeriodSelectModal: React.FC<PeriodSelectModalProps> = ({
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={onClose}
-            className="mt-2 py-3 rounded-xl bg-slate-800 items-center justify-center border border-slate-700"
+            className="mt-2 py-3 min-h-[48px] rounded-xl bg-surface-elevated items-center justify-center border border-slate-border active:bg-slate-border"
           >
             <Text className="text-slate-300 font-semibold text-sm">Cancelar</Text>
           </TouchableOpacity>

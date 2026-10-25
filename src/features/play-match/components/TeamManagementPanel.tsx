@@ -25,14 +25,14 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
     selectedCourtCount > 0 && selectedCourtCount === selectedBenchPlayerIds.length;
 
   return (
-    <View className="bg-slate-900 border-t border-slate-800 p-3 shadow-lg">
+    <View className="bg-surface-container border-t border-slate-border p-3 shadow-lg">
       {/* Control Row: Timeout Controls & Swap Button spaced between */}
       <View className="flex-row items-center justify-between mb-2 px-1">
         {/* Timeout Control Widget */}
-        <View className="flex-row items-center bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 space-x-2">
+        <View className="flex-row items-center bg-surface-dim border border-slate-border rounded-xl px-2.5 py-1.5 space-x-2">
           <View>
             <Text className="text-slate-400 text-[10px] font-bold tracking-wider">TIEMPOS</Text>
-            <Text className="text-amber-400 font-extrabold text-sm text-center">
+            <Text className="text-court-orange font-extrabold text-sm text-center">
               {availableTimeouts}
             </Text>
           </View>
@@ -42,9 +42,9 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
               disabled={availableTimeouts <= 0}
               onPress={onDecreaseTimeout}
               testID="decrease-timeout-button"
-              className={`w-7 h-7 rounded-lg items-center justify-center border ${availableTimeouts > 0
-                ? "bg-slate-800 border-slate-700"
-                : "bg-slate-900 border-slate-800 opacity-40"
+              className={`w-8 h-8 rounded-lg items-center justify-center border ${availableTimeouts > 0
+                ? "bg-surface-elevated border-slate-border active:bg-slate-border"
+                : "bg-surface-dim border-slate-border/50 opacity-40"
                 }`}
             >
               <Text className="text-rose-400 font-black text-sm">−</Text>
@@ -53,7 +53,7 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
               activeOpacity={0.7}
               onPress={onIncreaseTimeout}
               testID="increase-timeout-button"
-              className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 items-center justify-center"
+              className="w-8 h-8 rounded-lg bg-surface-elevated border border-slate-border items-center justify-center active:bg-slate-border"
             >
               <Text className="text-emerald-400 font-black text-sm">+</Text>
             </TouchableOpacity>
@@ -68,13 +68,13 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
               disabled={!isSwapBalanced}
               onPress={onConfirmSwap}
               testID="confirm-swap-button"
-              className={`px-3 py-2 rounded-xl border ${isSwapBalanced
-                ? "bg-emerald-500 border-emerald-400"
-                : "bg-slate-800 border-slate-700 opacity-50"
+              className={`px-3.5 py-2.5 min-h-[44px] rounded-xl border items-center justify-center ${isSwapBalanced
+                ? "bg-court-orange border-court-orange active:bg-court-orange-dark shadow-md"
+                : "bg-surface-elevated border-slate-border opacity-50"
                 }`}
             >
               <Text
-                className={`font-black text-xs ${isSwapBalanced ? "text-slate-950" : "text-slate-400"
+                className={`font-black text-xs ${isSwapBalanced ? "text-slate-950" : "text-slate-500"
                   }`}
               >
                 Confirmar ({selectedCourtCount} ↔ {selectedBenchPlayerIds.length})
@@ -85,7 +85,7 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
               activeOpacity={0.7}
               onPress={onCancelSwap}
               testID="cancel-swap-button"
-              className="px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-700"
+              className="px-3 py-2.5 min-h-[44px] rounded-xl bg-surface-elevated border border-slate-border items-center justify-center active:bg-slate-border"
             >
               <Text className="text-slate-300 font-bold text-xs">Cancelar</Text>
             </TouchableOpacity>
@@ -94,7 +94,7 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
           <Pressable
             onPress={onToggleSwapMode}
             testID="toggle-swap-button"
-            className="px-4 py-2.5 rounded-xl flex-row items-center space-x-1.5 bg-amber-500 border border-amber-400 active:opacity-80"
+            className="px-4 py-2.5 min-h-[44px] rounded-xl flex-row items-center space-x-1.5 bg-court-orange border border-court-orange active:opacity-80 shadow-md"
           >
             <Text className="text-slate-950 font-black text-sm">
               ⇄ Cambios
@@ -108,11 +108,11 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
         <View
           className={`border rounded-xl p-2 mb-2 ${isSwapBalanced
             ? "bg-emerald-950/40 border-emerald-600/60"
-            : "bg-amber-950/40 border-amber-600/60"
+            : "bg-court-orange/10 border-court-orange/40"
             }`}
         >
           <Text
-            className={`text-xs font-semibold text-center ${isSwapBalanced ? "text-emerald-300" : "text-amber-300"
+            className={`text-xs font-semibold text-center ${isSwapBalanced ? "text-emerald-300" : "text-court-orange"
               }`}
           >
             {isSwapBalanced
@@ -136,7 +136,7 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
         contentContainerStyle={{ paddingVertical: 4 }}
       >
         {benchPlayers.length === 0 ? (
-          <View className="py-3 px-4 bg-slate-950/60 rounded-xl border border-slate-800">
+          <View className="py-3 px-4 bg-surface-dim rounded-xl border border-slate-border">
             <Text className="text-slate-500 text-xs italic">
               No hay jugadores en el banquillo.
             </Text>
@@ -156,14 +156,14 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
                 onPress={() => onSelectBenchPlayer(player)}
                 testID={`bench-player-${player.id}`}
                 className={`items-center justify-center w-20 h-20 rounded-full shadow-md mr-3 p-1 relative ${isSelected
-                  ? "border-4 border-amber-400 bg-amber-900"
+                  ? "border-4 border-court-orange bg-court-orange/20"
                   : isSwapMode
-                    ? "border-2 border-slate-600 bg-slate-800"
-                    : "border border-slate-700 bg-slate-800"
+                    ? "border-2 border-tactical-blue/60 bg-tactical-blue/10"
+                    : "border border-slate-border bg-surface-elevated"
                   }`}
               >
                 {isSelected && (
-                  <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 items-center justify-center border border-slate-950 z-20">
+                  <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-court-orange items-center justify-center border border-slate-950 z-20">
                     <Text className="text-slate-950 font-black text-[9px]">✓</Text>
                   </View>
                 )}
@@ -171,7 +171,7 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
                 <View className="items-center justify-center w-full px-1">
                   {/* Top Line: Jersey Number */}
                   <Text
-                    className="text-amber-400 font-black text-sm leading-tight text-center"
+                    className="text-court-orange font-black text-sm leading-tight text-center"
                     numberOfLines={1}
                   >
                     {player.number ? (String(player.number).startsWith("#") ? player.number : `#${player.number}`) : "#-"}
@@ -179,14 +179,14 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
 
                   {/* Second Line: Jersey Name or Fallback "F. Lastname" */}
                   <Text
-                    className="text-slate-200 font-semibold text-[10px] leading-tight text-center"
+                    className="text-white font-semibold text-[10px] leading-tight text-center"
                     numberOfLines={1}
                   >
                     {identifier}
                   </Text>
 
                   {/* Divisor line */}
-                  <View className="w-10 h-px bg-slate-700 my-0.5" />
+                  <View className="w-10 h-px bg-slate-border my-0.5" />
 
                   {/* Cumulative Minutes / Points */}
                   <Text className="text-emerald-400 font-mono font-bold text-[10px] leading-tight text-center">

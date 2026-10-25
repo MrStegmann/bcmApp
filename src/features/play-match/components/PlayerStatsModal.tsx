@@ -40,11 +40,11 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View className="flex-1 bg-black/80 justify-center items-center p-4">
-        <View className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-5 shadow-2xl">
+        <View className="bg-surface-container border border-slate-border w-full max-w-md rounded-2xl p-5 shadow-2xl">
           {/* Header */}
-          <View className="flex-row items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <View className="flex-row items-center justify-between border-b border-slate-border pb-3 mb-4">
             <View className="flex-row items-center space-x-3">
-              <View className="w-12 h-12 rounded-full bg-amber-500 items-center justify-center shadow-md">
+              <View className="w-12 h-12 rounded-full bg-court-orange items-center justify-center shadow-md">
                 <Text className="text-slate-950 font-black text-xl">
                   {player.number ? `#${player.number}` : "-"}
                 </Text>
@@ -54,7 +54,7 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                   {player.firstName} {player.lastName}
                 </Text>
                 <View className="flex-row items-center space-x-2">
-                  <Text className="text-amber-400 font-bold text-xs">{currentPts} PTS</Text>
+                  <Text className="text-court-orange font-bold text-xs">{currentPts} PTS</Text>
                   <Text className="text-slate-500 text-xs">•</Text>
                   <Text className="text-rose-400 font-bold text-xs">{player.falt} FALTAS</Text>
                   {player.position && (
@@ -66,7 +66,7 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 </View>
               </View>
             </View>
-            <TouchableOpacity onPress={handleClose} className="p-2">
+            <TouchableOpacity onPress={handleClose} className="p-2 min-h-[48px] min-w-[48px] items-center justify-center">
               <Text className="text-slate-400 font-bold text-xl">✕</Text>
             </TouchableOpacity>
           </View>
@@ -74,8 +74,8 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Body: Assist Prompt or Main Stat Panel */}
           {pendingShotType ? (
             <View>
-              <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 mb-3">
-                <Text className="text-amber-400 font-bold text-sm text-center">
+              <View className="bg-court-orange/10 border border-court-orange/30 rounded-xl p-2 mb-3">
+                <Text className="text-court-orange font-bold text-sm text-center">
                   Asistencia
                 </Text>
               </View>
@@ -86,10 +86,10 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                     key={teammate.id}
                     activeOpacity={0.7}
                     onPress={() => handleSelectAssist(teammate.id)}
-                    className="flex-row items-center justify-between p-3 mb-2 rounded-xl bg-slate-800 border border-slate-700 active:bg-amber-500/20 active:border-amber-500"
+                    className="flex-row items-center justify-between p-3 min-h-[48px] mb-2 rounded-xl bg-surface-elevated border border-slate-border active:bg-court-orange/20 active:border-court-orange"
                   >
                     <View className="flex-row items-center space-x-3">
-                      <View className="w-8 h-8 rounded-full bg-slate-700 items-center justify-center">
+                      <View className="w-8 h-8 rounded-full bg-slate-border items-center justify-center">
                         <Text className="text-white font-bold text-xs">
                           {teammate.number ? `#${teammate.number}` : "-"}
                         </Text>
@@ -98,7 +98,7 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                         {teammate.firstName} {teammate.lastName}
                       </Text>
                     </View>
-                    <Text className="text-amber-400 font-bold text-xs">+1 Asis</Text>
+                    <Text className="text-court-orange font-bold text-xs">+1 Asis</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -107,14 +107,14 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => handleSelectAssist(null)}
-                className="py-3 rounded-xl bg-slate-800 border border-slate-600 items-center justify-center mb-2"
+                className="py-3.5 min-h-[48px] rounded-xl bg-surface-elevated border border-slate-border items-center justify-center mb-2 active:bg-slate-border"
               >
                 <Text className="text-slate-300 font-bold text-sm">Sin Asistencia</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => setPendingShotType(null)}
-                className="py-2 items-center justify-center"
+                className="py-3 min-h-[48px] items-center justify-center"
               >
                 <Text className="text-slate-400 text-xs">Volver a opciones</Text>
               </TouchableOpacity>
@@ -131,14 +131,14 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("t1a")}
-                  className="flex-1 py-2.5 bg-emerald-500/20 border border-emerald-500/50 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-emerald-500/20 border border-emerald-500/50 rounded-xl items-center justify-center"
                 >
                   <Text className="text-emerald-400 font-extrabold text-sm">T1A ({player.t1a})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("t1i")}
-                  className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-surface-elevated border border-slate-border rounded-xl items-center justify-center active:bg-slate-border"
                 >
                   <Text className="text-slate-300 font-semibold text-sm">T1I ({player.t1i})</Text>
                 </TouchableOpacity>
@@ -149,14 +149,14 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("t2a")}
-                  className="flex-1 py-2.5 bg-emerald-500/20 border border-emerald-500/50 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-emerald-500/20 border border-emerald-500/50 rounded-xl items-center justify-center"
                 >
                   <Text className="text-emerald-400 font-extrabold text-sm">T2A ({player.t2a})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("t2i")}
-                  className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-surface-elevated border border-slate-border rounded-xl items-center justify-center active:bg-slate-border"
                 >
                   <Text className="text-slate-300 font-semibold text-sm">T2I ({player.t2i})</Text>
                 </TouchableOpacity>
@@ -167,14 +167,14 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("t3a")}
-                  className="flex-1 py-2.5 bg-emerald-500/20 border border-emerald-500/50 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-emerald-500/20 border border-emerald-500/50 rounded-xl items-center justify-center"
                 >
                   <Text className="text-emerald-400 font-extrabold text-sm">T3A ({player.t3a})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("t3i")}
-                  className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-surface-elevated border border-slate-border rounded-xl items-center justify-center active:bg-slate-border"
                 >
                   <Text className="text-slate-300 font-semibold text-sm">T3I ({player.t3i})</Text>
                 </TouchableOpacity>
@@ -188,16 +188,16 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("oreb")}
-                  className="flex-1 py-2.5 bg-sky-500/10 border border-sky-500/40 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-tactical-blue/20 border border-tactical-blue/40 rounded-xl items-center justify-center"
                 >
-                  <Text className="text-sky-300 font-bold text-xs">OREB ({player.oreb})</Text>
+                  <Text className="text-tactical-blue-light font-bold text-xs">OREB ({player.oreb})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("dreb")}
-                  className="flex-1 py-2.5 bg-sky-500/10 border border-sky-500/40 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-tactical-blue/20 border border-tactical-blue/40 rounded-xl items-center justify-center"
                 >
-                  <Text className="text-sky-300 font-bold text-xs">DREB ({player.dreb})</Text>
+                  <Text className="text-tactical-blue-light font-bold text-xs">DREB ({player.dreb})</Text>
                 </TouchableOpacity>
               </View>
 
@@ -205,23 +205,23 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("recovers")}
-                  className="flex-1 py-2.5 bg-teal-500/10 border border-teal-500/40 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-surface-elevated border border-slate-border rounded-xl items-center justify-center active:bg-slate-border"
                 >
-                  <Text className="text-teal-300 font-bold text-xs">REC ({player.rec})</Text>
+                  <Text className="text-emerald-400 font-bold text-xs">REC ({player.rec})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("lost")}
-                  className="flex-1 py-2.5 bg-orange-500/10 border border-orange-500/40 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-surface-elevated border border-slate-border rounded-xl items-center justify-center active:bg-slate-border"
                 >
                   <Text className="text-orange-300 font-bold text-xs">PER ({player.per})</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => handleStatTap("asis")}
-                  className="flex-1 py-2.5 bg-amber-500/10 border border-amber-500/40 rounded-xl items-center"
+                  className="flex-1 py-3 min-h-[48px] bg-surface-elevated border border-slate-border rounded-xl items-center justify-center active:bg-slate-border"
                 >
-                  <Text className="text-amber-300 font-bold text-xs">ASIS ({player.asis})</Text>
+                  <Text className="text-court-orange font-bold text-xs">ASIS ({player.asis})</Text>
                 </TouchableOpacity>
               </View>
 
@@ -229,7 +229,7 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => handleStatTap("fault")}
-                className="py-3 bg-rose-500/20 border border-rose-500/60 rounded-xl items-center justify-center mb-1"
+                className="py-3.5 min-h-[48px] bg-error-container/40 border border-error-container rounded-xl items-center justify-center mb-1 active:bg-error-container/60"
               >
                 <Text className="text-rose-300 font-black text-sm">
                   FALTA ({player.falt})

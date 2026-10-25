@@ -8,9 +8,9 @@ const Alerts: React.FC = () => {
   return (
     <View className="w-full absolute top-28 z-50 flex justify-center items-center">
       {alerts.length > 0 && (
-        <View className="w-3/4 border-danish-red border-2 bg-danish-white rounded-3xl p-2">
+        <View className="w-3/4 border-error-container border-2 bg-surface-elevated rounded-3xl p-3 shadow-xl">
           {alerts.map((a) => (
-            <Text key={a.id} className="text-danish-dark-gray text-center">
+            <Text key={a.id} className="text-white text-center font-medium">
               {a.msg}
             </Text>
           ))}

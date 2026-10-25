@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { useClubStore } from "../store/ClubStore";
 import Button from "../framework/Button";
 import Input from "../framework/Input";
@@ -106,17 +106,18 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
         />
       </View>
 
-      <View className="w-full flex flex-col gap-2 mt-4">
+      <View className="w-full flex flex-col gap-2.5 mt-4">
         <Button
           title={gameData ? "Guardar" : "Añadir Partido"}
           onPress={handleSubmit}
         />
         {onCancel ? (
-          <Button
-            title="Cancelar"
-            className="bg-gray-700"
+          <TouchableOpacity
             onPress={onCancel}
-          />
+            className="w-full min-h-[48px] py-3 items-center justify-center rounded-xl bg-slate-card border border-slate-border active:bg-slate-dark"
+          >
+            <Text className="text-on-surface font-semibold text-base">Cancelar</Text>
+          </TouchableOpacity>
         ) : null}
       </View>
     </View>

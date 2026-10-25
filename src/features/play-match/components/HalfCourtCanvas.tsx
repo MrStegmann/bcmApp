@@ -56,10 +56,10 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
           onPress={() => onSelectCourtPosition(index, null)}
           testID={`court-slot-${index}`}
           style={positionStyle}
-          className="items-center justify-center w-20 h-20 rounded-full border-2 border-dashed border-amber-500 bg-slate-900 p-1 shadow-lg z-10"
+          className="items-center justify-center w-20 h-20 rounded-full border-2 border-dashed border-court-orange/70 bg-surface-container p-1 shadow-lg z-10"
         >
-          <Text className="text-amber-400 font-extrabold text-base">+</Text>
-          <Text className="text-amber-300 font-semibold text-[9px] text-center">
+          <Text className="text-court-orange font-extrabold text-base">+</Text>
+          <Text className="text-court-orange/80 font-semibold text-[9px] text-center">
             Pos #{index + 1}
           </Text>
         </TouchableOpacity>
@@ -83,21 +83,21 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
         testID={`court-player-${player.id}`}
         style={positionStyle}
         className={`items-center justify-center w-20 h-20 rounded-full shadow-lg p-1 z-10 ${isSelected
-          ? "border-4 border-amber-400 bg-amber-900"
+          ? "border-4 border-court-orange bg-court-orange/20"
           : isSwapMode
-            ? "border-2 border-slate-500 bg-slate-800"
-            : "border-2 border-amber-500 bg-slate-900"
+            ? "border-2 border-tactical-blue/60 bg-tactical-blue/10"
+            : "border-2 border-court-orange bg-surface-container"
           }`}
       >
         {isSelected && (
-          <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 items-center justify-center border border-slate-950 z-20">
+          <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-court-orange items-center justify-center border border-slate-950 z-20">
             <Text className="text-slate-950 font-black text-[9px]">✓</Text>
           </View>
         )}
         <View className="items-center justify-center w-full px-1">
           {/* Top Line: Jersey Number */}
           <Text
-            className="text-amber-400 font-black text-sm leading-tight text-center"
+            className="text-court-orange font-black text-sm leading-tight text-center"
             numberOfLines={1}
           >
             {player.number ? (String(player.number).startsWith("#") ? player.number : `#${player.number}`) : "#-"}
@@ -105,14 +105,14 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
 
           {/* Second Line: Jersey Name or Fallback "F. Lastname" */}
           <Text
-            className="text-slate-200 font-semibold text-[10px] leading-tight text-center"
+            className="text-white font-semibold text-[10px] leading-tight text-center"
             numberOfLines={1}
           >
             {identifier}
           </Text>
 
           {/* Middle Section: Divisor line */}
-          <View className="w-10 h-px bg-slate-700 my-0.5" />
+          <View className="w-10 h-px bg-slate-border my-0.5" />
 
           {/* Bottom Section: Continuous Stint Time (mm:ss) */}
           <Text className="text-emerald-400 font-mono font-bold text-[10px] leading-tight text-center">
@@ -124,28 +124,28 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
   };
 
   return (
-    <View className="bg-slate-950 border border-slate-800 rounded-2xl mx-3 my-2 overflow-hidden shadow-2xl relative flex-1">
+    <View className="bg-surface-dim border border-slate-border rounded-2xl mx-3 my-2 overflow-hidden shadow-2xl relative flex-1">
       {/* Basketball Half-Court Visual Lines */}
-      <View className="h-80 w-full relative items-center bg-slate-950">
+      <View className="h-80 w-full relative items-center bg-surface-dim">
         {/* Outer 3-Point Arc */}
         <View
           pointerEvents="none"
-          className="absolute top-0 w-64 h-56 rounded-b-full border-2 border-slate-800/80"
+          className="absolute top-0 w-64 h-56 rounded-b-full border-2 border-slate-border/60"
         />
 
         {/* Free Throw Key / Paint Area */}
         <View
           pointerEvents="none"
-          className="absolute top-0 w-36 h-40 border-x-2 border-b-2 border-slate-800/80 bg-slate-900/40 items-center"
+          className="absolute top-0 w-36 h-40 border-x-2 border-b-2 border-slate-border/60 bg-surface/40 items-center"
         >
           {/* Free Throw Circle */}
           <View
             pointerEvents="none"
-            className="absolute bottom-[-24px] w-24 h-24 rounded-full border-2 border-slate-800/80"
+            className="absolute bottom-[-24px] w-24 h-24 rounded-full border-2 border-slate-border/60"
           />
           {/* Basket Ring & Backboard */}
-          <View pointerEvents="none" className="w-16 h-1 bg-amber-500/60 mt-2 rounded" />
-          <View pointerEvents="none" className="w-6 h-6 rounded-full border border-orange-500/80 mt-1" />
+          <View pointerEvents="none" className="w-16 h-1 bg-court-orange/70 mt-2 rounded" />
+          <View pointerEvents="none" className="w-6 h-6 rounded-full border border-court-orange/80 mt-1" />
         </View>
 
         {/* Court Positions Layout Along Outer 3-Point Arc */}

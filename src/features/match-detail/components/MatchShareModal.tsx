@@ -195,7 +195,7 @@ export const MatchShareModal: React.FC<MatchShareModalProps> = ({
 const styles = StyleSheet.create({
   modalRoot: {
     flex: 1,
-    backgroundColor: "#020617",
+    backgroundColor: "#0B1326",
   },
   modalHeader: {
     flexDirection: "row",
@@ -204,8 +204,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#1e293b",
-    backgroundColor: "#0f172a",
+    borderBottomColor: "#334155",
+    backgroundColor: "#171F33",
   },
   modalHeaderTitleBox: {
     flex: 1,
@@ -214,21 +214,25 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#f8fafc",
+    color: "#ffffff",
   },
   modalSubtitle: {
     fontSize: 12,
-    color: "#94a3b8",
+    color: "#E0C0B1",
     marginTop: 2,
   },
   closeButton: {
     padding: 8,
+    minWidth: 40,
+    minHeight: 40,
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 8,
-    backgroundColor: "#1e293b",
+    backgroundColor: "#1E293B",
   },
   previewContainer: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#0B1326",
     position: "relative",
   },
   verticalScroll: {
@@ -243,13 +247,13 @@ const styles = StyleSheet.create({
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    backgroundColor: "rgba(11, 19, 38, 0.8)",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 10,
   },
   loadingText: {
-    color: "#f8fafc",
+    color: "#DAE2FD",
     fontSize: 14,
     fontWeight: "600",
     marginTop: 12,
@@ -257,9 +261,9 @@ const styles = StyleSheet.create({
   modalFooter: {
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#171F33",
     borderTopWidth: 1,
-    borderTopColor: "#1e293b",
+    borderTopColor: "#334155",
     flexDirection: "row",
     gap: 12,
   },
@@ -268,13 +272,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 13,
+    minHeight: 48,
+    paddingVertical: 12,
     paddingHorizontal: 14,
     borderRadius: 12,
     gap: 8,
   },
   shareActionButton: {
-    backgroundColor: "#0284c7",
+    backgroundColor: "#F97316",
   },
   shareActionText: {
     color: "#ffffff",
@@ -282,12 +287,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   saveActionButton: {
-    backgroundColor: "#1e293b",
+    backgroundColor: "#1E293B",
     borderWidth: 1,
     borderColor: "#334155",
   },
   saveActionText: {
-    color: "#38bdf8",
+    color: "#38BDF8",
     fontSize: 14,
     fontWeight: "700",
   },

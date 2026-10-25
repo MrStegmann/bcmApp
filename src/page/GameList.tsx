@@ -144,12 +144,6 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
   const setMainMenu = () => {
     setTopMenu([
       {
-        id: TopMenuEnums.GAMES,
-        name: "Añadir Partido",
-        onPress: () => setCreateGame(true),
-        children: () => <Ionicons name="basketball-sharp" size={18} color="white" />,
-      },
-      {
         id: TopMenuEnums.GO_BACK,
         name: "Volver",
         onPress: onReturn || (() => {}),
@@ -167,87 +161,69 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
 
   const loadTeamPlayers = async () => {
     if (club?.id) {
-      const players = await PlayerController.getAll(club.id);
-      setAvailablePlayers(players || []);
+      const players = await PlayerController.loadStatsByTeam(club.id);
+      setAvailablePlayers(players);
     }
   };
 
-  // Step 1 of Match Creation: Valid Form Submitted -> Opens Optional Roster Modal
-  const handleInitiateCreateGame = (gameFormData: any) => {
-    setPendingGameData(gameFormData);
-    setPendingMatchToStart(null);
-    setSelectedRosterIds([]);
-    setIsRosterMandatory(false);
-    setRosterModalVisible(true);
-  };
-
-  // Selection of match to start or inspect (US2 & US3 Roster Enforcement, finished matches go to MatchDetailView)
   const handleSelectGame = async (game: Game) => {
     if (game.status === "finished") {
       setGameSelected(game);
       return;
     }
-    if (game.status === "pending" || !game.status) {
-      const roster = await GameController.getRoster(game.id);
-      if (!roster || roster.length === 0) {
-        // Enforce mandatory roster selection before match entry
+
+    if (game.id) {
+      const existingRoster = await GameController.getCalledUpPlayers(game.id);
+      if (!existingRoster || existingRoster.length === 0) {
         setPendingMatchToStart(game);
-        setPendingGameData(null);
-        setSelectedRosterIds([]);
         setIsRosterMandatory(true);
+        setSelectedRosterIds([]);
         setRosterModalVisible(true);
         return;
       }
     }
+
     setGameSelected(game);
   };
 
-  const handleToggleRosterPlayer = (playerId: number) => {
-    setSelectedRosterIds((prev) =>
-      prev.includes(playerId)
-        ? prev.filter((id) => id !== playerId)
-        : prev.length < 12
-        ? [...prev, playerId]
-        : prev
-    );
+  const handleInitiateCreateGame = (gameData: any) => {
+    setPendingGameData(gameData);
+    setIsRosterMandatory(false);
+    setSelectedRosterIds([]);
+    setRosterModalVisible(true);
   };
 
-  // User Confirms Roster in Modal (handles both creation flow and mandatory start flow)
-  const handleConfirmRoster = async (rosterIds: number[]) => {
-    if (isRosterMandatory && pendingMatchToStart) {
-      // Mandatory match start flow: save roster to existing pending match
-      for (const pid of rosterIds) {
-        await GameController.editCalledup({
-          called: true,
-          game_id: pendingMatchToStart.id,
-          player_id: pid,
-        });
+  const handleToggleRosterPlayer = (playerId: number) => {
+    setSelectedRosterIds((prev) => {
+      if (prev.includes(playerId)) {
+        return prev.filter((id) => id !== playerId);
+      } else {
+        if (prev.length >= 12) return prev;
+        return [...prev, playerId];
       }
-      const matchToOpen = pendingMatchToStart;
-      setPendingMatchToStart(null);
-      setRosterModalVisible(false);
-      setGameSelected(matchToOpen);
-      await getData();
-    } else if (pendingGameData) {
-      // Creation flow: create match + save roster
-      const newGame = await GameController.add(pendingGameData);
-      if (newGame?.id) {
-        for (const pid of rosterIds) {
-          await GameController.editCalledup({
-            called: true,
-            game_id: newGame.id,
-            player_id: pid,
-          });
-        }
+    });
+  };
+
+  const handleConfirmRoster = async (rosterIds: number[]) => {
+    if (pendingGameData) {
+      const createdGameId = await GameController.add(pendingGameData);
+      if (createdGameId && rosterIds.length > 0) {
+        await GameController.saveCalledUpPlayers(createdGameId, rosterIds);
       }
       setPendingGameData(null);
       setRosterModalVisible(false);
       setCreateGame(false);
       await getData();
+    } else if (pendingMatchToStart && pendingMatchToStart.id) {
+      await GameController.saveCalledUpPlayers(pendingMatchToStart.id, rosterIds);
+      const matchToLaunch = pendingMatchToStart;
+      setPendingMatchToStart(null);
+      setRosterModalVisible(false);
+      setGameSelected(matchToLaunch);
+      await getData();
     }
   };
 
-  // User Skips Roster in Modal (Creation flow only)
   const handleSkipRoster = async () => {
     if (pendingGameData) {
       await GameController.add(pendingGameData);
@@ -301,7 +277,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
   }, []);
 
   return (
-    <View className="w-full h-full justify-start items-center px-2">
+    <View className="w-full h-full justify-start items-center px-3 bg-surface">
       <DeleteModal
         title={`¿Estás seguro de que quieres eliminar el partido contra ${itemToDelete?.opponent || ""}?`}
         visible={modalVisible}
@@ -309,7 +285,6 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
         onDelete={handleConfirmDelete}
       />
 
-      {/* Reusable Roster Selection Modal */}
       <RosterSelectionModal
         visible={rosterModalVisible}
         isMandatory={isRosterMandatory}

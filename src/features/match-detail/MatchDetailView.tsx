@@ -95,8 +95,8 @@ export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center">
-        <ActivityIndicator size="large" color="#38bdf8" />
+      <View className="flex-1 bg-surface items-center justify-center">
+        <ActivityIndicator size="large" color="#0EA5E9" />
       </View>
     );
   }
@@ -110,7 +110,7 @@ export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-surface">
       <MatchSummaryHeader
         teamName={teamName}
         opponentName={match.opponent}
@@ -169,3 +169,5 @@ export const MatchDetailView: React.FC<MatchDetailViewProps> = ({
     </View>
   );
 };
+
+export default MatchDetailView;

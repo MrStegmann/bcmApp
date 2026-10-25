@@ -55,15 +55,15 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         activeOpacity={0.7}
         className={`p-3.5 mb-2.5 rounded-xl border ${
           isUnread
-            ? "bg-gray-800 border-amber-500/40"
-            : "bg-gray-900/80 border-gray-800"
+            ? "bg-surface-elevated border-court-orange/40"
+            : "bg-surface-container border-slate-border"
         }`}
         testID={`notification-item-${item.id}`}
       >
         <View className="flex-row items-center justify-between mb-1">
           <View className="flex-row items-center flex-1 mr-2">
             {isUnread && (
-              <View className="w-2 h-2 rounded-full bg-amber-400 mr-2" />
+              <View className="w-2 h-2 rounded-full bg-court-orange mr-2" />
             )}
             <Text
               className="text-white font-bold text-sm flex-1"
@@ -72,24 +72,24 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               {item.title}
             </Text>
           </View>
-          <Text className="text-gray-400 text-xs">
+          <Text className="text-slate-400 text-xs">
             {formatTimestamp(item.receivedAt)}
           </Text>
         </View>
 
-        <Text className="text-gray-300 text-xs leading-relaxed">
+        <Text className="text-slate-300 text-xs leading-relaxed">
           {item.body}
         </Text>
 
         {item.suppressedReason !== "none" && (
           <View className="flex-row items-center mt-2">
-            <View className="bg-gray-700/60 px-2 py-0.5 rounded-md flex-row items-center">
+            <View className="bg-surface-elevated px-2 py-0.5 rounded-md flex-row items-center border border-slate-border/50">
               <Feather
                 name={item.suppressedReason === "match" ? "shield" : "bell-off"}
                 size={10}
-                color="#9ca3af"
+                color="#94A3B8"
               />
-              <Text className="text-gray-400 text-[10px] ml-1">
+              <Text className="text-slate-400 text-[10px] ml-1">
                 {item.suppressedReason === "match"
                   ? "Silenciada durante partido"
                   : "Silenciada en app"}
@@ -108,17 +108,17 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
       transparent={false}
       onRequestClose={onClose}
     >
-      <SafeAreaView className="flex-1 bg-gray-950">
+      <SafeAreaView className="flex-1 bg-canvas">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-3.5 border-b border-gray-800 bg-gray-900">
+        <View className="flex-row items-center justify-between px-4 py-3.5 border-b border-slate-border bg-surface-container">
           <View className="flex-row items-center">
-            <Feather name="bell" size={20} color="#f59e0b" />
+            <Feather name="bell" size={20} color="#F97316" />
             <Text className="text-white text-lg font-bold ml-2">
               Notificaciones
             </Text>
             {unreadCount > 0 && (
-              <View className="bg-red-600 rounded-full px-2 py-0.5 ml-2">
-                <Text className="text-white text-xs font-bold">
+              <View className="bg-court-orange rounded-full px-2 py-0.5 ml-2">
+                <Text className="text-slate-950 text-xs font-bold">
                   {unreadCount}
                 </Text>
               </View>
@@ -129,17 +129,17 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
             {onOpenSettings && (
               <TouchableOpacity
                 onPress={onOpenSettings}
-                className="w-9 h-9 items-center justify-center rounded-lg bg-gray-800 mr-2"
+                className="w-9 h-9 items-center justify-center rounded-lg bg-surface-elevated mr-2"
                 testID="notification-settings-btn"
                 accessibilityLabel="Ajustes de notificaciones"
               >
-                <Feather name="settings" size={18} color="#9ca3af" />
+                <Feather name="settings" size={18} color="#94A3B8" />
               </TouchableOpacity>
             )}
 
             <TouchableOpacity
               onPress={onClose}
-              className="w-9 h-9 items-center justify-center rounded-lg bg-gray-800"
+              className="w-9 h-9 items-center justify-center rounded-lg bg-surface-elevated"
               testID="notification-center-close-btn"
               accessibilityLabel="Cerrar"
             >
@@ -150,14 +150,14 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
         {/* Action Bar */}
         {recentNotifications.length > 0 && (
-          <View className="flex-row items-center justify-between px-4 py-2 border-b border-gray-800/60 bg-gray-900/40">
+          <View className="flex-row items-center justify-between px-4 py-2 border-b border-slate-border/60 bg-surface-dim/40">
             <TouchableOpacity
               onPress={() => markAllAsRead()}
               className="flex-row items-center py-1"
               testID="mark-all-read-btn"
             >
-              <Feather name="check" size={14} color="#f59e0b" />
-              <Text className="text-amber-400 text-xs font-semibold ml-1.5">
+              <Feather name="check" size={14} color="#F97316" />
+              <Text className="text-court-orange text-xs font-semibold ml-1.5">
                 Marcar todo como leído
               </Text>
             </TouchableOpacity>
@@ -167,8 +167,8 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               className="flex-row items-center py-1"
               testID="clear-all-btn"
             >
-              <Feather name="trash-2" size={14} color="#ef4444" />
-              <Text className="text-red-400 text-xs font-semibold ml-1.5">
+              <Feather name="trash-2" size={14} color="#EF4444" />
+              <Text className="text-rose-400 text-xs font-semibold ml-1.5">
                 Limpiar historial
               </Text>
             </TouchableOpacity>
@@ -182,13 +182,13 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               className="flex-1 items-center justify-center py-12"
               testID="notifications-empty-state"
             >
-              <View className="w-16 h-16 rounded-full bg-gray-900 border border-gray-800 items-center justify-center mb-4">
-                <Feather name="bell-off" size={28} color="#6b7280" />
+              <View className="w-16 h-16 rounded-full bg-surface-elevated border border-slate-border items-center justify-center mb-4">
+                <Feather name="bell-off" size={28} color="#64748B" />
               </View>
               <Text className="text-white text-base font-bold mb-1">
                 Sin notificaciones
               </Text>
-              <Text className="text-gray-400 text-xs text-center max-w-[240px]">
+              <Text className="text-slate-400 text-xs text-center max-w-[240px]">
                 Las notificaciones silenciadas se guardarán aquí para consultarlas
                 cuando desees.
               </Text>

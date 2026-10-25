@@ -66,76 +66,76 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
   return (
     <Modal visible={visible} transparent={true} animationType="fade" onRequestClose={handleClose}>
       <View className="flex-1 justify-center items-center bg-black/80 px-4 py-8">
-        <View className="w-full max-h-[90%] bg-danish-dark-gray border-2 border-danish-gold rounded-3xl p-5 shadow-2xl flex-col justify-between">
+        <View className="w-full max-h-[90%] bg-surface-container border border-slate-border rounded-3xl p-5 shadow-2xl flex-col justify-between">
           {/* Header */}
-          <View className="flex-row items-center justify-between border-b border-gray-700 pb-3 mb-3">
+          <View className="flex-row items-center justify-between border-b border-slate-border pb-3 mb-3">
             <View className="flex-row items-center gap-3">
-              <View className="w-10 h-10 rounded-full bg-danish-gold items-center justify-center border border-amber-300">
-                <Text className="text-base font-black text-gray-950">{player.number}</Text>
+              <View className="w-10 h-10 rounded-full bg-court-orange items-center justify-center border border-court-orange/40">
+                <Text className="text-base font-black text-slate-950">{player.number}</Text>
               </View>
               <View>
-                <Text className="text-lg font-black text-danish-white">
+                <Text className="text-lg font-black text-white">
                   {player.firstName} {player.lastName}
                 </Text>
                 <View className="flex-row items-center gap-3 mt-0.5">
-                  <Text className="text-xs font-bold text-danish-gold">{currentPts} pts</Text>
-                  <Text className="text-xs text-gray-500">•</Text>
-                  <Text className="text-xs font-bold text-red-400">{player.falt} faltas</Text>
+                  <Text className="text-xs font-bold text-court-orange">{currentPts} pts</Text>
+                  <Text className="text-xs text-slate-500">•</Text>
+                  <Text className="text-xs font-bold text-rose-400">{player.falt} faltas</Text>
                 </View>
               </View>
             </View>
-            <TouchableOpacity onPress={handleClose} className="p-2 rounded-full bg-gray-800">
-              <Feather name="x" size={18} color="#9CA3AF" />
+            <TouchableOpacity onPress={handleClose} className="p-2 min-h-[48px] min-w-[48px] items-center justify-center rounded-full bg-surface-elevated">
+              <Feather name="x" size={18} color="#94A3B8" />
             </TouchableOpacity>
           </View>
 
           {/* Step 1: Main Stats Selection */}
           {step === "main" && (
             <View className="flex-col gap-3 my-2">
-              <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                 Anotación & Tiros
               </Text>
               <View className="flex-row gap-2">
                 <TouchableOpacity
                   onPress={() => handleSelectStat("t1")}
-                  className="flex-1 py-3 bg-gray-800 active:bg-amber-950 border border-gray-700 active:border-danish-gold rounded-2xl items-center"
+                  className="flex-1 min-h-[56px] py-3 bg-surface-elevated active:bg-court-orange/20 border border-slate-border active:border-court-orange rounded-2xl items-center justify-center"
                 >
-                  <Text className="text-lg font-black text-danish-white">T1</Text>
-                  <Text className="text-[10px] text-gray-400 font-semibold mt-0.5">Tiro Libre</Text>
+                  <Text className="text-lg font-black text-white">T1</Text>
+                  <Text className="text-[10px] text-slate-400 font-semibold mt-0.5">Tiro Libre</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("t2")}
-                  className="flex-1 py-3 bg-gray-800 active:bg-amber-950 border border-gray-700 active:border-danish-gold rounded-2xl items-center"
+                  className="flex-1 min-h-[56px] py-3 bg-surface-elevated active:bg-court-orange/20 border border-slate-border active:border-court-orange rounded-2xl items-center justify-center"
                 >
-                  <Text className="text-lg font-black text-danish-white">T2</Text>
-                  <Text className="text-[10px] text-gray-400 font-semibold mt-0.5">Canasta 2PT</Text>
+                  <Text className="text-lg font-black text-white">T2</Text>
+                  <Text className="text-[10px] text-slate-400 font-semibold mt-0.5">Canasta 2PT</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("t3")}
-                  className="flex-1 py-3 bg-gray-800 active:bg-amber-950 border border-gray-700 active:border-danish-gold rounded-2xl items-center"
+                  className="flex-1 min-h-[56px] py-3 bg-surface-elevated active:bg-court-orange/20 border border-slate-border active:border-court-orange rounded-2xl items-center justify-center"
                 >
-                  <Text className="text-lg font-black text-danish-white">T3</Text>
-                  <Text className="text-[10px] text-gray-400 font-semibold mt-0.5">Triple 3PT</Text>
+                  <Text className="text-lg font-black text-white">T3</Text>
+                  <Text className="text-[10px] text-slate-400 font-semibold mt-0.5">Triple 3PT</Text>
                 </TouchableOpacity>
               </View>
 
-              <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-2">
                 Acciones de Juego
               </Text>
               <View className="flex-row flex-wrap gap-2">
                 <TouchableOpacity
                   onPress={() => handleSelectStat("fault")}
-                  className="flex-1 min-w-[45%] py-2.5 px-3 bg-red-950/60 border border-red-800 rounded-xl flex-row items-center gap-2"
+                  className="flex-1 min-w-[45%] min-h-[48px] py-3 px-3 bg-error-container/30 border border-error-container/60 rounded-xl flex-row items-center gap-2"
                 >
                   <Ionicons name="warning-outline" size={16} color="#F87171" />
-                  <Text className="text-xs font-bold text-red-300">Falta Personal</Text>
+                  <Text className="text-xs font-bold text-rose-300">Falta Personal</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("asis")}
-                  className="flex-1 min-w-[45%] py-2.5 px-3 bg-emerald-950/60 border border-emerald-800 rounded-xl flex-row items-center gap-2"
+                  className="flex-1 min-w-[45%] min-h-[48px] py-3 px-3 bg-emerald-950/60 border border-emerald-800 rounded-xl flex-row items-center gap-2"
                 >
                   <Feather name="award" size={16} color="#34D399" />
                   <Text className="text-xs font-bold text-emerald-300">Asistencia</Text>
@@ -143,15 +143,15 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("oreb")}
-                  className="flex-1 min-w-[45%] py-2.5 px-3 bg-blue-950/60 border border-blue-800 rounded-xl flex-row items-center gap-2"
+                  className="flex-1 min-w-[45%] min-h-[48px] py-3 px-3 bg-tactical-blue/20 border border-tactical-blue/50 rounded-xl flex-row items-center gap-2"
                 >
-                  <Feather name="arrow-up-circle" size={16} color="#60A5FA" />
-                  <Text className="text-xs font-bold text-blue-300">Reb. Ofensivo</Text>
+                  <Feather name="arrow-up-circle" size={16} color="#38BDF8" />
+                  <Text className="text-xs font-bold text-tactical-blue-light">Reb. Ofensivo</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("dreb")}
-                  className="flex-1 min-w-[45%] py-2.5 px-3 bg-indigo-950/60 border border-indigo-800 rounded-xl flex-row items-center gap-2"
+                  className="flex-1 min-w-[45%] min-h-[48px] py-3 px-3 bg-surface-elevated border border-slate-border rounded-xl flex-row items-center gap-2"
                 >
                   <Feather name="shield" size={16} color="#818CF8" />
                   <Text className="text-xs font-bold text-indigo-300">Reb. Defensivo</Text>
@@ -159,18 +159,18 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("rec")}
-                  className="flex-1 min-w-[45%] py-2.5 px-3 bg-amber-950/60 border border-amber-800 rounded-xl flex-row items-center gap-2"
+                  className="flex-1 min-w-[45%] min-h-[48px] py-3 px-3 bg-court-orange/15 border border-court-orange/40 rounded-xl flex-row items-center gap-2"
                 >
-                  <Feather name="zap" size={16} color="#FBBF24" />
-                  <Text className="text-xs font-bold text-amber-300">Recuperación</Text>
+                  <Feather name="zap" size={16} color="#F97316" />
+                  <Text className="text-xs font-bold text-court-orange">Recuperación</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => handleSelectStat("per")}
-                  className="flex-1 min-w-[45%] py-2.5 px-3 bg-gray-800 border border-gray-700 rounded-xl flex-row items-center gap-2"
+                  className="flex-1 min-w-[45%] min-h-[48px] py-3 px-3 bg-surface-elevated border border-slate-border rounded-xl flex-row items-center gap-2"
                 >
-                  <Feather name="alert-triangle" size={16} color="#9CA3AF" />
-                  <Text className="text-xs font-bold text-gray-300">Pérdida</Text>
+                  <Feather name="alert-triangle" size={16} color="#94A3B8" />
+                  <Text className="text-xs font-bold text-slate-300">Pérdida</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -179,17 +179,17 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Step 2: Make vs Miss Prompt */}
           {step === "shotMakeMiss" && (
             <View className="py-4 items-center">
-              <Text className="text-base font-bold text-danish-white mb-1">
+              <Text className="text-base font-bold text-white mb-1">
                 ¿Resultado del {pendingShot?.toUpperCase()}?
               </Text>
-              <Text className="text-xs text-gray-400 mb-6 text-center">
+              <Text className="text-xs text-slate-400 mb-6 text-center">
                 Confirma si el tiro fue anotado o fallado por {player.firstName}.
               </Text>
 
               <View className="flex-row gap-3 w-full">
                 <TouchableOpacity
                   onPress={() => handleShotMakeMiss(true)}
-                  className="flex-1 py-4 bg-emerald-600 active:bg-emerald-700 rounded-2xl items-center justify-center shadow-lg"
+                  className="flex-1 min-h-[56px] py-4 bg-emerald-600 active:bg-emerald-700 rounded-2xl items-center justify-center shadow-lg"
                 >
                   <Feather name="check-circle" size={24} color="white" />
                   <Text className="text-sm font-black text-white uppercase mt-1">Anotado</Text>
@@ -197,7 +197,7 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
 
                 <TouchableOpacity
                   onPress={() => handleShotMakeMiss(false)}
-                  className="flex-1 py-4 bg-red-700 active:bg-red-800 rounded-2xl items-center justify-center shadow-lg"
+                  className="flex-1 min-h-[56px] py-4 bg-error-container active:bg-[#690005] rounded-2xl items-center justify-center shadow-lg"
                 >
                   <Feather name="x-circle" size={24} color="white" />
                   <Text className="text-sm font-black text-white uppercase mt-1">Fallado</Text>
@@ -209,10 +209,10 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Step 3: Assist Selection */}
           {step === "assistSelector" && (
             <View className="py-2">
-              <Text className="text-base font-bold text-danish-white mb-1 text-center">
+              <Text className="text-base font-bold text-white mb-1 text-center">
                 ¿Quién ha dado la asistencia?
               </Text>
-              <Text className="text-xs text-gray-400 mb-4 text-center">
+              <Text className="text-xs text-slate-400 mb-4 text-center">
                 Selecciona al compañero en pista o indica si no hubo asistencia.
               </Text>
 
@@ -224,19 +224,19 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                       <TouchableOpacity
                         key={teammate.id}
                         onPress={() => handleSelectAssist(teammate.id)}
-                        className="p-3 bg-gray-800 active:bg-amber-950 border border-gray-700 active:border-danish-gold rounded-xl flex-row items-center justify-between"
+                        className="p-3 min-h-[48px] bg-surface-elevated active:bg-court-orange/20 border border-slate-border active:border-court-orange rounded-xl flex-row items-center justify-between"
                       >
                         <View className="flex-row items-center gap-3">
-                          <View className="w-7 h-7 rounded-full bg-danish-gold items-center justify-center">
-                            <Text className="text-xs font-black text-gray-950">
+                          <View className="w-7 h-7 rounded-full bg-court-orange items-center justify-center">
+                            <Text className="text-xs font-black text-slate-950">
                               {teammate.number}
                             </Text>
                           </View>
-                          <Text className="text-sm font-bold text-danish-white">
+                          <Text className="text-sm font-bold text-white">
                             {teammate.firstName} {teammate.lastName}
                           </Text>
                         </View>
-                        <Feather name="chevron-right" size={16} color="#9CA3AF" />
+                        <Feather name="chevron-right" size={16} color="#94A3B8" />
                       </TouchableOpacity>
                     ))}
                 </View>
@@ -244,9 +244,9 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
 
               <TouchableOpacity
                 onPress={() => handleSelectAssist(null)}
-                className="w-full py-3 mt-3 bg-gray-700 active:bg-gray-600 rounded-xl items-center"
+                className="w-full py-3.5 min-h-[48px] mt-3 bg-surface-elevated border border-slate-border active:bg-slate-border rounded-xl items-center justify-center"
               >
-                <Text className="text-xs font-bold text-gray-200 uppercase tracking-wider">
+                <Text className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                   Sin Asistencia
                 </Text>
               </TouchableOpacity>
@@ -257,9 +257,9 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {step !== "main" && (
             <TouchableOpacity
               onPress={() => setStep("main")}
-              className="mt-2 py-2 items-center"
+              className="mt-2 py-3 min-h-[48px] items-center justify-center"
             >
-              <Text className="text-xs text-gray-400 font-semibold">← Volver a opciones</Text>
+              <Text className="text-xs text-slate-400 font-semibold">← Volver a opciones</Text>
             </TouchableOpacity>
           )}
         </View>

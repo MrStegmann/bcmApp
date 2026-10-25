@@ -80,7 +80,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ onSubmit, onCancel, playerData 
   };
 
   return (
-    <View className="w-full px-5 flex-1 gap-5">
+    <View className="w-full px-4 flex-1 gap-4">
       <Input
         placeholder="Nombre del Jugador"
         value={firstName}

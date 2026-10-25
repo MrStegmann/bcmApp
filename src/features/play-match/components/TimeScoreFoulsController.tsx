@@ -23,15 +23,15 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
   const canResetExtra = isExtraPeriod && periodData.remainingSeconds === 0;
 
   return (
-    <View className="bg-slate-900 border-b border-slate-800 p-3 shadow-md">
+    <View className="bg-surface-container border-b border-slate-border p-3 shadow-md">
 
       {/* Main Scoreboard: ONLY Current Period Score & Period Team Fouls */}
-      <View className="flex-row items-center justify-between bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+      <View className="flex-row items-center justify-between bg-surface-dim border border-slate-border rounded-xl p-3">
         {/* Local Team Period Score & Fouls */}
         <View className="flex-1 items-center">
           <Text className="text-slate-400 font-bold text-xs tracking-wider">LOCAL</Text>
-          <Text className="text-4xl font-black text-amber-400 tracking-tight">{periodData.teamScore}</Text>
-          <View className="flex-row items-center space-x-1.5 mt-1 bg-slate-900/90 px-2.5 py-0.5 rounded-full border border-slate-800">
+          <Text className="text-4xl font-black text-court-orange tracking-tight">{periodData.teamScore}</Text>
+          <View className="flex-row items-center space-x-1.5 mt-1 bg-surface-container px-2.5 py-0.5 rounded-full border border-slate-border">
             <Text className="text-slate-400 text-xs font-semibold">Faltas:</Text>
             <Text className="text-rose-400 font-extrabold text-xs">{periodData.teamFouls}</Text>
           </View>
@@ -45,7 +45,7 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
             onPress={onNextPeriod}
             onLongPress={onOpenPeriodSelectModal}
             delayLongPress={500}
-            className="bg-slate-800 border border-slate-700 rounded-xl px-2 py-1 flex-row items-center space-x-2 mb-1"
+            className="bg-surface-elevated border border-slate-border rounded-xl px-3 py-1.5 min-h-[36px] flex-row items-center justify-center space-x-2 mb-1 active:bg-slate-border"
             testID="period-selector-button"
           >
             <View>
@@ -53,7 +53,7 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
             </View>
           </TouchableOpacity>
 
-          <Text className="text-slate-600 font-black text-2xl">VS</Text>
+          <Text className="text-slate-600 font-black text-xl">VS</Text>
           <Pressable
             onPress={onToggleTimer}
             onLongPress={onOpenManualTimeModal}
@@ -65,7 +65,7 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
               borderWidth: 1,
               opacity: pressed ? 0.8 : 1,
             })}
-            className="flex-row items-center space-x-2 px-4 py-2 rounded-xl"
+            className="flex-row items-center space-x-2 px-4 py-2 min-h-[48px] rounded-xl"
           >
             <View className="items-center">
               <View className="flex-row items-center space-x-1">
@@ -99,16 +99,16 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
               disabled={!canResetExtra}
               onPress={onResetExtraTimeCrono}
               testID="reset-extra-crono-button"
-              className={`w-10 h-10 rounded-xl items-center justify-center border ${canResetExtra
-                ? "bg-amber-500 border-amber-500 active:bg-amber-600"
-                : "bg-slate-800 border-slate-800"
+              className={`w-10 h-10 rounded-xl items-center justify-center border mt-1 ${canResetExtra
+                ? "bg-court-orange border-court-orange active:bg-court-orange-dark"
+                : "bg-surface-elevated border-slate-border opacity-50"
                 }`}
               accessibilityLabel="Reiniciar tiempo extra"
             >
               <MaterialIcons
                 name="refresh"
                 size={22}
-                color={canResetExtra ? "#fbbf24" : "#64748b"}
+                color={canResetExtra ? "#0B1326" : "#64748b"}
               />
             </TouchableOpacity>
           )}
@@ -117,8 +117,8 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
         {/* Rival Team Period Score & Fouls */}
         <View className="flex-1 items-center">
           <Text className="text-slate-400 font-bold text-xs tracking-wider">RIVAL</Text>
-          <Text className="text-4xl font-black text-sky-400 tracking-tight">{periodData.rivalScore}</Text>
-          <View className="flex-row items-center space-x-1.5 mt-1 bg-slate-900/90 px-2.5 py-0.5 rounded-full border border-slate-800">
+          <Text className="text-4xl font-black text-tactical-blue tracking-tight">{periodData.rivalScore}</Text>
+          <View className="flex-row items-center space-x-1.5 mt-1 bg-surface-container px-2.5 py-0.5 rounded-full border border-slate-border">
             <Text className="text-slate-400 text-xs font-semibold">Faltas:</Text>
             <Text className="text-rose-400 font-extrabold text-xs">{periodData.rivalFouls}</Text>
           </View>

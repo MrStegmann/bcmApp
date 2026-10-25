@@ -27,28 +27,28 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, onSelect, onEdit, onDelete })
   return (
     <TouchableOpacity
       onPress={() => onSelect(team)}
-      className="my-2 w-full active:opacity-80"
+      className="my-2 w-full active:opacity-85"
       testID={`team-card-${team.id}`}
     >
-      <View className="w-full h-20 flex-row bg-danish-dark-gray rounded-xl justify-between items-center px-5 border-2 border-danish-red shadow-lg shadow-black">
+      <View className="w-full h-20 flex-row bg-slate-card rounded-xl justify-between items-center px-5 border border-slate-border shadow-md">
         <View className="flex-col">
-          <Text className="text-danish-white text-xl font-bold">{team.name}</Text>
+          <Text className="text-white text-xl font-bold">{team.name}</Text>
           {team.category ? (
-            <Text className="text-gray-400 text-sm">{team.category}</Text>
+            <Text className="text-on-surface-variant text-sm">{team.category}</Text>
           ) : null}
         </View>
 
-        <View className="flex-row items-center space-x-3">
+        <View className="flex-row items-center space-x-1 gap-1">
           {onEdit ? (
             <TouchableOpacity
               onPress={(e) => {
                 e.stopPropagation();
                 onEdit(team);
               }}
-              className="p-2"
+              className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
               testID={`edit-team-${team.id}`}
             >
-              <Feather name="edit-2" size={20} color="#3b82f6" />
+              <Feather name="edit-2" size={20} color="#0EA5E9" />
             </TouchableOpacity>
           ) : null}
 
@@ -57,10 +57,10 @@ const TeamCard: React.FC<TeamCardProps> = ({ team, onSelect, onEdit, onDelete })
               e.stopPropagation();
               onDelete(team);
             }}
-            className="p-2"
+            className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
             testID={`delete-team-${team.id}`}
           >
-            <Feather name="trash-2" size={20} color="#ef4444" />
+            <Feather name="trash-2" size={20} color="#EF4444" />
           </TouchableOpacity>
         </View>
       </View>
@@ -127,21 +127,21 @@ export default function ClubList({
             />
           ))
         ) : (
-          <View className="py-12 items-center justify-center bg-gray-800/60 rounded-2xl border border-dashed border-gray-700 p-6 mt-4">
-            <MaterialIcons name="sports-basketball" size={48} color="#9ca3af" />
-            <Text className="text-center font-bold text-danish-white text-lg mt-3">
+          <View className="py-12 items-center justify-center bg-surface-container rounded-2xl border border-dashed border-slate-border p-6 mt-4">
+            <MaterialIcons name="sports-basketball" size={48} color="#A78B7D" />
+            <Text className="text-center font-bold text-white text-lg mt-3">
               No hay ningún equipo registrado
             </Text>
-            <Text className="text-center text-gray-400 text-sm mt-1 mb-5">
+            <Text className="text-center text-on-surface-variant text-sm mt-1 mb-5">
               Crea tu primer equipo para comenzar a gestionar plantilla y partidos.
             </Text>
             {onCreateTeam ? (
               <TouchableOpacity
                 onPress={onCreateTeam}
-                className="bg-danish-red px-5 py-3 rounded-xl flex-row items-center space-x-2 active:bg-red-700"
+                className="bg-court-orange px-5 py-3 rounded-xl flex-row items-center space-x-2 active:bg-court-orange-dark min-h-[48px] shadow-md"
               >
                 <MaterialIcons name="add" size={20} color="white" />
-                <Text className="text-white font-bold text-base">Crear Equipo</Text>
+                <Text className="text-white font-bold text-base ml-1">Crear Equipo</Text>
               </TouchableOpacity>
             ) : null}
           </View>

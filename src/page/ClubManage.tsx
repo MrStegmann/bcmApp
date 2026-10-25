@@ -133,12 +133,12 @@ const ClubManage: React.FC = () => {
   }, []);
 
   return (
-    <View className="w-full h-full flex flex-col justify-between bg-gray-900 relative">
+    <View className="w-full h-full flex flex-col justify-between bg-surface relative">
       <Alerts />
 
       <Header />
 
-      <View className="flex-1 w-full py-2 bg-gray-900">
+      <View className="flex-1 w-full py-2 bg-surface">
         <KeyboardAwareScrollView
           enableOnAndroid={true}
           extraScrollHeight={130}

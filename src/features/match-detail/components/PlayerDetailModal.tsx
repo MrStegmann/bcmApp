@@ -26,12 +26,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/80 items-center justify-center p-4">
-        <View className="w-full max-w-lg bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
+        <View className="w-full max-w-lg bg-surface-container rounded-2xl border border-slate-border overflow-hidden shadow-2xl">
           {/* Header */}
-          <View className="flex-row items-center justify-between px-5 py-4 bg-slate-800/80 border-b border-slate-700">
+          <View className="flex-row items-center justify-between px-5 py-4 bg-slate-card border-b border-slate-border">
             <View className="flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/50 items-center justify-center mr-3">
-                <Text className="text-amber-400 font-extrabold text-base">
+              <View className="w-10 h-10 rounded-full bg-court-orange/20 border border-court-orange/50 items-center justify-center mr-3">
+                <Text className="text-court-orange font-extrabold text-base">
                   #{player.jerseyNumber || "0"}
                 </Text>
               </View>
@@ -39,7 +39,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
                 <Text className="text-white font-extrabold text-lg">
                   {player.fullName || "Jugador"}
                 </Text>
-                <Text className="text-slate-400 text-xs">
+                <Text className="text-on-surface-variant text-xs">
                   Tiempo en pista: {player.minutes} min
                 </Text>
               </View>
@@ -47,10 +47,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
 
             <TouchableOpacity
               onPress={onClose}
-              className="p-2 rounded-full bg-slate-700/60 active:bg-slate-700"
+              className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-full bg-slate-dark active:bg-slate-card"
               testID="close-player-modal-button"
             >
-              <Feather name="x" size={18} color="#94a3b8" />
+              <Feather name="x" size={18} color="#A78B7D" />
             </TouchableOpacity>
           </View>
 
@@ -60,95 +60,95 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
             showsVerticalScrollIndicator={false}
           >
             {/* Top Key Metrics */}
-            <View className="flex-row items-center justify-between mb-5 bg-slate-800/50 rounded-xl p-3 border border-slate-700/60">
+            <View className="flex-row items-center justify-between mb-5 bg-slate-dark rounded-xl p-3 border border-slate-border">
               <View className="items-center flex-1">
-                <Text className="text-slate-400 text-xs uppercase font-semibold mb-0.5">
+                <Text className="text-on-surface-variant text-xs uppercase font-semibold mb-0.5">
                   Puntos
                 </Text>
-                <Text className="text-emerald-400 font-black text-2xl">
+                <Text className="text-court-orange font-black text-2xl">
                   {player.points}
                 </Text>
               </View>
 
-              <View className="w-[1px] h-8 bg-slate-700" />
+              <View className="w-[1px] h-8 bg-slate-border" />
 
               <View className="items-center flex-1">
-                <Text className="text-slate-400 text-xs uppercase font-semibold mb-0.5">
+                <Text className="text-on-surface-variant text-xs uppercase font-semibold mb-0.5">
                   Valoración
                 </Text>
                 <Text
                   className={`font-black text-2xl ${
                     player.valuation >= 15
-                      ? "text-emerald-300"
+                      ? "text-court-green"
                       : player.valuation > 0
-                      ? "text-sky-300"
-                      : "text-rose-400"
+                      ? "text-tactical-blue-light"
+                      : "text-court-red"
                   }`}
                 >
                   {player.valuation}
                 </Text>
               </View>
 
-              <View className="w-[1px] h-8 bg-slate-700" />
+              <View className="w-[1px] h-8 bg-slate-border" />
 
               <View className="items-center flex-1">
-                <Text className="text-slate-400 text-xs uppercase font-semibold mb-0.5">
+                <Text className="text-on-surface-variant text-xs uppercase font-semibold mb-0.5">
                   Rebotes
                 </Text>
-                <Text className="text-amber-300 font-black text-2xl">
+                <Text className="text-primary font-black text-2xl">
                   {player.totalRebounds}
                 </Text>
               </View>
             </View>
 
             {/* Shooting Breakdown */}
-            <Text className="text-slate-300 font-bold text-xs uppercase tracking-wider mb-2">
+            <Text className="text-white font-bold text-xs uppercase tracking-wider mb-2">
               Tiros de Campo y Libres
             </Text>
-            <View className="bg-slate-800/60 rounded-xl p-3 border border-slate-700/60 mb-4 space-y-2.5">
+            <View className="bg-slate-card rounded-xl p-3 border border-slate-border mb-4 space-y-2.5">
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Tiros Libres (1pt)
                 </Text>
                 <Text className="text-white font-bold text-sm">
                   {player.t1a} / {player.t1i}{" "}
-                  <Text className="text-slate-400 text-xs font-normal">
+                  <Text className="text-on-surface-variant text-xs font-normal">
                     ({calculatePct(player.t1a, player.t1i)})
                   </Text>
                 </Text>
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Tiros de 2 (2pt)
                 </Text>
                 <Text className="text-white font-bold text-sm">
                   {player.t2a} / {player.t2i}{" "}
-                  <Text className="text-slate-400 text-xs font-normal">
+                  <Text className="text-on-surface-variant text-xs font-normal">
                     ({calculatePct(player.t2a, player.t2i)})
                   </Text>
                 </Text>
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Triples (3pt)
                 </Text>
                 <Text className="text-white font-bold text-sm">
                   {player.t3a} / {player.t3i}{" "}
-                  <Text className="text-slate-400 text-xs font-normal">
+                  <Text className="text-on-surface-variant text-xs font-normal">
                     ({calculatePct(player.t3a, player.t3i)})
                   </Text>
                 </Text>
               </View>
 
-              <View className="flex-row items-center justify-between pt-1 border-t border-slate-700/50">
-                <Text className="text-slate-400 text-xs font-semibold uppercase">
+              <View className="flex-row items-center justify-between pt-1 border-t border-slate-border/50">
+                <Text className="text-on-surface-variant text-xs font-semibold uppercase">
                   Total Tiros de Campo
                 </Text>
-                <Text className="text-emerald-400 font-bold text-xs">
+                <Text className="text-court-green font-bold text-xs">
                   {totalFgm} / {totalFga}{" "}
-                  <Text className="text-slate-400 text-xs font-normal">
+                  <Text className="text-on-surface-variant text-xs font-normal">
                     ({calculatePct(totalFgm, totalFga)})
                   </Text>
                 </Text>
@@ -156,12 +156,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
             </View>
 
             {/* Rebounds & Playmaking */}
-            <Text className="text-slate-300 font-bold text-xs uppercase tracking-wider mb-2">
+            <Text className="text-white font-bold text-xs uppercase tracking-wider mb-2">
               Rebotes y Juego de Equipo
             </Text>
-            <View className="bg-slate-800/60 rounded-xl p-3 border border-slate-700/60 mb-2 space-y-2.5">
+            <View className="bg-slate-card rounded-xl p-3 border border-slate-border mb-2 space-y-2.5">
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Rebotes Ofensivos (ORB)
                 </Text>
                 <Text className="text-white font-bold text-sm">
@@ -170,7 +170,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Rebotes Defensivos (DRB)
                 </Text>
                 <Text className="text-white font-bold text-sm">
@@ -179,7 +179,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Asistencias (AST)
                 </Text>
                 <Text className="text-white font-bold text-sm">
@@ -188,7 +188,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Recuperaciones (REC)
                 </Text>
                 <Text className="text-white font-bold text-sm">
@@ -197,19 +197,19 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Pérdidas de Balón (PER)
                 </Text>
-                <Text className="text-rose-400 font-bold text-sm">
+                <Text className="text-court-red font-bold text-sm">
                   {player.per}
                 </Text>
               </View>
 
               <View className="flex-row items-center justify-between">
-                <Text className="text-slate-300 text-sm font-medium">
+                <Text className="text-on-surface text-sm font-medium">
                   Faltas Personales (FALT)
                 </Text>
-                <Text className="text-amber-400 font-bold text-sm">
+                <Text className="text-primary font-bold text-sm">
                   {player.falt}
                 </Text>
               </View>
@@ -217,10 +217,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
           </ScrollView>
 
           {/* Footer Action */}
-          <View className="p-4 bg-slate-800/80 border-t border-slate-700">
+          <View className="p-4 bg-slate-card border-t border-slate-border">
             <TouchableOpacity
               onPress={onClose}
-              className="w-full py-2.5 bg-slate-700 rounded-xl items-center active:bg-slate-600"
+              className="w-full min-h-[48px] py-3 bg-slate-dark border border-slate-border rounded-xl items-center justify-center active:bg-slate-card"
             >
               <Text className="text-white font-bold text-sm">Cerrar</Text>
             </TouchableOpacity>
@@ -230,3 +230,5 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
     </Modal>
   );
 };
+
+export default PlayerDetailModal;

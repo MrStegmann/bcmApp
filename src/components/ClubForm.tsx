@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import Input from "../framework/Input";
 import Button from "../framework/Button";
-import { Team, NewTeam } from "../types/database";
+import { Team } from "../types/database";
 
 export interface ClubFormProps {
   onSubmit: (data: { name: string; category?: string; id?: number }) => void | Promise<void>;
@@ -54,8 +54,8 @@ export default function ClubForm({ onSubmit, clubData, initialData, onCancel }: 
   const isEditing = Boolean(targetData?.id);
 
   return (
-    <View className="w-full bg-danish-dark-gray p-6 rounded-2xl border-2 border-danish-red shadow-xl space-y-4">
-      <Text className="text-danish-white font-bold text-xl text-center mb-2">
+    <View className="w-full bg-slate-card p-6 rounded-2xl border border-slate-border shadow-xl space-y-4">
+      <Text className="text-white font-bold text-xl text-center mb-2">
         {isEditing ? "Editar Equipo" : "Crear Nuevo Equipo"}
       </Text>
 
@@ -81,9 +81,9 @@ export default function ClubForm({ onSubmit, clubData, initialData, onCancel }: 
         {onCancel ? (
           <TouchableOpacity
             onPress={onCancel}
-            className="w-full py-3 bg-gray-700 rounded-xl items-center active:bg-gray-600"
+            className="w-full min-h-[48px] py-3 bg-slate-dark border border-slate-border rounded-xl items-center justify-center active:bg-slate-card"
           >
-            <Text className="text-gray-300 font-semibold text-base">Cancelar</Text>
+            <Text className="text-on-surface font-semibold text-base">Cancelar</Text>
           </TouchableOpacity>
         ) : null}
       </View>

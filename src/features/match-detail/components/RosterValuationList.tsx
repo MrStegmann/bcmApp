@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import { RosterValuationListProps, PlayerRosterItem } from "../types";
+import { RosterValuationListProps } from "../types";
 
 export const RosterValuationList: React.FC<RosterValuationListProps> = ({
   players,
@@ -9,12 +9,12 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
 }) => {
   if (players.length === 0) {
     return (
-      <View className="w-full bg-slate-900 px-4 py-3">
-        <Text className="text-slate-200 font-bold text-sm tracking-wide uppercase mb-2">
+      <View className="w-full bg-surface px-4 py-3">
+        <Text className="text-white font-bold text-sm tracking-wide uppercase mb-2">
           Estadísticas de Jugadores (Por Valoración)
         </Text>
-        <View className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/60 items-center justify-center">
-          <Text className="text-slate-400 text-sm">
+        <View className="bg-slate-card rounded-xl p-4 border border-slate-border items-center justify-center">
+          <Text className="text-on-surface-variant text-sm">
             No hay jugadores registrados en este partido.
           </Text>
         </View>
@@ -26,12 +26,12 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
   const remainingPlayers = players.slice(1);
 
   return (
-    <View className="w-full bg-slate-900 px-4 py-3">
+    <View className="w-full bg-surface px-4 py-3">
       <View className="flex-row items-center justify-between mb-2">
-        <Text className="text-slate-200 font-bold text-sm tracking-wide uppercase">
+        <Text className="text-white font-bold text-sm tracking-wide uppercase">
           Roster por Valoración
         </Text>
-        <Text className="text-slate-400 text-xs">
+        <Text className="text-on-surface-variant text-xs">
           Toca un jugador para ver detalles
         </Text>
       </View>
@@ -42,13 +42,13 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
           key={`${mvpPlayer.id}-${mvpPlayer.statId}`}
           onPress={() => onSelectPlayer(mvpPlayer)}
           activeOpacity={0.7}
-          className="w-full flex-row items-center justify-between p-3.5 rounded-xl border bg-amber-500/10 border-amber-500/40 mb-3"
+          className="w-full flex-row items-center justify-between p-3.5 rounded-xl border bg-court-orange/15 border-court-orange/40 mb-3 min-h-[48px]"
           testID={`player-roster-item-${mvpPlayer.id}`}
         >
           {/* Left Side: Jersey & Name */}
           <View className="flex-row items-center flex-1 mr-2">
-            <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-amber-500/20 border border-amber-400/50">
-              <Text className="font-black text-sm text-amber-400">
+            <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-court-orange/20 border border-court-orange/50">
+              <Text className="font-black text-sm text-court-orange">
                 #{mvpPlayer.jerseyNumber || "0"}
               </Text>
             </View>
@@ -61,13 +61,13 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
                 >
                   {mvpPlayer.fullName || "Jugador"}
                 </Text>
-                <View className="ml-2 px-2 py-0.5 rounded bg-amber-500/30 border border-amber-400/40">
-                  <Text className="text-amber-300 font-extrabold text-[11px] uppercase tracking-wider">
+                <View className="ml-2 px-2 py-0.5 rounded bg-court-orange/25 border border-court-orange/40">
+                  <Text className="text-court-orange font-extrabold text-[11px] uppercase tracking-wider">
                     MVP
                   </Text>
                 </View>
               </View>
-              <Text className="text-slate-400 text-xs font-medium">
+              <Text className="text-on-surface-variant text-xs font-medium">
                 {mvpPlayer.minutes} min
               </Text>
             </View>
@@ -76,10 +76,10 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
           {/* Right Side: Points & Valuation Badges */}
           <View className="flex-row items-center">
             <View className="items-end mr-3">
-              <Text className="text-emerald-400 font-extrabold text-lg">
+              <Text className="text-court-orange font-extrabold text-lg">
                 {mvpPlayer.points}
               </Text>
-              <Text className="text-slate-400 text-[10px] uppercase font-semibold">
+              <Text className="text-on-surface-variant text-[10px] uppercase font-semibold">
                 Pts
               </Text>
             </View>
@@ -87,28 +87,28 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
             <View
               className={`px-3 py-1.5 rounded-lg items-center justify-center min-w-[58px] ${
                 mvpPlayer.valuation >= 15
-                  ? "bg-emerald-500/20 border border-emerald-500/40"
+                  ? "bg-court-green/20 border border-court-green/40"
                   : mvpPlayer.valuation > 0
-                  ? "bg-sky-500/20 border border-sky-500/40"
+                  ? "bg-tactical-blue/20 border border-tactical-blue/40"
                   : mvpPlayer.valuation === 0
-                  ? "bg-slate-700/60 border border-slate-600/60"
-                  : "bg-rose-500/20 border border-rose-500/40"
+                  ? "bg-slate-card border border-slate-border"
+                  : "bg-court-red/20 border border-court-red/40"
               }`}
             >
               <Text
                 className={`font-black text-base ${
                   mvpPlayer.valuation >= 15
-                    ? "text-emerald-300"
+                    ? "text-court-green"
                     : mvpPlayer.valuation > 0
-                    ? "text-sky-300"
+                    ? "text-tactical-blue-light"
                     : mvpPlayer.valuation === 0
-                    ? "text-slate-300"
-                    : "text-rose-300"
+                    ? "text-on-surface"
+                    : "text-court-red"
                 }`}
               >
                 {mvpPlayer.valuation}
               </Text>
-              <Text className="text-slate-400 text-[9px] uppercase font-semibold">
+              <Text className="text-on-surface-variant text-[9px] uppercase font-semibold">
                 Val
               </Text>
             </View>
@@ -116,7 +116,7 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
             <Feather
               name="chevron-right"
               size={18}
-              color="#fbbf24"
+              color="#F97316"
               style={{ marginLeft: 6 }}
             />
           </View>
@@ -131,13 +131,13 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
               <TouchableOpacity
                 onPress={() => onSelectPlayer(player)}
                 activeOpacity={0.7}
-                className="bg-slate-800/80 border border-slate-700/80 active:bg-slate-750 p-2.5 rounded-xl justify-between"
+                className="bg-slate-card border border-slate-border active:bg-slate-dark p-3 rounded-xl justify-between min-h-[48px]"
                 testID={`player-roster-item-${player.id}`}
               >
                 {/* Header inside card: Jersey, Name, Minutes */}
                 <View className="flex-row items-center mb-2">
-                  <View className="w-7 h-7 rounded-full items-center justify-center mr-2 bg-slate-700 border border-slate-600">
-                    <Text className="font-black text-xs text-slate-200">
+                  <View className="w-7 h-7 rounded-full items-center justify-center mr-2 bg-slate-dark border border-slate-border">
+                    <Text className="font-black text-xs text-on-surface">
                       #{player.jerseyNumber || "0"}
                     </Text>
                   </View>
@@ -148,19 +148,19 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
                     >
                       {player.fullName || "Jugador"}
                     </Text>
-                    <Text className="text-slate-400 text-[10px]">
+                    <Text className="text-on-surface-variant text-[10px]">
                       {player.minutes} min
                     </Text>
                   </View>
                 </View>
 
                 {/* Footer inside card: Points & Valuation */}
-                <View className="flex-row items-center justify-between pt-1 border-t border-slate-700/50">
+                <View className="flex-row items-center justify-between pt-1 border-t border-slate-border/50">
                   <View className="flex-row items-baseline">
-                    <Text className="text-emerald-400 font-extrabold text-sm mr-1">
+                    <Text className="text-court-orange font-extrabold text-sm mr-1">
                       {player.points}
                     </Text>
-                    <Text className="text-slate-400 text-[9px] uppercase font-semibold">
+                    <Text className="text-on-surface-variant text-[9px] uppercase font-semibold">
                       Pts
                     </Text>
                   </View>
@@ -168,27 +168,27 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
                   <View
                     className={`px-2 py-0.5 rounded items-center justify-center ${
                       player.valuation >= 15
-                        ? "bg-emerald-500/20 border border-emerald-500/40"
+                        ? "bg-court-green/20 border border-court-green/40"
                         : player.valuation > 0
-                        ? "bg-sky-500/20 border border-sky-500/40"
+                        ? "bg-tactical-blue/20 border border-tactical-blue/40"
                         : player.valuation === 0
-                        ? "bg-slate-700/60 border border-slate-600/60"
-                        : "bg-rose-500/20 border border-rose-500/40"
+                        ? "bg-slate-dark border border-slate-border"
+                        : "bg-court-red/20 border border-court-red/40"
                     }`}
                   >
                     <Text
                       className={`font-black text-xs ${
                         player.valuation >= 15
-                          ? "text-emerald-300"
+                          ? "text-court-green"
                           : player.valuation > 0
-                          ? "text-sky-300"
+                          ? "text-tactical-blue-light"
                           : player.valuation === 0
-                          ? "text-slate-300"
-                          : "text-rose-300"
+                          ? "text-on-surface"
+                          : "text-court-red"
                       }`}
                     >
                       {player.valuation}{" "}
-                      <Text className="text-[8px] font-semibold text-slate-400">Val</Text>
+                      <Text className="text-[8px] font-semibold text-on-surface-variant">Val</Text>
                     </Text>
                   </View>
                 </View>
@@ -200,3 +200,5 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
     </View>
   );
 };
+
+export default RosterValuationList;

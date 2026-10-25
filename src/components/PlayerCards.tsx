@@ -21,10 +21,10 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
       <View className="w-full flex flex-col justify-center items-center mt-20">
         <MaterialCommunityIcons
           name="book-open-blank-variant-outline"
-          size={30}
-          color="gray"
+          size={32}
+          color="#A78B7D"
         />
-        <Text className="text-lg font-bold text-danish-light-gray text-center">
+        <Text className="text-lg font-bold text-on-surface-variant text-center mt-2">
           Parece que aún no has registrado ningún jugador
         </Text>
       </View>
@@ -33,7 +33,7 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
 
   return (
     <View className="w-full h-full flex flex-col items-center">
-      <ScrollView horizontal={false} showsVerticalScrollIndicator={true}>
+      <ScrollView horizontal={false} showsVerticalScrollIndicator={true} className="w-full">
         {players.map((player) => {
           const t1a = Number(player.total_t1a || player.t1a || 0);
           const t2a = Number(player.total_t2a || player.t2a || 0);
@@ -71,43 +71,57 @@ const PlayerCards: React.FC<PlayerCardsProps> = ({
             <TouchableOpacity
               key={player.id}
               onPress={() => onSelect(player)}
-              className="my-2 active:shadow-inner shadow-danish-red bg-transparent z-10 hover:bg-danish-red active:bg-danish-red"
+              className="my-2 w-full active:opacity-85"
             >
-              <View className="w-full flex flex-row justify-between px-4 py-3 bg-danish-dark-gray rounded-xl shadow-lg shadow-danish-red border border-danish-red">
-                <View className="w-2/3 flex flex-col">
-                  <Text className="text-danish-white text-sm">
-                    {`${number} - ${firstName} ${lastName}`}
-                  </Text>
-                  <View className="w-full flex flex-row justify-between mt-1">
+              <View className="w-full flex flex-row justify-between items-center px-4 py-3 bg-slate-card rounded-xl shadow-md border border-slate-border">
+                <View className="flex-1 flex flex-col pr-2">
+                  <View className="flex-row items-center mb-1">
+                    <View className="bg-slate-border rounded-sm px-2 py-0.5 mr-2 items-center justify-center">
+                      <Text className="text-court-white font-mono font-bold text-xs">
+                        #{number}
+                      </Text>
+                    </View>
+                    <Text className="text-white text-base font-bold flex-1" numberOfLines={1}>
+                      {`${firstName} ${lastName}`}
+                    </Text>
+                  </View>
+
+                  <View className="w-full flex flex-row justify-between mt-1 px-1">
                     <View className="flex flex-col justify-center items-center">
-                      <Text className="text-danish-white text-sm">Mins</Text>
-                      <Text className="text-danish-white text-sm">
+                      <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">Mins</Text>
+                      <Text className="text-white font-bold text-xs">
                         {`${player.total_minutes || player.minutes || 0}`}
                       </Text>
                     </View>
                     <View className="flex flex-col justify-center items-center">
-                      <Text className="text-danish-white text-sm">Pts</Text>
-                      <Text className="text-danish-white text-sm">{pts}</Text>
+                      <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">Pts</Text>
+                      <Text className="text-court-orange font-bold text-xs">{pts}</Text>
                     </View>
                     <View className="flex flex-col justify-center items-center">
-                      <Text className="text-danish-white text-sm">Falt</Text>
-                      <Text className="text-danish-white text-sm">
+                      <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">Falt</Text>
+                      <Text className="text-white font-bold text-xs">
                         {`${falt}`}
                       </Text>
                     </View>
                     <View className="flex flex-col justify-center items-center">
-                      <Text className="text-danish-white text-sm">Val</Text>
-                      <Text className="text-danish-white text-sm">{val}</Text>
+                      <Text className="text-on-surface-variant text-[11px] font-semibold uppercase">Val</Text>
+                      <Text className="text-tactical-blue-light font-bold text-xs">{val}</Text>
                     </View>
                   </View>
                 </View>
 
-                <View className="w-1/3 flex flex-row justify-end items-center gap-3">
-                  <TouchableOpacity onPress={() => onEdit(player)}>
-                    <Feather name="edit" size={18} color="white" />
+                <View className="flex flex-row justify-end items-center gap-1">
+                  <TouchableOpacity
+                    onPress={() => onEdit(player)}
+                    className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
+                  >
+                    <Feather name="edit" size={18} color="#0EA5E9" />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => onDelete(player)}>
-                    <Feather name="trash" size={18} color="red" />
+                  <TouchableOpacity
+                    onPress={() => onDelete(player)}
+                    className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
+                  >
+                    <Feather name="trash" size={18} color="#EF4444" />
                   </TouchableOpacity>
                 </View>
               </View>

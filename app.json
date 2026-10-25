@@ -4,20 +4,20 @@
     "slug": "bcmApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/bcm.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/bcm.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.patrickjs.bcmApp"
     },
     "web": {
-      "favicon": "./assets/icon.png",
+      "favicon": "./assets/bcm.png",
       "bundler": "metro"
     },
     "plugins": [

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
@@ -18,7 +18,7 @@ export interface BottomNavBarProps {
 }
 
 const renderIcon = (item: BottomMenuItem, isActive: boolean) => {
-  const color = isActive ? "#ef4444" : "#9ca3af";
+  const color = isActive ? "#F97316" : "#A78B7D";
   const size = 22;
 
   switch (item.iconFamily) {
@@ -57,7 +57,7 @@ export default function BottomNavBar({ items, activeTab }: BottomNavBarProps) {
 
   return (
     <View
-      className="w-full bg-danish-dark-gray border-t-2 border-danish-red shadow-2xl z-40 px-2 pt-2"
+      className="w-full bg-surface-container border-t border-slate-border shadow-2xl z-40 px-2 pt-2"
       style={{ paddingBottom: bottomPadding }}
       testID="bottom-navbar-safe-wrapper"
     >
@@ -70,8 +70,8 @@ export default function BottomNavBar({ items, activeTab }: BottomNavBarProps) {
               key={String(item.id)}
               onPress={item.onPress}
               accessibilityLabel={item.label}
-              className={`flex-1 items-center justify-center py-2.5 px-1 rounded-xl mx-0.5 active:bg-gray-800 ${
-                isActive ? "bg-red-950/40 border border-red-900/60" : ""
+              className={`flex-1 items-center justify-center py-2.5 px-1 rounded-xl mx-0.5 active:bg-slate-card min-h-[48px] ${
+                isActive ? "bg-court-orange/15 border border-court-orange/30" : ""
               }`}
               testID={item.testID || `bottom-nav-item-${item.id}`}
             >

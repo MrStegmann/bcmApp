@@ -116,9 +116,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   if (isLoading && !nextMatch && recentMatches.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center py-20">
-        <ActivityIndicator size="large" color="#E53E3E" />
-        <Text className="text-gray-400 text-sm mt-3 font-medium">
+      <View className="flex-1 justify-center items-center py-20 bg-surface">
+        <ActivityIndicator size="large" color="#F97316" />
+        <Text className="text-on-surface-variant text-sm mt-3 font-medium">
           Cargando panel del equipo...
         </Text>
       </View>
@@ -127,21 +127,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <ScrollView
-      className="w-full flex-1 px-4 pt-3 pb-8"
+      className="w-full flex-1 px-4 pt-3 pb-8 bg-surface"
       contentContainerStyle={{ paddingBottom: 32 }}
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={handleRefresh}
-          tintColor="#D19F37"
-          colors={["#D19F37", "#E53E3E"]}
+          tintColor="#F97316"
+          colors={["#F97316", "#0EA5E9"]}
         />
       }
     >
       {error ? (
-        <View className="w-full bg-red-950/60 border border-red-700/60 rounded-xl p-3 mb-4">
-          <Text className="text-red-300 text-xs text-center">{error}</Text>
+        <View className="w-full bg-error-container/20 border border-court-red/50 rounded-xl p-3 mb-4">
+          <Text className="text-on-error-container text-xs text-center">{error}</Text>
         </View>
       ) : null}
 

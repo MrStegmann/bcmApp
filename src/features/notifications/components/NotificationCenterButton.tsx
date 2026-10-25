@@ -15,17 +15,17 @@ export const NotificationCenterButton: React.FC<NotificationCenterButtonProps> =
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="w-10 h-10 items-center justify-center rounded-xl bg-gray-800 border border-gray-700 active:bg-gray-700 relative"
+      className="w-10 h-10 items-center justify-center rounded-xl bg-surface-elevated border border-slate-border active:bg-slate-border relative"
       testID={testID}
       accessibilityLabel="Centro de Notificaciones"
     >
       <Feather name="bell" size={20} color="#ffffff" />
       {badgeText ? (
         <View
-          className="absolute -top-1.5 -right-1.5 bg-red-600 rounded-full min-w-[18px] h-[18px] px-1 items-center justify-center border border-gray-900"
+          className="absolute -top-1.5 -right-1.5 bg-court-orange rounded-full min-w-[18px] h-[18px] px-1 items-center justify-center border border-slate-900"
           testID="notification-badge"
         >
-          <Text className="text-white text-[10px] font-bold">{badgeText}</Text>
+          <Text className="text-slate-950 text-[10px] font-black">{badgeText}</Text>
         </View>
       ) : null}
     </TouchableOpacity>

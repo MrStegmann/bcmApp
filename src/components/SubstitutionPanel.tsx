@@ -25,14 +25,14 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
 
   if (!isChangeMode) {
     return (
-      <View className="px-4 py-2 bg-slate-900 border-t border-slate-800">
+      <View className="px-4 py-2 bg-surface-container border-t border-slate-border">
         <TouchableOpacity
           onPress={onToggleChangeMode}
           disabled={isTimerRunning}
-          className={`py-3 px-4 rounded-xl flex-row items-center justify-center ${
+          className={`py-3.5 min-h-[48px] px-4 rounded-xl flex-row items-center justify-center ${
             isTimerRunning
-              ? "bg-slate-800 opacity-50"
-              : "bg-blue-600 active:bg-blue-700"
+              ? "bg-surface-elevated opacity-50 border border-slate-border"
+              : "bg-tactical-blue active:bg-tactical-blue-dark shadow-md"
           }`}
         >
           <Text className="text-white font-bold text-base">
@@ -40,7 +40,7 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
           </Text>
         </TouchableOpacity>
         {isTimerRunning && (
-          <Text className="text-amber-400 text-xs text-center mt-1 font-medium">
+          <Text className="text-court-orange text-xs text-center mt-1 font-medium">
             ⏱️ Pausa el cronómetro para realizar sustituciones
           </Text>
         )}
@@ -49,7 +49,7 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
   }
 
   return (
-    <View className="bg-slate-900 border-t-2 border-blue-500/50 p-4">
+    <View className="bg-surface-container border-t-2 border-tactical-blue/60 p-4">
       {/* Header / Instructions */}
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-1">
@@ -62,17 +62,17 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
         </View>
         <TouchableOpacity
           onPress={onCancelSubstitution}
-          className="px-3 py-1.5 bg-slate-800 rounded-lg border border-slate-700"
+          className="px-3 py-2 min-h-[40px] bg-surface-elevated rounded-lg border border-slate-border items-center justify-center active:bg-slate-border"
         >
           <Text className="text-slate-300 font-semibold text-xs">Cancelar</Text>
         </TouchableOpacity>
       </View>
 
       {/* Counters & Status */}
-      <View className="flex-row items-center justify-around bg-slate-800/80 rounded-xl p-2.5 mb-3 border border-slate-700/60">
+      <View className="flex-row items-center justify-around bg-surface-dim rounded-xl p-3 mb-3 border border-slate-border">
         <View className="items-center">
           <Text className="text-slate-400 text-xs">Pista (Salen)</Text>
-          <Text className="text-orange-400 font-extrabold text-lg">
+          <Text className="text-court-orange font-extrabold text-lg">
             {courtCount}
           </Text>
         </View>
@@ -95,7 +95,7 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
         className="flex-row mb-3"
       >
         {benchPlayers.length === 0 ? (
-          <View className="py-3 px-4 bg-slate-800/50 rounded-lg border border-slate-700/50">
+          <View className="py-3 px-4 bg-surface-dim rounded-lg border border-slate-border">
             <Text className="text-slate-400 text-xs">
               No hay jugadores en el banquillo
             </Text>
@@ -110,22 +110,22 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
               <TouchableOpacity
                 key={player.id}
                 onPress={() => onToggleBenchPlayer(player.id)}
-                className={`mr-2.5 px-3 py-2 rounded-xl border items-center justify-center min-w-[90px] ${
+                className={`mr-2.5 px-3 py-2.5 rounded-xl border items-center justify-center min-w-[96px] min-h-[56px] ${
                   isSelected
-                    ? "bg-emerald-600/30 border-emerald-400"
-                    : "bg-slate-800 border-slate-700"
+                    ? "bg-court-orange/20 border-court-orange shadow-md"
+                    : "bg-surface-elevated border-slate-border"
                 }`}
               >
                 <View className="flex-row items-center space-x-1 mb-0.5">
                   <Text
                     className={`font-black text-sm ${
-                      isSelected ? "text-emerald-400" : "text-amber-400"
+                      isSelected ? "text-court-orange" : "text-white"
                     }`}
                   >
                     #{player.number}
                   </Text>
                   {isSelected && (
-                    <Text className="text-emerald-400 font-bold text-xs">✓</Text>
+                    <Text className="text-court-orange font-bold text-xs">✓</Text>
                   )}
                 </View>
                 <Text
@@ -147,13 +147,13 @@ export const SubstitutionPanel: React.FC<SubstitutionPanelProps> = ({
       <TouchableOpacity
         onPress={onConfirmSubstitution}
         disabled={!isValidSwap}
-        className={`py-3 rounded-xl items-center justify-center ${
+        className={`py-3.5 min-h-[48px] rounded-xl items-center justify-center ${
           isValidSwap
-            ? "bg-emerald-600 active:bg-emerald-700"
-            : "bg-slate-800 opacity-50"
+            ? "bg-court-orange active:bg-court-orange-dark shadow-md"
+            : "bg-surface-elevated border border-slate-border opacity-50"
         }`}
       >
-        <Text className="text-white font-bold text-sm">
+        <Text className={`font-bold text-sm ${isValidSwap ? "text-slate-950" : "text-slate-500"}`}>
           {isValidSwap
             ? `Confirmar Cambio (${courtCount} ⇄ ${benchCount})`
             : courtCount === 0 && benchCount === 0

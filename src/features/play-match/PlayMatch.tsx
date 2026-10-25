@@ -407,7 +407,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
   const courtTeammates = courtPlayers.filter((p): p is InGamePlayer => p !== null);
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-canvas">
       {/* Component 1: Time, Score and Fouls Controller */}
       <TimeScoreFoulsController
         activePeriod={activePeriod}

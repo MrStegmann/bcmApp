@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Feather from "@expo/vector-icons/Feather";
 import { NextMatchCardProps } from "../types";
 import { formatRoundLabel } from "../utils/matchDateHelper";
 
@@ -10,14 +11,14 @@ export const NextMatchCard: React.FC<NextMatchCardProps> = ({
 }) => {
   if (!nextMatch) {
     return (
-      <View className="w-full bg-danish-dark-gray border border-gray-700/60 rounded-2xl p-5 mb-5 shadow-lg">
+      <View className="w-full bg-slate-card border border-slate-border rounded-2xl p-5 mb-5 shadow-md">
         <View className="flex-row items-center mb-2">
-          <MaterialCommunityIcons name="calendar-clock" size={22} color="#D19F37" />
-          <Text className="text-danish-gold font-bold text-xs uppercase tracking-wider ml-2">
+          <MaterialCommunityIcons name="calendar-clock" size={22} color="#0EA5E9" />
+          <Text className="text-tactical-blue-light font-bold text-xs uppercase tracking-wider ml-2">
             Próximo Partido
           </Text>
         </View>
-        <Text className="text-gray-400 text-sm italic text-center py-3">
+        <Text className="text-on-surface-variant text-sm italic text-center py-3">
           Sin próximos partidos agendados
         </Text>
       </View>
@@ -27,18 +28,18 @@ export const NextMatchCard: React.FC<NextMatchCardProps> = ({
   const roundLabel = formatRoundLabel(nextMatch.round);
 
   return (
-    <View className="w-full bg-danish-dark-gray border border-gray-700/60 rounded-2xl p-5 mb-5 shadow-lg">
+    <View className="w-full bg-slate-card border border-slate-border rounded-2xl p-5 mb-5 shadow-md">
       {/* Header Badge */}
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
-          <MaterialCommunityIcons name="calendar-clock" size={22} color="#D19F37" />
-          <Text className="text-danish-gold font-bold text-xs uppercase tracking-wider ml-2">
+          <MaterialCommunityIcons name="calendar-clock" size={22} color="#0EA5E9" />
+          <Text className="text-tactical-blue-light font-bold text-xs uppercase tracking-wider ml-2">
             Próximo Partido
           </Text>
         </View>
         {roundLabel ? (
-          <View className="bg-gray-800/80 px-2.5 py-1 rounded-full border border-gray-700">
-            <Text className="text-gray-300 text-xs font-semibold">
+          <View className="bg-slate-dark px-2.5 py-1 rounded-full border border-slate-border">
+            <Text className="text-on-surface text-xs font-semibold">
               {roundLabel}
             </Text>
           </View>
@@ -47,31 +48,31 @@ export const NextMatchCard: React.FC<NextMatchCardProps> = ({
 
       {/* Opponent & Match Date */}
       <View className="mb-4">
-        <Text className="text-danish-white text-xl font-bold mb-1" numberOfLines={2}>
+        <Text className="text-white text-xl font-bold mb-1" numberOfLines={2}>
           vs {nextMatch.opponent}
         </Text>
         <View className="flex-row items-center mt-1">
-          <Feather name="clock" size={14} color="#9CA3AF" />
-          <Text className="text-gray-400 text-xs ml-1.5 font-medium">
+          <Feather name="clock" size={14} color="#A78B7D" />
+          <Text className="text-on-surface-variant text-xs ml-1.5 font-medium">
             {nextMatch.date}
           </Text>
         </View>
       </View>
 
       {/* Roster Callup Action / Status */}
-      <View className="pt-3 border-t border-gray-800/80 flex-row items-center justify-between">
+      <View className="pt-3 border-t border-slate-border flex-row items-center justify-between">
         <View className="flex-row items-center flex-1 mr-3">
           {nextMatch.hasRoster ? (
             <View className="flex-row items-center">
               <Feather name="check-circle" size={16} color="#10B981" />
-              <Text className="text-emerald-400 text-xs font-semibold ml-1.5">
+              <Text className="text-court-green text-xs font-semibold ml-1.5">
                 Convocatoria Configurada
               </Text>
             </View>
           ) : (
             <View className="flex-row items-center">
-              <Feather name="alert-circle" size={16} color="#F59E0B" />
-              <Text className="text-amber-400 text-xs font-semibold ml-1.5">
+              <Feather name="alert-circle" size={16} color="#F97316" />
+              <Text className="text-court-orange text-xs font-semibold ml-1.5">
                 Sin Convocatoria
               </Text>
             </View>
@@ -81,15 +82,15 @@ export const NextMatchCard: React.FC<NextMatchCardProps> = ({
         <TouchableOpacity
           onPress={() => onConfigureRoster(nextMatch)}
           activeOpacity={0.8}
-          className={`px-3.5 py-2 rounded-xl flex-row items-center ${
+          className={`px-4 py-2.5 min-h-[48px] rounded-xl flex-row items-center justify-center ${
             nextMatch.hasRoster
-              ? "bg-gray-800 border border-gray-600"
-              : "bg-danish-red"
+              ? "bg-slate-dark border border-slate-border active:bg-slate-card"
+              : "bg-court-orange active:bg-court-orange-dark shadow-md"
           }`}
         >
           <MaterialCommunityIcons
             name={nextMatch.hasRoster ? "account-edit-outline" : "account-multiple-plus"}
-            size={16}
+            size={18}
             color="#FFFFFF"
           />
           <Text className="text-white text-xs font-bold ml-1.5">

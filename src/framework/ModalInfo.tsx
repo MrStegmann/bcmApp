@@ -21,20 +21,24 @@ const ModalInfo: React.FC<ModalInfoProps> = ({
       visible={visible}
       onRequestClose={onClose}
     >
-      <View className="w-full h-full flex justify-center items-center">
-        <View className="w-5/6 h-4/5 flex flex-col justify-center items-center bg-gray-950 rounded-xl border-danish-red border-2 shadow-2xl shadow-danish-dark-gold px-5 py-5">
-          <Text className="w-full text-xl text-danish-white text-center mb-5">
-            {title}
-          </Text>
-          <Text className="w-full text-xl text-danish-white text-center flex-1">
-            {information}
-          </Text>
-          <View className="w-full flex flex-row justify-center items-center px-5">
+      <View className="w-full h-full flex justify-center items-center bg-black/70 px-5">
+        <View className="w-full max-w-sm flex flex-col justify-center items-center bg-surface-container rounded-2xl border border-slate-border shadow-2xl p-6">
+          {title ? (
+            <Text className="w-full text-xl font-bold text-white text-center mb-3">
+              {title}
+            </Text>
+          ) : null}
+          {information ? (
+            <Text className="w-full text-base text-on-surface text-center mb-6">
+              {information}
+            </Text>
+          ) : null}
+          <View className="w-full flex flex-row justify-center items-center">
             <TouchableOpacity
-              className="px-4 py-2 border-danish-white border-2 bg-danish-dark-gray shadow-inner shadow-danish-white rounded-lg"
+              className="min-h-[48px] px-6 py-3 border border-tactical-blue bg-tactical-blue/10 active:bg-tactical-blue/20 rounded-lg items-center justify-center"
               onPress={onClose}
             >
-              <Text className="text-danish-white">Okay</Text>
+              <Text className="text-tactical-blue-light font-bold">Okay</Text>
             </TouchableOpacity>
           </View>
         </View>

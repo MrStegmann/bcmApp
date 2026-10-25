@@ -32,10 +32,10 @@ export const StartingFiveModal: React.FC<StartingFiveModalProps> = ({
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View className="flex-1 bg-black/70 justify-center items-center p-4">
-        <View className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-5 shadow-2xl">
+        <View className="bg-surface-container border border-slate-border w-full max-w-md rounded-2xl p-5 shadow-2xl">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-xl font-bold text-white">Seleccionar 5 Inicial</Text>
-            <View className={`px-3 py-1 rounded-full ${isReady ? "bg-emerald-500/20 border border-emerald-500" : "bg-slate-800 border border-slate-700"}`}>
+            <View className={`px-3 py-1 rounded-full ${isReady ? "bg-emerald-500/20 border border-emerald-500" : "bg-surface-elevated border border-slate-border"}`}>
               <Text className={`font-semibold ${isReady ? "text-emerald-400" : "text-slate-300"}`}>
                 {selectedIds.length} / 5
               </Text>
@@ -54,14 +54,14 @@ export const StartingFiveModal: React.FC<StartingFiveModalProps> = ({
                   key={player.id}
                   activeOpacity={0.7}
                   onPress={() => handleToggle(player.id)}
-                  className={`flex-row items-center justify-between p-3 mb-2 rounded-xl border ${
+                  className={`flex-row items-center justify-between p-3 min-h-[48px] mb-2 rounded-xl border ${
                     isSelected
-                      ? "bg-amber-500/10 border-amber-500"
-                      : "bg-slate-800/60 border-slate-700"
+                      ? "bg-court-orange/15 border-court-orange"
+                      : "bg-surface-elevated/80 border-slate-border"
                   }`}
                 >
                   <View className="flex-row items-center space-x-3">
-                    <View className={`w-10 h-10 rounded-full items-center justify-center ${isSelected ? "bg-amber-500" : "bg-slate-700"}`}>
+                    <View className={`w-10 h-10 rounded-full items-center justify-center ${isSelected ? "bg-court-orange" : "bg-slate-border"}`}>
                       <Text className={`font-bold text-base ${isSelected ? "text-slate-950" : "text-white"}`}>
                         {player.number ? `#${player.number}` : "-"}
                       </Text>
@@ -79,8 +79,8 @@ export const StartingFiveModal: React.FC<StartingFiveModalProps> = ({
                   <View
                     className={`w-6 h-6 rounded-full border items-center justify-center ${
                       isSelected
-                        ? "bg-amber-500 border-amber-500"
-                        : "border-slate-500"
+                        ? "bg-court-orange border-court-orange"
+                        : "border-slate-border"
                     }`}
                   >
                     {isSelected && <Text className="text-slate-950 font-bold text-xs">✓</Text>}
@@ -94,11 +94,11 @@ export const StartingFiveModal: React.FC<StartingFiveModalProps> = ({
             activeOpacity={0.8}
             disabled={!isReady}
             onPress={handleConfirm}
-            className={`py-3.5 rounded-xl items-center justify-center ${
-              isReady ? "bg-amber-500" : "bg-slate-800 opacity-50"
+            className={`py-3.5 min-h-[48px] rounded-xl items-center justify-center ${
+              isReady ? "bg-court-orange active:bg-court-orange-dark shadow-md" : "bg-surface-elevated border border-slate-border opacity-50"
             }`}
           >
-            <Text className={`font-bold text-base ${isReady ? "text-slate-950" : "text-slate-400"}`}>
+            <Text className={`font-bold text-base ${isReady ? "text-slate-950" : "text-slate-500"}`}>
               Confirmar 5 Inicial
             </Text>
           </TouchableOpacity>

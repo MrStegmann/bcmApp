@@ -28,23 +28,24 @@ const Input: React.FC<InputProps> = ({
   return (
     <View className="w-full flex flex-col justify-center items-center">
       {label && (
-        <Text className="text-left font-bold w-full px-4 text-lg text-danish-white">
+        <Text className="text-left font-bold w-full px-1 mb-1.5 text-sm text-on-surface">
           {label}
         </Text>
       )}
       <TextInput
-        className="border-2 rounded-xl border-danish-red shadow-inner shadow-danish-gold px-3 w-full bg-danish-dark-gray text-danish-white placeholder:text-danish-white text-xs"
+        className="border border-slate-border focus:border-tactical-blue rounded-xl px-4 py-3 w-full bg-slate-dark text-on-surface placeholder:text-outline text-sm min-h-[48px]"
+        placeholderTextColor="#A78B7D"
         keyboardType={props.keyboardType || (type === "date" ? "number-pad" : "default")}
         maxLength={props.maxLength || (type === "date" ? 10 : undefined)}
         {...props}
         value={value !== undefined && value !== null ? `${value}` : ""}
         onChangeText={formatDate}
       />
-      <View className="flex flex-row w-full items-center justify-start h-9 pt-1">
+      <View className="flex flex-row w-full items-center justify-start h-8 pt-1">
         {wrongMsg ? (
           <>
-            <Feather name="alert-circle" size={16} color="red" />
-            <Text className="text-red-600 font-semibold py-2 ml-1 text-sm">
+            <Feather name="alert-circle" size={16} color="#EF4444" />
+            <Text className="text-court-red font-semibold py-1 ml-1.5 text-xs">
               {wrongMsg}
             </Text>
           </>

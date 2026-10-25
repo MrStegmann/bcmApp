@@ -36,17 +36,17 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
       <Pressable
         testID="bench-stats-backdrop"
         onPress={onClose}
-        className="flex-1 bg-black/80 bg-slate-950/80 justify-center items-center p-4"
+        className="flex-1 bg-slate-950/80 justify-center items-center p-4"
       >
         {/* Centered Modal Card Container (Consumes touch inside to prevent dismissal) */}
         <Pressable
           onPress={(e) => e.stopPropagation()}
-          className="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl"
+          className="bg-slate-900 border border-slate-border w-full max-w-sm rounded-2xl p-5 shadow-2xl"
         >
           {/* Modal Header */}
-          <View className="flex-row items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <View className="flex-row items-center justify-between border-b border-slate-border pb-3 mb-4">
             <View className="flex-row items-center space-x-3">
-              <View className="w-12 h-12 rounded-full bg-amber-500 items-center justify-center shadow-md">
+              <View className="w-12 h-12 rounded-full bg-court-orange items-center justify-center shadow-md">
                 <Text className="text-slate-950 font-black text-xl">
                   {player.number ? (String(player.number).startsWith("#") ? player.number : `#${player.number}`) : "#-"}
                 </Text>
@@ -66,7 +66,7 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
               testID="bench-stats-close-button"
               onPress={onClose}
               activeOpacity={0.7}
-              className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 items-center justify-center"
+              className="w-12 h-12 min-h-[48px] min-w-[48px] rounded-full bg-surface-elevated border border-slate-border items-center justify-center"
             >
               <Text className="text-slate-400 font-bold text-base leading-none">✕</Text>
             </TouchableOpacity>
@@ -75,7 +75,7 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Prominent Header Pills: Minutes & Points */}
             <View className="flex-row space-x-3 mb-4">
-              <View className="flex-1 bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 items-center justify-center shadow-sm">
+              <View className="flex-1 bg-surface-elevated border border-slate-border rounded-xl px-4 py-2.5 items-center justify-center shadow-sm">
                 <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">
                   Tiempo Jugado
                 </Text>
@@ -84,27 +84,27 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
                 </Text>
               </View>
 
-              <View className="flex-1 bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 items-center justify-center shadow-sm">
+              <View className="flex-1 bg-surface-elevated border border-slate-border rounded-xl px-4 py-2.5 items-center justify-center shadow-sm">
                 <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">
                   Puntos
                 </Text>
-                <Text className="text-amber-400 font-black text-2xl font-mono">
-                  {points} <Text className="text-amber-500 text-sm font-bold">pts</Text>
+                <Text className="text-court-orange font-black text-2xl font-mono">
+                  {points} <Text className="text-court-orange-dark text-sm font-bold">pts</Text>
                 </Text>
               </View>
             </View>
 
             {/* Section 1: Shooting Breakdown (T1, T2, T3) */}
-            <View className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 mb-3">
+            <View className="bg-surface-dim border border-slate-border rounded-xl p-3 mb-3">
               <Text className="text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">
                 Tiros de Campo y Libres
               </Text>
               <View className="space-y-1.5">
-                <View className="flex-row items-center justify-between py-1 border-b border-slate-800/60">
+                <View className="flex-row items-center justify-between py-1 border-b border-slate-border/60">
                   <Text className="text-slate-300 text-xs font-semibold">Tiros Libres (T1)</Text>
                   <Text className="text-white font-mono font-bold text-xs">{t1Formatted}</Text>
                 </View>
-                <View className="flex-row items-center justify-between py-1 border-b border-slate-800/60">
+                <View className="flex-row items-center justify-between py-1 border-b border-slate-border/60">
                   <Text className="text-slate-300 text-xs font-semibold">Tiros de 2 (T2)</Text>
                   <Text className="text-white font-mono font-bold text-xs">{t2Formatted}</Text>
                 </View>
@@ -116,12 +116,12 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
             </View>
 
             {/* Section 2: Rebounds */}
-            <View className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 mb-3">
+            <View className="bg-surface-dim border border-slate-border rounded-xl p-3 mb-3">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">
                   Rebotes
                 </Text>
-                <Text className="text-cyan-400 font-mono font-bold text-xs">
+                <Text className="text-tactical-blue-light font-mono font-bold text-xs">
                   Total: {totalRebounds}
                 </Text>
               </View>
@@ -130,7 +130,7 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
                   <Text className="text-slate-400 text-[10px] font-semibold">Ofensivos</Text>
                   <Text className="text-white font-mono font-bold text-sm">{player.oreb || 0}</Text>
                 </View>
-                <View className="w-px bg-slate-800 h-6 self-center" />
+                <View className="w-px bg-slate-border h-6 self-center" />
                 <View className="items-center">
                   <Text className="text-slate-400 text-[10px] font-semibold">Defensivos</Text>
                   <Text className="text-white font-mono font-bold text-sm">{player.dreb || 0}</Text>
@@ -139,7 +139,7 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
             </View>
 
             {/* Section 3: Playmaking & Defense */}
-            <View className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 mb-3">
+            <View className="bg-surface-dim border border-slate-border rounded-xl p-3 mb-3">
               <Text className="text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">
                 Juego y Defensa
               </Text>
@@ -164,11 +164,11 @@ export const BenchPlayerStatsModal: React.FC<BenchPlayerStatsModalProps> = ({
             </View>
 
             {/* Section 4: Valuation Badge */}
-            <View className="bg-amber-950/30 border border-amber-600/40 rounded-xl p-3 flex-row items-center justify-between">
-              <Text className="text-amber-300 text-xs font-bold uppercase tracking-wider">
+            <View className="bg-court-orange/15 border border-court-orange/40 rounded-xl p-3 flex-row items-center justify-between">
+              <Text className="text-court-orange text-xs font-bold uppercase tracking-wider">
                 Valoración
               </Text>
-              <Text className="text-amber-400 font-mono font-black text-xl">
+              <Text className="text-court-orange font-mono font-black text-xl">
                 {player.valuation || 0}
               </Text>
             </View>

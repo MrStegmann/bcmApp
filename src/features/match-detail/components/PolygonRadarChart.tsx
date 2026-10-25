@@ -25,7 +25,7 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
             <Polygon
               key={`grid-${idx}`}
               points={points}
-              fill={idx === 3 ? "rgba(30, 41, 59, 0.4)" : "none"}
+              fill={idx === 3 ? "rgba(23, 31, 51, 0.4)" : "none"}
               stroke="#334155"
               strokeWidth={idx === 3 ? "1.5" : "1"}
               strokeDasharray={idx < 3 ? "3, 3" : undefined}
@@ -47,7 +47,7 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
                 y1={center}
                 x2={spokeX}
                 y2={spokeY}
-                stroke="#475569"
+                stroke="#334155"
                 strokeWidth="1"
               />
             );
@@ -57,8 +57,8 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
         {/* Data Polygon Fill & Stroke */}
         <Polygon
           points={geometry.polygonPointsSvg}
-          fill="rgba(56, 189, 248, 0.3)"
-          stroke="#38bdf8"
+          fill="rgba(14, 165, 233, 0.25)"
+          stroke="#0EA5E9"
           strokeWidth="2.5"
           strokeLinejoin="round"
         />
@@ -71,8 +71,8 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
               cx={axis.x}
               cy={axis.y}
               r="4"
-              fill="#38bdf8"
-              stroke="#0369a1"
+              fill="#0EA5E9"
+              stroke="#00A2E6"
               strokeWidth="2"
             />
           ))}
@@ -92,7 +92,7 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
                   y={ly - 2}
                   fontSize="9"
                   fontWeight="bold"
-                  fill="#cbd5e1"
+                  fill="#DAE2FD"
                   textAnchor="middle"
                   testID={`radar-axis-label-${axis.key}`}
                 >
@@ -101,11 +101,10 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
                 <SvgText
                   x={lx}
                   y={ly + 9}
-                  fontSize="9"
-                  fontWeight="bold"
-                  fill="#38bdf8"
+                  fontSize="8"
+                  fontWeight="600"
+                  fill="#A78B7D"
                   textAnchor="middle"
-                  testID={`radar-axis-value-${axis.key}`}
                 >
                   {axis.formattedValue}
                 </SvgText>
@@ -117,3 +116,5 @@ export const PolygonRadarChart: React.FC<PolygonRadarChartProps> = ({
     </View>
   );
 };
+
+export default PolygonRadarChart;
