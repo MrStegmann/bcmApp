@@ -1,4 +1,4 @@
-# Quickstart & Verification Guide: Matches & New Match Workflow (Date-Only Mask & Roster Enforcement)
+# Quickstart & Verification Guide: Matches & New Match Workflow (Date-Only Mask & Roster Management)
 
 ## Prerequisites & Setup
 
@@ -76,10 +76,51 @@
 1. In `PlayMatch`, verify initial status badge is `pending`.
 2. Tap **Iniciar Cronómetro (Start Chrono)**.
 3. **Expected**:
-   - Chronograph timer starts counting down/up.
+   - Chronograph timer starts counting.
    - Match status immediately updates from `pending` to `inProgress` and persists to SQLite.
 4. Record score actions (e.g. 2pt basket, fouls).
 5. Tap **Finalizar Partido (Save & Finish)** and confirm the alert.
 6. **Expected**:
    - Match status transitions to `finished`.
    - User is returned to the matches list where the match card now displays the `Finalizado` badge.
+
+---
+
+### Scenario 6: Dedicated Roster Selection Button Visibility & Interaction on Upcoming Matches
+1. In the Matches list, locate any upcoming match (badge: `Pendiente`).
+2. Observe the action buttons on the right side of the card:
+   - A dedicated roster button is visible (icon: Feather `users`).
+   - The button has an accessible touch target (min 40x40) with active styling.
+3. Tap the roster button on the upcoming match.
+4. **Expected**:
+   - The Roster Selection Modal opens immediately without launching the game.
+   - If players were previously assigned to this match, their checkboxes/cards are pre-selected.
+   - Modal title indicates roster modification (`Modificar Convocatoria` or `Declarar Convocatoria`).
+   - The "Omitir" button is hidden.
+
+---
+
+### Scenario 7: Repeated Roster Modifications, Deselection, and Persistence
+1. With the roster modal open for an upcoming match, select 3 new players and deselect 1 existing player.
+2. Tap **Confirmar Convocatoria**.
+3. **Expected**:
+   - The modal closes and changes are saved immediately to SQLite.
+4. Tap the roster button on that same match again.
+5. **Expected**:
+   - The modal re-opens displaying the exact updated roster just saved.
+6. Deselect all players so 0 players are selected, then tap **Confirmar Convocatoria**.
+7. **Expected**:
+   - Saving an empty roster succeeds.
+   - Tapping the body of the match card now triggers the mandatory roster modal (Scenario 4) before allowing game entry.
+
+---
+
+### Scenario 8: Disabled / Restricted Roster Button on Live and Finished Matches
+1. Locate a match with status `inProgress` (badge: `En Juego`) or `finished` (badge: `Finalizado`).
+2. Observe the roster button on the match card:
+   - The button is visually dimmed (opacity ~30%, muted color).
+   - The button is disabled (`disabled={true}`).
+3. Tap the dimmed roster button repeatedly.
+4. **Expected**:
+   - The button does not respond to taps and no modal opens.
+   - Active/archived match rosters remain locked and untouched.

@@ -291,6 +291,35 @@ export function useDB() {
           return [];
         }
       },
+      getCalledUpPlayers: async (gameId: number) => {
+        try {
+          const stats = await db.select().from(playerStats).where(eq(playerStats.gameId, gameId));
+          return stats.map((s) => ({
+            ...s,
+            playerId: s.playerId,
+            gameId: s.gameId,
+          }));
+        } catch {
+          return [];
+        }
+      },
+      saveCalledUpPlayers: async (gameId: number, playerIds: number[]) => {
+        try {
+          await db.delete(playerStats).where(eq(playerStats.gameId, gameId));
+          for (const pid of playerIds) {
+            await db.insert(playerStats).values({
+              gameId,
+              playerId: pid,
+              minutes: 0,
+              t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
+              oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
+            });
+          }
+          return true;
+        } catch {
+          return false;
+        }
+      },
       loadCalledup: async (gameId: number, cb?: (res: any[]) => void) => {
         try {
           const stats = await db.select().from(playerStats).where(eq(playerStats.gameId, gameId));

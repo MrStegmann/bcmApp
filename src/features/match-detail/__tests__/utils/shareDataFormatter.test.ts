@@ -255,7 +255,7 @@ describe("shareDataFormatter Unit Tests (T007 - US1)", () => {
     it("should sanitize illegal filesystem characters from rival team and round", () => {
       const fileName = formatShareImageFileName('CB/Granollers: "Jr." *A*', "Jornada? <4>");
       expect(fileName).toBe("CBGranollers_Jr._A_Jornada_4.png");
-      expect(fileName).not.toMatch(/[\\/:*?"<>|]/);
+      expect(/[\\/:*?"<>|]/.test(fileName)).toBe(false);
     });
 
     it("should collapse multiple whitespace and underscores", () => {

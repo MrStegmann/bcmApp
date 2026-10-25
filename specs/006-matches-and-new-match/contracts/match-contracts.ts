@@ -1,7 +1,9 @@
 /**
  * Type and Interface Contracts for Matches & New Match Workflow
- * (Includes Date-Only Auto-Masking & Roster Enforcement)
+ * (Includes Date-Only Auto-Masking & On-Demand Match List Roster Management)
  */
+
+import { Game, Player } from "../../../src/types/database";
 
 export type MatchStatus = "pending" | "inProgress" | "finished";
 
@@ -49,9 +51,18 @@ export interface DateValidationContract {
   parseMatchDate: (value: string) => Date | null;
 }
 
+export interface GameCardsProps {
+  games: Game[];
+  onSelect: (game: Game) => void;
+  onEdit: (game: Game) => void;
+  onDelete: (game: Game) => void;
+  onSelectRoster?: (game: Game) => void;
+}
+
 export interface RosterSelectionModalProps {
   visible: boolean;
-  isMandatory: boolean; // false for creation flow, true for start match flow
+  isMandatory: boolean; // false for creation flow or on-demand editing, true for start match flow
+  title?: string;
   availablePlayers: Array<{
     id: number;
     firstName: string;
@@ -82,4 +93,21 @@ export interface MatchStateTransitionContract {
    * Transition match from 'inProgress' to 'finished' upon saving final match results.
    */
   finishMatch: (matchId: number, finalScores?: Record<string, number>) => Promise<boolean>;
+}
+
+export interface MatchRosterActionContract {
+  /**
+   * Retrieves current called-up players for a specific match.
+   */
+  getRosterForMatch: (matchId: number) => Promise<Player[]>;
+
+  /**
+   * Persists the updated roster player IDs for an upcoming match.
+   */
+  saveRosterForMatch: (matchId: number, playerIds: number[]) => Promise<void>;
+
+  /**
+   * Determines if the roster button should be enabled based on match status.
+   */
+  isRosterButtonEnabled: (status?: string | null) => boolean;
 }

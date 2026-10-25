@@ -9,6 +9,7 @@ interface GameCardsProps {
   onSelect: (game: Game) => void;
   onEdit: (game: Game) => void;
   onDelete: (game: Game) => void;
+  onSelectRoster?: (game: Game) => void;
 }
 
 const GameCards: React.FC<GameCardsProps> = ({
@@ -16,6 +17,7 @@ const GameCards: React.FC<GameCardsProps> = ({
   onSelect,
   onEdit,
   onDelete,
+  onSelectRoster,
 }) => {
   if (games.length === 0) {
     return (
@@ -100,7 +102,7 @@ const GameCards: React.FC<GameCardsProps> = ({
                     : "border-slate-border"
                 }`}
               >
-                <View className="w-[75%] flex flex-row justify-between items-center pr-2">
+                <View className="flex-1 flex flex-row justify-between items-center pr-2">
                   <View className="flex flex-col items-start w-[38%]">
                     <View className="flex-row items-center gap-1.5 mb-1">
                       <Text className="text-xs text-primary font-bold truncate">
@@ -128,20 +130,39 @@ const GameCards: React.FC<GameCardsProps> = ({
                   </View>
                 </View>
 
-                <View className="w-[25%] flex flex-row justify-end items-center gap-2 pl-1 border-l border-slate-border">
-                  <TouchableOpacity
-                    onPress={() => onEdit(game)}
-                    className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
-                  >
-                    <Feather name="edit" size={16} color="#0EA5E9" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => onDelete(game)}
-                    className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
-                  >
-                    <Feather name="trash" size={16} color="#EF4444" />
-                  </TouchableOpacity>
-                </View>
+                {(() => {
+                  const isRosterEnabled = game.status === "pending" || !game.status;
+                  return (
+                    <View className="flex flex-row justify-end items-center gap-1.5 pl-2 border-l border-slate-border">
+                      <TouchableOpacity
+                        testID={`roster-button-${game.id}`}
+                        disabled={!isRosterEnabled}
+                        onPress={() => onSelectRoster && onSelectRoster(game)}
+                        className={`p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark ${
+                          isRosterEnabled ? "active:bg-slate-card" : "opacity-30"
+                        }`}
+                      >
+                        <Feather
+                          name="users"
+                          size={16}
+                          color={isRosterEnabled ? "#F97316" : "#A78B7D"}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => onEdit(game)}
+                        className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
+                      >
+                        <Feather name="edit" size={16} color="#0EA5E9" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => onDelete(game)}
+                        className="p-2 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg bg-slate-dark active:bg-slate-card"
+                      >
+                        <Feather name="trash" size={16} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })()}
               </View>
             </TouchableOpacity>
           );

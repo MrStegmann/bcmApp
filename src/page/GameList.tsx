@@ -41,6 +41,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
   const [isRosterMandatory, setIsRosterMandatory] = useState<boolean>(false);
   const [pendingGameData, setPendingGameData] = useState<any>(null);
   const [pendingMatchToStart, setPendingMatchToStart] = useState<Game | null>(null);
+  const [pendingMatchToEditRoster, setPendingMatchToEditRoster] = useState<Game | null>(null);
   const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
   const [selectedRosterIds, setSelectedRosterIds] = useState<number[]>([]);
 
@@ -186,6 +187,23 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
     setGameSelected(game);
   };
 
+  const handleSelectRoster = async (game: Game) => {
+    if (game.status !== "pending" && game.status) return;
+
+    setPendingMatchToEditRoster(game);
+    setIsRosterMandatory(false);
+
+    if (game.id) {
+      const existingRoster = await GameController.getCalledUpPlayers(game.id);
+      const playerIds = (existingRoster || []).map((p: any) => p.playerId || p.player_id);
+      setSelectedRosterIds(playerIds);
+    } else {
+      setSelectedRosterIds([]);
+    }
+
+    setRosterModalVisible(true);
+  };
+
   const handleInitiateCreateGame = (gameData: any) => {
     setPendingGameData(gameData);
     setIsRosterMandatory(false);
@@ -206,9 +224,9 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
 
   const handleConfirmRoster = async (rosterIds: number[]) => {
     if (pendingGameData) {
-      const createdGameId = await GameController.add(pendingGameData);
-      if (createdGameId && rosterIds.length > 0) {
-        await GameController.saveCalledUpPlayers(createdGameId, rosterIds);
+      const createdGame = await GameController.add(pendingGameData);
+      if (createdGame?.id && rosterIds.length > 0) {
+        await GameController.saveCalledUpPlayers(createdGame.id, rosterIds);
       }
       setPendingGameData(null);
       setRosterModalVisible(false);
@@ -220,6 +238,11 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
       setPendingMatchToStart(null);
       setRosterModalVisible(false);
       setGameSelected(matchToLaunch);
+      await getData();
+    } else if (pendingMatchToEditRoster && pendingMatchToEditRoster.id) {
+      await GameController.saveCalledUpPlayers(pendingMatchToEditRoster.id, rosterIds);
+      setPendingMatchToEditRoster(null);
+      setRosterModalVisible(false);
       await getData();
     }
   };
@@ -288,15 +311,17 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
       <RosterSelectionModal
         visible={rosterModalVisible}
         isMandatory={isRosterMandatory}
+        title={pendingMatchToEditRoster ? "Editar Convocatoria" : undefined}
         availablePlayers={availablePlayers}
         selectedPlayerIds={selectedRosterIds}
         onTogglePlayer={handleToggleRosterPlayer}
         onConfirm={handleConfirmRoster}
-        onSkip={isRosterMandatory ? undefined : handleSkipRoster}
+        onSkip={isRosterMandatory || pendingMatchToEditRoster ? undefined : handleSkipRoster}
         onClose={() => {
           setRosterModalVisible(false);
           setPendingGameData(null);
           setPendingMatchToStart(null);
+          setPendingMatchToEditRoster(null);
         }}
       />
 
@@ -346,6 +371,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
             onSelect={handleSelectGame}
             onEdit={handleOpenEditForm}
             onDelete={handleOpenDeleteModal}
+            onSelectRoster={handleSelectRoster}
           />
         ))}
     </View>

@@ -4,21 +4,22 @@
 
 **Created**: 2026-10-02
 
-**Last Updated**: 2026-10-23
+**Last Updated**: 2026-10-25
 
 **Status**: Ready for Planning
 
-**Input**: User description: "The task is to update the match form date field. We dont need no longer hour format in the input field date. We only will use date format. Also, the field must automaticly formatting the date to the correct format `dd/mm/aaaa`, allowing the user to only type numbers.
+**Input**: User description: "The task is to add a new button in the Matches list to select the roster of the match. This button is always able since the match is not finished or started. The user can tap the button, change the roster whenever he wants since the match is not ended or started.
 What To Do:
-* Remove Time Component: Update the match form date input to remove the hour/time selection, changing it to a date-only field.
-* Restrict Input to Numbers: Implement a keydown or input listener on the date field to block letters, symbols, and non-numeric characters.
-* Implement Automatic Formatting Mask: Add auto-formatting logic that inserts slashes automatically as the user types, enforcing the `dd/mm/aaaa` structure.
-* Update State & Payloads: Adjust the form state handling, validation schemas, and outgoing API payloads to process the date-only format without time zone or hour offsets.
+* UI Update: Add a roster selection button to each match item/card within the Matches list view.
+* Conditional Enablement Logic: Implement state checks to ensure the roster button is enabled when the match status is upcoming (i.e., the match has neither started nor finished).
+* Interaction Handling: Wire up the tap event on the button to open the roster selection modal or navigation screen for that specific match.
+* Data Mutation & Saving: Implement the logic allowing users to update, modify, and save the selected player roster repeatedly prior to the match start or completion.
 Acceptance Criteria:
-* Date-Only Interface: The match form date input field no longer displays, accepts, or requires time values.
-* Numeric Restriction: The input field strictly allows only numeric keystrokes (`0-9`), preventing invalid characters from being entered.
-* Auto-Formatting (`dd/mm/aaaa`): Typing continuous numbers automatically formats the value into the `dd/mm/aaaa` pattern (e.g., typing `23102026` renders as `23/10/2026`).
-* Clean Submission: Form submission correctly validates and passes the date-only string payload to the backend."
+* Button Visibility: A clear roster selection button is rendered for each match in the Matches list.
+* Button State: The roster button is interactive and enabled for all matches that are not started or finished.
+* Interaction Flow: Tapping the button successfully navigates to or opens the roster management interface.
+* Roster Modification: Users can freely change and save the roster multiple times as long as the match remains in an unstarted state.
+* State Restriction: The button appropriately restricts or disables roster modifications if the match has already started or finished."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -58,7 +59,25 @@ As a scorekeeper or coach, I want the system to ensure a match roster is defined
 
 ---
 
-### User Story 3 - Match State Lifecycle Management (Priority: P2)
+### User Story 3 - On-Demand Match List Roster Management for Upcoming Matches (Priority: P1)
+
+As a coach or team manager viewing the Matches list, I want a dedicated roster selection button on each upcoming match card, so that I can configure, review, or update the player roster whenever I want prior to starting or ending the game, without having to start the match.
+
+**Why this priority**: Enabling coaches to prepare and tweak team line-ups well in advance directly from the schedule list avoids last-minute rush during match start and gives complete control over player participation.
+
+**Independent Test**: Can be fully tested by creating upcoming matches, verifying the presence of an active roster button on each upcoming match card in the list, tapping the button to open the roster selection interface, changing the player selection multiple times and saving, confirming the updated roster persists, and verifying that for started or finished matches the button is non-interactive or disabled.
+
+**Acceptance Scenarios**:
+
+1. **Given** a match card is displayed in the Matches list, **When** the match is in an upcoming state (`pending`, i.e., neither started nor finished), **Then** a dedicated roster selection button is visible and interactively enabled on that match item.
+2. **Given** the roster button is enabled on an upcoming match card, **When** the user taps the roster button, **Then** the roster selection interface opens for that specific match, displaying any previously chosen players pre-selected.
+3. **Given** the roster selection interface is open for an upcoming match, **When** the user modifies player selections (selecting or deselecting players) and confirms/saves, **Then** the updated roster is persisted for that match and immediately reflected.
+4. **Given** an upcoming match has had its roster saved previously, **When** the user taps the roster button again at any point prior to match start, **Then** the user can re-open the roster interface and modify the player selections repeatedly.
+5. **Given** a match in the list has already started (`inProgress`) or finished (`finished`), **When** the match item is displayed in the list, **Then** the roster selection button is disabled (or visually indicated as restricted/non-interactive), preventing changes to in-progress or completed match rosters.
+
+---
+
+### User Story 4 - Match State Lifecycle Management (Priority: P2)
 
 As a user tracking tournament or season progress, I want matches to transition accurately across three states (`pending`, `inProgress`, and `finished`), so that I can distinguish upcoming games, live active games, and completed matches.
 
@@ -85,6 +104,9 @@ As a user tracking tournament or season progress, I want matches to transition a
 - **Roster Selection with Empty Player List**: If the team has no registered players in the club/team database when the roster modal appears, the modal displays a message indicating no players are available and guides the user to add players first.
 - **App Interruption During `inProgress` Match**: If the app closes while a match is `inProgress`, the match remains in `inProgress` state so the user can resume tracking upon reopening.
 - **Revisiting a Finished Match**: When the user taps on a `finished` match from the list, the match details/summary view is displayed rather than restarting the game or re-prompting for roster declaration.
+- **Deselecting All Players in Roster Edit**: If a user removes all players from an upcoming match's roster and saves, the match reverts to having an empty roster; attempting to play the match subsequently triggers the mandatory roster modal (FR-012).
+- **Club Player Roster Sync**: If club players are deleted or modified in club profile, the roster editor for an upcoming match displays the current valid player pool and gracefully handles missing player IDs.
+- **Repeated / Concurrent Taps on Roster Button**: Fast repeated taps on the roster button open a single roster interface instance without duplicate modals or conflicting state updates.
 
 ## Requirements *(mandatory)*
 
@@ -106,6 +128,11 @@ As a user tracking tournament or season progress, I want matches to transition a
 - **FR-014**: The system MUST manage three distinct match states: `pending` (created, not started), `inProgress` (match clock started in live play view), and `finished` (game ended and saved by the user).
 - **FR-015**: When the user starts the chronograph/timer in the live match play view, the system MUST transition the match state from `pending` to `inProgress`.
 - **FR-016**: When the user triggers the "Save & Finish" action in the live match play view, the system MUST transition the match state to `finished` and persist the final outcome.
+- **FR-017**: The Matches list view MUST render a clear, dedicated roster selection button on each match item/card.
+- **FR-018**: The roster selection button MUST be enabled and interactive whenever the match is in an upcoming state (`pending`, i.e., neither started nor finished).
+- **FR-019**: Tapping the roster selection button on an upcoming match MUST open the roster management interface for that specific match, pre-populating any previously selected players.
+- **FR-020**: The system MUST permit users to modify (select/deselect players) and save the match roster repeatedly at any time while the match remains in an unstarted (`pending`) state.
+- **FR-021**: The system MUST disable or restrict the roster selection button on match cards whose status is `inProgress` or `finished`, preventing modification of active or completed game rosters from the Matches list.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -133,6 +160,10 @@ As a user tracking tournament or season progress, I want matches to transition a
 - **SC-007**: 100% of newly saved matches appear at the very top of the matches list immediately after creation without requiring a manual refresh.
 - **SC-008**: 0% of matches can enter the live match play screen without a confirmed roster containing at least one player.
 - **SC-009**: Match state transitions between `pending`, `inProgress`, and `finished` occur reliably with 100% persistence accuracy across app sessions.
+- **SC-010**: 100% of upcoming (`pending`) matches rendered in the Matches list display an active, clickable roster selection button.
+- **SC-011**: 100% of matches that have started (`inProgress`) or concluded (`finished`) prevent roster editing from the Matches list with appropriate disabled/restricted state indication.
+- **SC-012**: Users can open, modify, and save a match roster directly from the Matches list in under 15 seconds.
+- **SC-013**: 100% of roster modifications saved from the Matches list persist reliably and reflect immediately in subsequent viewings or game launch actions.
 
 ## Assumptions
 
@@ -141,4 +172,6 @@ As a user tracking tournament or season progress, I want matches to transition a
 - Mobile numeric keyboards (number-pad) or standard inputs supply numerical values `0-9`.
 - Existing club/team players in the local database serve as the source pool for roster selection.
 - Minimum valid roster requirement is at least 1 player to allow solo or reduced-squad training/scrimmage scenarios, though standard matches typically declare 5 or more players.
+- "Upcoming" matches correspond to matches in the `pending` state (i.e., the match clock has not been started and the match has not been concluded).
+- Roster edits performed on upcoming matches only mutate the player association for that specific match and do not alter the match's lifecycle state or fixture metadata.
 - The live match play view (`PlayMatch`) contains the chronograph/timer controls and the "Save & Finish" match trigger.

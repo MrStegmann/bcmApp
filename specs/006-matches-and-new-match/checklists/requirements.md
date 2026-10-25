@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-23
+**Last Updated**: 2026-10-25
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,5 +32,9 @@
 
 ## Notes
 
-- Specification updated on 2026-10-23 to transition the match date input from timestamp (`dd/mm/aaaa - hh:mm`) to date-only (`dd/mm/aaaa`), adding automatic mask formatting and strictly restricting input to numeric characters.
-- All validation checks passed. Specification is ready for `/speckit-plan` or `/speckit-clarify`.
+- Specification updated on 2026-10-25 to incorporate on-demand roster management directly from the Matches list for upcoming (`pending`) matches:
+  - Added User Story 3 for match list roster management with independent test and acceptance scenarios.
+  - Added Functional Requirements FR-017 through FR-021 covering button visibility, conditional enablement (active when unstarted/pending; disabled when in-progress or finished), interface launching, and iterative editing/saving.
+  - Added edge cases covering roster clearance, club player synchronization, and tap handling.
+  - Added measurable Success Criteria SC-010 through SC-013.
+- All validation checks passed. Specification is ready for planning (`/speckit-plan`).

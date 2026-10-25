@@ -118,13 +118,11 @@ describe("RosterValuationList Component Contract (T019 - US2)", () => {
   it("should verify 2-column grid item buttons do not contain h-full to prevent vertical expansion bug", () => {
     const fs = require("fs");
     const path = require("path");
-    const componentSource = fs.readFileSync(
-      path.resolve(__dirname, "../../components/RosterValuationList.tsx"),
-      "utf8"
-    );
+    const componentPath = path.resolve((globalThis as any).__dirname || process.cwd(), "src/features/match-detail/components/RosterValuationList.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf8");
 
     // Verify TouchableOpacity in remaining players grid does not include 'h-full'
-    expect(componentSource).not.toMatch(/player-roster-item[^>]*className=[^>]*h-full/);
-    expect(componentSource).not.toMatch(/className="[^"]*h-full[^"]*"\s+testID={`player-roster-item/);
+    expect(/player-roster-item[^>]*className=[^>]*h-full/.test(componentSource)).toBe(false);
+    expect(/className="[^"]*h-full[^"]*"\s+testID={`player-roster-item/.test(componentSource)).toBe(false);
   });
 });

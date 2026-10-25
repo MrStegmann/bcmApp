@@ -8,6 +8,7 @@ import Button from "../framework/Button";
 const RosterSelectionModal: React.FC<RosterSelectionModalProps> = ({
   visible,
   isMandatory,
+  title,
   availablePlayers = [],
   selectedPlayerIds = [],
   onTogglePlayer,
@@ -35,7 +36,7 @@ const RosterSelectionModal: React.FC<RosterSelectionModalProps> = ({
           <View className="w-full flex-row justify-between items-center pb-3 border-b border-slate-border">
             <View className="flex-1 pr-2">
               <Text className="text-xl font-bold text-white">
-                {isMandatory ? "Convocatoria Obligatoria" : "Declarar Convocatoria"}
+                {title || (isMandatory ? "Convocatoria Obligatoria" : "Declarar Convocatoria")}
               </Text>
               <Text className="text-xs text-on-surface-variant mt-0.5">
                 {`Convocados: ${selectedPlayerIds.length} / 12 jugadores`}

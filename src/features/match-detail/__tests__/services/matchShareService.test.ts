@@ -46,7 +46,7 @@ describe("matchShareService Unit Tests (T017 - US3)", () => {
     });
 
     it("should return false and getMediaLibraryModule() should return null when only legacy ExpoMediaLibrary is present (preventing false positive in Expo Go)", () => {
-      mockRequireOptionalNativeModule.mockImplementation((name) =>
+      mockRequireOptionalNativeModule.mockImplementation((name: string) =>
         name === "ExpoMediaLibrary" ? { name } : null
       );
 
@@ -77,7 +77,7 @@ describe("matchShareService Unit Tests (T017 - US3)", () => {
     });
 
     it("should return true and getMediaLibraryModule() should return module when native module is present", () => {
-      mockRequireOptionalNativeModule.mockImplementation((name) =>
+      mockRequireOptionalNativeModule.mockImplementation((name: string) =>
         name === "ExpoMediaLibraryNext" ? { name } : null
       );
 
@@ -240,7 +240,7 @@ describe("matchShareService Unit Tests (T017 - US3)", () => {
     });
 
     it("should gracefully fallback to expo-sharing when only legacy ExpoMediaLibrary is present in runtime (Expo Go)", async () => {
-      mockRequireOptionalNativeModule.mockImplementation((name) =>
+      mockRequireOptionalNativeModule.mockImplementation((name: string) =>
         name === "ExpoMediaLibrary" ? { name } : null
       );
       mockIsAvailableAsync.mockResolvedValue(true);

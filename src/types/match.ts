@@ -35,9 +35,18 @@ export interface DateValidationContract {
   parseMatchDate: (value: string) => Date | null;
 }
 
+export interface GameCardsProps {
+  games: Game[];
+  onSelect: (game: Game) => void;
+  onEdit: (game: Game) => void;
+  onDelete: (game: Game) => void;
+  onSelectRoster?: (game: Game) => void;
+}
+
 export interface RosterSelectionModalProps {
   visible: boolean;
-  isMandatory: boolean; // false for creation flow, true for start match flow
+  isMandatory: boolean; // false for creation flow or on-demand editing, true for start match flow
+  title?: string;
   availablePlayers: Array<{
     id: number;
     firstName: string;
@@ -55,6 +64,12 @@ export interface RosterSelectionModalProps {
 export interface MatchStateTransitionContract {
   startMatch: (matchId: number) => Promise<boolean>;
   finishMatch: (matchId: number, finalScores?: Record<string, number>) => Promise<boolean>;
+}
+
+export interface MatchRosterActionContract {
+  getRosterForMatch: (matchId: number) => Promise<Player[]>;
+  saveRosterForMatch: (matchId: number, playerIds: number[]) => Promise<void>;
+  isRosterButtonEnabled: (status?: string | null) => boolean;
 }
 
 // -------------------------------------------------------------
