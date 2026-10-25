@@ -74,6 +74,33 @@ function getMemDb() {
         falt INTEGER DEFAULT 0,
         valuation INTEGER DEFAULT 0
       );
+
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        external_id TEXT,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        data_json TEXT,
+        received_at TEXT NOT NULL DEFAULT (datetime('now')),
+        is_read INTEGER NOT NULL DEFAULT 0,
+        suppressed_reason TEXT NOT NULL DEFAULT 'none'
+      );
+
+      CREATE TABLE IF NOT EXISTS notification_settings (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        mute_in_app INTEGER NOT NULL DEFAULT 1,
+        mute_in_match INTEGER NOT NULL DEFAULT 1,
+        sound_enabled INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS match_cache (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        match_id INTEGER NOT NULL UNIQUE REFERENCES games(id) ON DELETE CASCADE,
+        state_json TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1,
+        last_updated TEXT NOT NULL DEFAULT (datetime('now'))
+      );
     `);
   }
   return globalMemDb;

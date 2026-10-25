@@ -118,3 +118,9 @@ export const playerStatsRelations = relations(playerStats, ({ one }) => ({
   }),
 }));
 
+// 5. NOTIFICATIONS SCHEMA
+export * from "../features/notifications/db/schema";
+
+// 6. PLAY MATCH CACHE SCHEMA
+export * from "../features/play-match/db/schema";
+

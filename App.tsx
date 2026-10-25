@@ -5,11 +5,13 @@ import ClubManage from "./src/page/ClubManage";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { initDatabase } from "./src/db";
 import { seedDatabase } from "./src/db/seed";
+import { useNotificationLifecycle } from "./src/features/notifications/hooks/useNotificationLifecycle";
 
 // Ignore third-party library registration of deprecated React Native SafeAreaView (e.g. react-native-css-interop)
 LogBox.ignoreLogs(["SafeAreaView has been deprecated"]);
 
 export default function App() {
+  useNotificationLifecycle();
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

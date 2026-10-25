@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import {
+  CachedMatchPayload,
   InGamePlayer,
   PeriodData,
   PeriodKey,
@@ -8,6 +9,7 @@ import {
   SwapState,
   TimeoutBudget,
 } from "../types";
+import { useNotificationStore } from "../../notifications/store/useNotificationStore";
 
 export function calculatePlayerValuation(player: Partial<InGamePlayer>): number {
   if (!player) return 0;
@@ -89,6 +91,8 @@ export interface PlayMatchStoreState {
   cancelSwap: () => void;
   increaseTimeout: () => void;
   decreaseTimeout: () => void;
+  exportSnapshot: () => CachedMatchPayload;
+  hydrateFromCache: (payload: CachedMatchPayload) => void;
 
   // Getters & Selectors
   getTotalTeamScore: () => number;
@@ -147,6 +151,8 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
         valuation: calculatePlayerValuation(p),
       };
     });
+
+    useNotificationStore.getState().setMatchActive(true, matchId);
 
     set({
       matchId,
@@ -789,9 +795,38 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
     }
     return timeouts.extraTimeRemaining;
   },
+
+  exportSnapshot: () => {
+    const state = get();
+    return {
+      version: 1,
+      matchId: state.matchId,
+      activePeriod: state.activePeriod,
+      periods: JSON.parse(JSON.stringify(state.periods)),
+      players: JSON.parse(JSON.stringify(state.players)),
+      timeouts: { ...state.timeouts },
+      swap: JSON.parse(JSON.stringify(state.swap)),
+      scoreEvents: [...state.scoreEvents],
+      savedAt: new Date().toISOString(),
+    };
+  },
+
+  hydrateFromCache: (payload: CachedMatchPayload) => {
+    set({
+      matchId: payload.matchId,
+      activePeriod: payload.activePeriod,
+      periods: JSON.parse(JSON.stringify(payload.periods)),
+      isTimerRunning: false,
+      players: JSON.parse(JSON.stringify(payload.players)),
+      timeouts: { ...payload.timeouts },
+      swap: JSON.parse(JSON.stringify(payload.swap)),
+      scoreEvents: [...payload.scoreEvents],
+    });
+  },
 }));
 
 export const resetPlayMatchStore = () => {
+  useNotificationStore.getState().setMatchActive(false);
   usePlayMatchStore.setState({
     matchId: 0,
     activePeriod: "q1",

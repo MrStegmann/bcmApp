@@ -249,3 +249,5 @@ export interface ThrowStatBreakdown {
 }
 
 export type FormatThrowStatFn = (succeed: number, missed: number) => string;
+
+export * from "./cache";

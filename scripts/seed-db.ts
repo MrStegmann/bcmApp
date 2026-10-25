@@ -9,6 +9,8 @@ import { MOCK_TEAM_DATA } from "../src/db/mock/mockTeamData";
 import { MockTeamDatasetConfig, SeedSummaryResult } from "../src/types/mockData";
 import { validateDataset } from "../src/db/mock/mockDataValidator";
 
+declare const module: any;
+
 /**
  * Clears all data from the database to guarantee a fresh start.
  * Deletion order respects foreign keys: playerStats -> games -> players -> teams.

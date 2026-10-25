@@ -22,4 +22,8 @@ export * from "./utils/formatStintTime";
 export * from "./utils/formatThrowStat";
 export * from "./utils/courtArcPositions";
 export * from "./utils/roster";
+export * from "./services/matchCacheService";
+export * from "./db/matchCacheRepository";
+export * from "./db/schema";
+export * from "./utils/cacheValidation";
 export * from "./PlayMatch";

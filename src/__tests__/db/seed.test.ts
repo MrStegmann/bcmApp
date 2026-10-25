@@ -28,8 +28,8 @@ describe("Database Seed Script Tests", () => {
 
       const seededTeams = await db.select().from(teams);
       expect(seededTeams.length).toBe(1);
-      expect(seededTeams[0].name).toBe("CB Salliver");
-      expect(seededTeams[0].category).toBe("Junior Celeste");
+      expect(seededTeams[0].name).toBe("Club Baloncesto Alborán");
+      expect(seededTeams[0].category).toBe("Cadete Oro");
 
       const seededPlayers = await db
         .select()

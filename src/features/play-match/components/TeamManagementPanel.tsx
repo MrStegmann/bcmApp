@@ -6,7 +6,6 @@ import { formatPlayerIdentifier } from "../utils/formatPlayerIdentifier";
 export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
   benchPlayers,
   isSwapMode,
-  isTimerRunning,
   selectedCourtCount,
   selectedBenchPlayerIds,
   availableTimeouts,
@@ -143,7 +142,7 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
             </Text>
           </View>
         ) : (
-          benchPlayers.map((player) => {
+          benchPlayers.sort((a, b) => (a.secondsPlayed || 0) - (b.secondsPlayed || 0)).map((player) => {
             const pId = Number(player.id);
             const isSelected = selectedBenchPlayerIds.some((id) => Number(id) === pId);
             const min = Math.floor((player.secondsPlayed || 0) / 60);

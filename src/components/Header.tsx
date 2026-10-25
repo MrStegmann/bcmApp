@@ -9,6 +9,11 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 import { useMenuStore, HeaderAction } from "../store/MenuStore";
+import {
+  NotificationCenterButton,
+  NotificationCenterModal,
+  NotificationSettingsModal,
+} from "../features/notifications";
 
 export interface HeaderProps {
   title?: string;
@@ -40,6 +45,8 @@ const renderActionIcon = (action: HeaderAction) => {
 
 const Header: React.FC<HeaderProps> = ({ title, children }) => {
   const insets = useSafeAreaInsets();
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = React.useState(false);
+  const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = React.useState(false);
   const storeHeaderTitle = useMenuStore((state) => state.headerTitle);
   const headerAction = useMenuStore((state) => state.headerAction);
   const headerBackAction = useMenuStore((state) => state.headerBackAction);
@@ -124,22 +131,27 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
           </Text>
         )}
 
-        {headerAction ? (
-          <TouchableOpacity
-            onPress={headerAction.onPress}
-            className="w-10 h-10 items-center justify-center rounded-xl bg-red-700 border border-red-600 active:bg-red-900"
-            testID={headerAction.testID || "header-action-button"}
-            accessibilityLabel={headerAction.label || "Acción"}
-          >
-            {headerAction.iconName ? (
-              renderActionIcon(headerAction)
-            ) : (
-              <Text className="text-white text-lg font-bold">+</Text>
-            )}
-          </TouchableOpacity>
-        ) : (
-          <View className="w-10" />
-        )}
+        <View className="flex-row items-center gap-2">
+          <NotificationCenterButton
+            onPress={() => setIsNotificationCenterOpen(true)}
+            testID="header-notification-center-button"
+          />
+
+          {headerAction ? (
+            <TouchableOpacity
+              onPress={headerAction.onPress}
+              className="w-10 h-10 items-center justify-center rounded-xl bg-red-700 border border-red-600 active:bg-red-900"
+              testID={headerAction.testID || "header-action-button"}
+              accessibilityLabel={headerAction.label || "Acción"}
+            >
+              {headerAction.iconName ? (
+                renderActionIcon(headerAction)
+              ) : (
+                <Text className="text-white text-lg font-bold">+</Text>
+              )}
+            </TouchableOpacity>
+          ) : null}
+        </View>
 
         {children ? (
           <View className="flex-row justify-center w-full gap-3 mt-2 px-4">
@@ -147,6 +159,18 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
           </View>
         ) : null}
       </View>
+
+      <NotificationCenterModal
+        visible={isNotificationCenterOpen}
+        onClose={() => setIsNotificationCenterOpen(false)}
+        onOpenSettings={() => {
+          setIsNotificationSettingsOpen(true);
+        }}
+      />
+      <NotificationSettingsModal
+        visible={isNotificationSettingsOpen}
+        onClose={() => setIsNotificationSettingsOpen(false)}
+      />
     </View>
   );
 };

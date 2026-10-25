@@ -5,8 +5,8 @@ describe("Mock Team Dataset Unit Tests", () => {
   describe("User Story 1 - Team Setup & Roster", () => {
     it("should define the correct team metadata", () => {
       expect(MOCK_TEAM_DATA).toBeDefined();
-      expect(MOCK_TEAM_DATA.name).toBe("CB Salliver");
-      expect(MOCK_TEAM_DATA.category).toBe("Junior Celeste");
+      expect(MOCK_TEAM_DATA.name).toBe("Club Baloncesto Alborán");
+      expect(MOCK_TEAM_DATA.category).toBe("Cadete Oro");
     });
 
     it("should contain at least 12 players in the roster", () => {

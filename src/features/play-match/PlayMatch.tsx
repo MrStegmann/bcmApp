@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { View, Text, Alert } from "react-native";
-import { usePlayMatchStore } from "./store/usePlayMatchStore";
+import { View, Text, Alert, AppState, AppStateStatus, TouchableOpacity } from "react-native";
+import { usePlayMatchStore, resetPlayMatchStore } from "./store/usePlayMatchStore";
 import { useMenuStore } from "../../store/MenuStore";
 import { TimeScoreFoulsController } from "./components/TimeScoreFoulsController";
 import { TeamManagementCanvas } from "./components/TeamManagementCanvas";
@@ -18,6 +18,8 @@ import { useDB } from "../../hooks/useDB";
 import { db, games, playerStats, teams } from "../../db";
 import { eq } from "drizzle-orm";
 import { buildMatchRoster } from "./utils/roster";
+import { useNotificationStore } from "../notifications/store/useNotificationStore";
+import { matchCacheService } from "./services/matchCacheService";
 
 export { buildMatchRoster };
 
@@ -172,6 +174,9 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
                 }
               }
 
+              // Purge temporary cache upon match finalization (US3)
+              await matchCacheService.purgeSession(match.id);
+
               onFinishMatch();
             } catch (err) {
               console.error("Failed to finish match:", err);
@@ -181,6 +186,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
       ]
     );
   }, [match.id, onFinishMatch]);
+
 
   const teamTotalScore = getTotalTeamScore();
   const rivalTotalScore = getTotalRivalScore();
@@ -224,10 +230,11 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
       setHeaderTitle("Partidos");
       setHeaderAction(null);
       setHeaderBackAction(null);
+      useNotificationStore.getState().setMatchActive(false);
     };
   }, [setMatchHeaderInfo, setHeaderTitle, setHeaderAction, setHeaderBackAction]);
 
-  // Initialize Match and Players from DB on mount
+  // Initialize Match and Players from DB or Cache on mount (US2)
   useEffect(() => {
     const loadMatchData = async () => {
       try {
@@ -246,14 +253,52 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
           .from(playerStats)
           .where(eq(playerStats.gameId, match.id));
 
-        const roster = buildMatchRoster(teamPlayers, existingStats);
+        const initFreshRoster = () => {
+          const roster = buildMatchRoster(teamPlayers, existingStats);
+          initMatch(match.id, roster);
+          if (roster.length >= 5) {
+            setIsStartingFiveModalOpen(true);
+          }
+        };
 
-        initMatch(match.id, roster);
+        // Check for cached match session
+        const cachedSession = await matchCacheService.loadSession(match.id);
+        if (cachedSession) {
+          if (matchCacheService.isCacheStale(cachedSession)) {
+            Alert.alert(
+              "Sesión anterior encontrada",
+              "Se ha encontrado una sesión guardada de este partido de hace más de 48 horas. ¿Deseas reanudarla o comenzar un partido nuevo?",
+              [
+                {
+                  text: "Comenzar nuevo",
+                  style: "destructive",
+                  onPress: async () => {
+                    await matchCacheService.purgeSession(match.id);
+                    initFreshRoster();
+                  },
+                },
+                {
+                  text: "Reanudar",
+                  onPress: () => {
+                    usePlayMatchStore.getState().hydrateFromCache(cachedSession);
+                  },
+                },
+              ]
+            );
+            return;
+          }
 
-        // If newly created and no players on court, prompt Starting 5 modal
-        if (roster.length >= 5) {
-          setIsStartingFiveModalOpen(true);
+          // Valid fresh cached session - rehydrate directly
+          usePlayMatchStore.getState().hydrateFromCache(cachedSession);
+
+          const courtPlayersCount = cachedSession.players.filter((p) => p.isOnCourt).length;
+          if (courtPlayersCount < 5 && cachedSession.players.length >= 5) {
+            setIsStartingFiveModalOpen(true);
+          }
+          return;
         }
+
+        initFreshRoster();
       } catch (err) {
         console.error("Failed to load match roster:", err);
       }
@@ -261,6 +306,32 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
 
     loadMatchData();
   }, [match.id, match.teamId]);
+
+  // Silent Background Persistence & AppState flush (US1)
+  useEffect(() => {
+    if (!match?.id) return;
+
+    const unsubscribe = usePlayMatchStore.subscribe((state) => {
+      if (state.matchId === match.id && state.matchId > 0) {
+        const snapshot = state.exportSnapshot();
+        matchCacheService.saveSession(snapshot, false);
+      }
+    });
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === "background" || nextAppState === "inactive") {
+        matchCacheService.flushPendingWrite();
+      }
+    };
+
+    const appStateSubscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      unsubscribe();
+      appStateSubscription.remove();
+      matchCacheService.flushPendingWrite();
+    };
+  }, [match?.id]);
 
   // Real-time Chronometer Interval
   const timerRef = useRef<any>(null);
