@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-02
 
-**Last Updated**: 2026-10-24
+**Last Updated**: 2026-10-25
 
 **Status**: Draft
 
@@ -12,6 +12,7 @@
 - Original: "The task is to create an organic game panel control and stats separated into three components with global state management for score, time, and team foul control. Component 1 (Time, Score, and Fouls): controls periods (q1, q2, q3, q4, extra) with single tap to swap to next period and 3-second hold to show period list modal; total score calculated from period scores, isolated score/time/team fouls per period; crono with single tap start/stop and 3-second hold to set manually; 10min per regular period, 5min for extra time with reset crono to 5min without wiping score/fouls. Component 2 (Team Management): half basketball court canvas with 5 position buttons representing active quintet; tapping opens stats modal (t1a, t1i, t2a, t2i, t3a, t3i with assist teammate prompt including 'non assistant' option on t2a/t3a; offensive & defensive rebounds both present; fouls adding to period team fouls; assists, ball lost, ball recuperation); active players auto-accumulate minutes when crono runs; team panel with Swap button activating balanced substitution mode (N in = N out); players represented by circles showing jerseyNumber, name, minutos, and pts; horizontal bench list; timeout control buttons (increase/decrease) in same row as Swap button (2 timeouts for q1-q2, 3 for q3-q4, 1 for extra time, +1 on extra crono reset). Component 3 (Rival Panel Control): rival score adjustments (+1, +2, +3, -1) and rival period team fouls (+1, -1)."
 - Update (2026-10-24 - Player Identification): "The task is to update the player identification showed in the view. It must show always the Jersey Number if has; if not, use the first letter of the Player Name following the lastName (e.g.: A. Arias, A. Delgado, P. Stegmann, etc.). Includes jersey number priority check, fallback name formatting utility, edge case handling, and unit test assertions."
 - Update (2026-10-24 - Stint Tracking, Rival Layout, Long-Press Stat Subtraction, Unrestricted Substitutions): "The task is to update the quintet that are over the court (playing). Actually, the quintet have the total of minuts and points. We need to change the minuts showed for: count only the minuts the player have played since he enter to play. That means, if the player was in the bench and enter to play, the minuts showed start from 0 and increase all the time he's playing. When the player go to the bench and return to playing, the time reset to 0. In addition, the rival control section has the total points that the rival has, this part shall be removed (it is not necesary) and extends the rival panel control to use the full width. We also need substract stats from the players by holding over the player by 2 seconds (only players that are playing). If a player that has scored 2 or 3 points and have assistant from other, the assist will be automaticaly substract too. For changin players, it must be able whenever the time is running or not."
+- Update (2026-10-25 - Bench Player Statistics Modal): "The task is to add a stats information modal for the players that are in the bench. This modals can be open by clicking over a player in the bench and can be closed clicking over a cross button or clicking outside the modal. The modal MUST show every stat with the minuts and points ontop and must visible than others. Also must show every throd made (1, 2, 3) with succeed / attempt and porcentage (s/a (#%) format expected). Includes player click handler on bench items, modal shell with cross button & backdrop click-outside dismissal, header layout prominently displaying minutes and points at the top, throw statistics formatter for 1pt, 2pt, 3pt in s/a (#%) format, and visual layering for high prominence."
 
 ## Clarifications
 
@@ -29,6 +30,13 @@
 - Q: What happens to an attributed assist when a made 2-point or 3-point score is decremented? → A: Decrementing a made 2-point or 3-point basket automatically decrements the attributed assist from the assisting teammate (cascading assist subtraction), alongside deducting points from the scorer, the period score, and the total match score.
 - Q: What changes in the Rival Control Section layout? → A: The rival total points counter element is completely removed from the rival control component, and the panel is styled to extend and occupy 100% of the container width.
 - Q: When can player substitutions be executed? → A: Substitutions can be initiated and confirmed at any time, whether the match chronometer is running or stopped/paused.
+
+### Session 2026-10-25 (Bench Player Statistics Modal)
+- Q: When is the bench player statistics modal triggered? → A: Tapping a player in the horizontal bench list while Swap Mode is inactive opens the bench player statistics modal for that player. When Swap Mode is active, tapping a bench player continues to toggle selection for substitution.
+- Q: What actions can be performed inside the bench player statistics modal? → A: The bench player statistics modal is strictly an informational (read-only) overview of the player's cumulative game statistics; live stat recording and stat subtraction are exclusively available for active on-court players.
+- Q: How are throw statistics formatted when attempts equal zero? → A: When total attempts are 0 (0 made out of 0 attempts), the display shows `0/0 (0%)`.
+- Q: How can the modal be dismissed? → A: By tapping the cross (`✕`) button in the modal header, or by tapping anywhere on the backdrop overlay outside the modal container.
+- Q: What statistics are included in the modal? → A: Top header: player identification, total cumulative minutes, and points scored (with highest visual prominence). Body: throw statistics for 1-point, 2-point, and 3-point categories in `s/a (#%)` format (`succeed / attempt (#%)`), plus rebounds (offensive, defensive, total), assists, steals/recoveries, turnovers/lost balls, personal fouls, and valuation.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -126,6 +134,29 @@ As a coach or scorekeeper, I want a full-width rival control panel to adjust riv
 
 ---
 
+### User Story 5 - Bench Player Statistics Information Modal (Priority: P2)
+
+As a coach or assistant, I want to tap any player sitting on the bench to open a dedicated, high-prominence statistics modal displaying their total minutes, points, detailed shooting percentages (1pt, 2pt, 3pt in `s/a (#%)` format), rebounds, assists, steals, turnovers, and fouls, so that I can evaluate benched player performance at a glance and close it easily via cross button or outside backdrop tap.
+
+**Why this priority**: During match play, coaches need instant visibility into bench players' complete statlines to make informed substitution and tactical decisions without accidentally logging stats or interrupting active match timing.
+
+**Independent Test**: Can be tested by tapping any player in the bench list when Swap Mode is inactive, verifying the modal opens displaying the player's minutes and points prominently in the header, verifying 1pt, 2pt, and 3pt categories show accurate success/attempt counts and percentage formatted as `s/a (#%)`, verifying other match stats are displayed, confirming clicking the cross button closes the modal, confirming tapping the backdrop overlay outside the modal closes it, and verifying tapping bench players while in Swap Mode toggles substitution selection instead of opening the modal.
+
+**Acceptance Scenarios**:
+
+1. **Given** the team management panel with players on the bench and Swap Mode is inactive, **When** the user taps a bench player circle, **Then** the bench player statistics modal opens populated with that player's in-game stats.
+2. **Given** the bench player statistics modal is visible, **When** the user taps the close cross (`✕`) button, **Then** the modal closes immediately.
+3. **Given** the bench player statistics modal is visible, **When** the user taps anywhere on the translucent backdrop overlay outside the modal container, **Then** the modal closes immediately.
+4. **Given** the bench player statistics modal is visible, **When** the user taps inside the modal container content, **Then** the modal remains open (touch events inside the modal do not trigger dismissal).
+5. **Given** the bench player statistics modal is open, **When** viewing the header summary layout, **Then** the player's total cumulative minutes played and points scored are prominently positioned at the top with higher visual prominence (font size, weight, and contrast) than subsequent metrics.
+6. **Given** the bench player statistics modal is open, **When** viewing shooting categories (1-point free throws, 2-point field goals, 3-point field goals), **Then** each category displays successful throws and total attempts with calculated percentage in the exact format `s/a (#%)` (e.g., `4/5 (80%)`).
+7. **Given** a bench player has 0 attempts for a throw category (0 made and 0 missed), **When** viewing the throw statistics, **Then** that category displays `0/0 (0%)` without calculation errors or NaN text.
+8. **Given** the bench player statistics modal is open, **When** reviewing the complete statline, **Then** offensive rebounds, defensive rebounds, total rebounds, assists, steals/recoveries, turnovers/lost balls, personal fouls, and valuation are rendered with clear labels.
+9. **Given** Swap Mode is active, **When** the user taps a bench player circle, **Then** the player is selected or deselected for the pending substitution ($N\text{ in} = N\text{ out}$) and the bench stats modal is NOT opened.
+10. **Given** the bench player statistics modal is rendered, **When** displayed over the active match screen, **Then** visual layering (dimmed translucent backdrop overlay, elevated container, border styling, and drop shadow) visually isolates the modal and ensures readability over the underlying court canvas.
+
+---
+
 ### Edge Cases
 
 - **Starting Match with No Initial Lineup**: If a match is opened and fewer than 5 players are assigned to the quintet, the court canvas indicates empty positions. Tapping an empty position opens a quick player selector modal to assign an available bench player directly with stint timer initialized to 0.
@@ -133,6 +164,9 @@ As a coach or scorekeeper, I want a full-width rival control panel to adjust riv
 - **Player Benched and Later Re-entering (Multiple Stints)**: Stint duration counts exclusively the current continuous stint. Each time a player moves from bench to court, their stint timer resets to 0. Cumulative match minutes retain all accumulated playing time across all stints.
 - **Long-Press Duration Threshold**: The hold gesture on an active on-court player requires at least 2 seconds (2000ms) of sustained touch. If the user releases before 2 seconds, it is treated as a normal tap (opening stats modal) or cancelled without triggering subtraction.
 - **Stat Subtraction on Bench Players**: Bench player circles ignore the 2-second hold gesture. Subtraction cannot be initiated from the bench list.
+- **Zero Shot Attempts in Throw Breakdown**: When a player has 0 made and 0 missed throws in any category (1-point, 2-point, or 3-point), the modal renders `0/0 (0%)` to avoid division by zero or NaN artifacts.
+- **Tapping Bench Player During Swap Mode**: When Swap Mode is active, tapping a bench player toggles substitution selection ($N\text{ in} = N\text{ out}$) and suppresses opening the bench player statistics modal.
+- **Click Outside Boundary Detection**: Touch events targeting the backdrop overlay outside the modal card bounds close the modal; touch events within the card content boundary are absorbed and do not dismiss the modal.
 - **Cascading Assist Subtraction on Unassisted Baskets**: If a decremented 2-point or 3-point basket was recorded as "non assistant", decrementing the basket adjusts the player's points and team period/total score without mutating any teammate's assist count.
 - **Multiple Assists by Teammate**: Cascading assist subtraction decrements the specific assist linked to the decremented basket event; other previously credited assists for that teammate remain unaffected.
 - **Stat Underflow Prevention**: Subtraction of points, rebounds, fouls, assists, turnovers, or steals cannot drop any stat value below 0.
@@ -196,6 +230,14 @@ As a coach or scorekeeper, I want a full-width rival control panel to adjust riv
 - **FR-030**: System MUST support a 2-second hold gesture listener on player circles strictly for active on-court players to trigger a stat subtraction interface. Bench players MUST NOT trigger or allow stat subtraction via long-press.
 - **FR-031**: When a made 2-point (`t2a`) or 3-point (`t3a`) shot is decremented during stat subtraction, the system MUST automatically subtract the associated assist from the assisting teammate if an assist was linked to that scoring event.
 - **FR-032**: Subtracting stats MUST immediately update the player's personal stats, period score/fouls, and total match score without allowing any stat count to drop below 0.
+- **FR-035**: Tapping any player on the bench while Swap Mode is inactive MUST open the bench player statistics modal populated with that player's cumulative in-game statistics.
+- **FR-036**: The bench player statistics modal MUST include a close (cross `✕`) button in the header that immediately dismisses the modal upon press.
+- **FR-037**: The bench player statistics modal MUST include a backdrop overlay that dismisses the modal when tapped outside the modal container bounds.
+- **FR-038**: The bench player statistics modal header MUST prominently display the player's total cumulative minutes played and total points scored at the top with higher visual distinction than secondary stats.
+- **FR-039**: The bench player statistics modal MUST display 1-point, 2-point, and 3-point throw statistics formatted strictly as `s/a (#%)` (e.g., `4/5 (80%)`), where `s` is successful baskets, `a` is total attempts (`succeed + missed`), and `#%` is the calculated percentage (displaying `0/0 (0%)` when attempts equal 0).
+- **FR-040**: The bench player statistics modal MUST render the player's complete statline including offensive rebounds, defensive rebounds, total rebounds, assists, steals/recoveries, turnovers/lost balls, personal fouls, and valuation.
+- **FR-041**: The bench player statistics modal MUST apply visual layering (dimmed backdrop overlay, container border, and elevation shadow) to ensure the modal stands out clearly against the underlying match view.
+- **FR-042**: When Swap Mode is active, tapping a bench player circle MUST toggle substitution selection and MUST NOT open the bench player statistics modal.
 
 #### Component 3: Rival Panel Control
 - **FR-025**: System MUST provide a rival control panel allowing the user to add (+1, +2, +3) or subtract (-1) points from the rival's active period score.
@@ -235,6 +277,10 @@ As a coach or scorekeeper, I want a full-width rival control panel to adjust riv
 - **SC-012**: 100% of decremented 2-point and 3-point made shots that were linked to an assist automatically decrement the associated teammate's assist count.
 - **SC-013**: The rival control panel spans 100% of the available container width and completely omits the rival total points counter element.
 - **SC-014**: Player substitutions can be initiated and confirmed with 100% success rate regardless of whether the chronometer is running or paused.
+- **SC-015**: 100% of taps on bench player circles while Swap Mode is inactive open the bench player statistics modal in under 100ms.
+- **SC-016**: 100% of dismissals via the cross button or backdrop click-outside immediately close the modal and return control to the match view.
+- **SC-017**: 100% of throw statistics across 1-point, 2-point, and 3-point categories adhere strictly to the `s/a (#%)` format without division-by-zero errors when total attempts equal 0.
+- **SC-018**: While Swap Mode is active, 0% of bench player taps trigger the stats modal, strictly preserving substitution selection workflow.
 
 ## Assumptions
 
@@ -248,3 +294,6 @@ As a coach or scorekeeper, I want a full-width rival control panel to adjust riv
 - Stat subtraction via 2-second hold provides options to decrement recorded statistics, preventing decrement below 0.
 - When a player has an assigned Jersey Number, the view exclusively displays the Jersey Number, omitting any redundant player name text to maximize circle clarity and legibility on mobile screens.
 - Fallback name abbreviation adheres to standard format `[First Initial]. [Last Name]` (e.g., `A. Arias`), trimming surrounding whitespace and capitalizing the initial.
+- Bench player statistics modal is strictly an informational view; stat recording and decrementing actions are not available from the bench modal.
+- Success percentage in `s/a (#%)` format is rounded to the nearest integer (e.g., 2/3 is `2/3 (67%)`), and 0 attempts is rendered as `0/0 (0%)`.
+

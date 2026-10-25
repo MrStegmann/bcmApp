@@ -1,6 +1,6 @@
 # Quickstart & Validation Guide: Play Match View
 
-**Feature**: `007-play-match-view` | **Date**: 2026-10-24 (Updated with Stint Tracking, Rival Layout, Long-Press Stat Subtraction & Unrestricted Substitutions)
+**Feature**: `007-play-match-view` | **Date**: 2026-10-25 (Updated with Bench Player Statistics Modal)
 
 ## Prerequisites & Setup
 
@@ -132,3 +132,22 @@
   5. Provide player with missing last name `{ number: null, firstName: "Ricky", lastName: "" }` -> verify output is `"Ricky"`.
   6. Provide player with both names missing `{ number: null, firstName: null, lastName: null }` -> verify safe fallback `"Jugador"`.
 - **Expected Outcome**: 100% test pass on `formatPlayerIdentifier.test.ts` with zero exceptions.
+
+### Scenario 12: Component 2 - Bench Player Statistics Modal & Throw Stat Formatting
+- **Steps**:
+  1. Ensure Swap Mode is inactive. Tap any player in the bench list (e.g., Player with 12 mins, 10 pts, 2/3 FT, 4/5 2PT, 0/0 3PT, 3 OREB, 4 DREB, 5 ASIS, 2 REC, 1 PER, 2 FALT, valuation 18).
+  2. Verify `BenchPlayerStatsModal` opens immediately (<100ms).
+  3. Verify header displays player identification (via `formatPlayerIdentifier`), and total minutes (`12min`) and points (`10pts`) with high visual prominence at the top.
+  4. Verify throw statistics display:
+     - 1-Point Free Throws: `2/3 (67%)`
+     - 2-Point Field Goals: `4/5 (80%)`
+     - 3-Point Field Goals: `0/0 (0%)` (zero attempts handled safely with 0% and no NaN)
+  5. Verify complete secondary statline is displayed:
+     - Offensive Rebounds: `3`, Defensive Rebounds: `4`, Total Rebounds: `7`
+     - Assists: `5`, Steals: `2`, Turnovers: `1`, Personal Fouls: `2`
+     - Valuation: `18`
+  6. Tap inside the modal container body -> verify modal remains open.
+  7. Tap the backdrop overlay outside the modal container -> verify modal closes immediately.
+  8. Tap the bench player again to reopen -> tap the cross button (`✕`) in the header -> verify modal closes immediately.
+  9. Activate Swap Mode by tapping the "Swap" button. Tap a bench player -> verify bench player is selected for substitution ($N\text{ in} = N\text{ out}$) and `BenchPlayerStatsModal` does NOT open.
+- **Expected Outcome**: 100% test pass on `BenchPlayerStatsModal.test.tsx` and `formatThrowStat.test.ts` asserting prominence, formatting, backdrop/cross dismissals, and swap mode isolation.

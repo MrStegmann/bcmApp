@@ -1,6 +1,6 @@
 # Data Model: Play Match View
 
-**Feature**: `007-play-match-view` | **Date**: 2026-10-24 (Updated with Stint Tracking, Rival Layout, Long-Press Stat Subtraction & Unrestricted Substitutions)
+**Feature**: `007-play-match-view` | **Date**: 2026-10-25 (Updated with Bench Player Statistics Modal)
 
 ## 1. Domain Entities & Database Schema Mapping
 
@@ -129,6 +129,15 @@ export interface SwapState {
   selectedBenchPlayerIds: number[];
 }
 
+export interface ThrowStatBreakdown {
+  category: "1pt" | "2pt" | "3pt";
+  succeed: number;
+  missed: number;
+  attempts: number;
+  percentage: number;
+  formatted: string; // e.g. "4/5 (80%)" or "0/0 (0%)"
+}
+
 export interface PlayMatchState {
   matchId: number;
   activePeriod: PeriodKey;
@@ -190,6 +199,11 @@ stateDiagram-v2
         ClockPaused --> StatSubtractionModal: 2-Second Hold On-Court Player
         ClockRunning --> StatSubtractionModal: 2-Second Hold On-Court Player
         StatSubtractionModal --> ClockPaused: Decrement Stat (Cascading Assist Deduction)
+
+        ClockPaused --> BenchPlayerStatsModal: 1-Tap Bench Player (when Swap Mode inactive)
+        ClockRunning --> BenchPlayerStatsModal: 1-Tap Bench Player (when Swap Mode inactive)
+        BenchPlayerStatsModal --> ClockPaused: Close (Cross button or Backdrop tap)
+        BenchPlayerStatsModal --> ClockRunning: Close (Cross button or Backdrop tap)
     }
 ```
 
@@ -230,3 +244,10 @@ stateDiagram-v2
    - Available timeouts cannot drop below 0.
 10. **Player Points Invariant**:
     $$\text{Player Pts} = (\text{t1a} \times 1) + (\text{t2a} \times 2) + (\text{t3a} \times 3)$$
+11. **Bench Player Statistics Modal Invariants**:
+    - **Trigger**: Tapping any player on the bench while `isSwapMode === false` opens `BenchPlayerStatsModal` populated with that player's cumulative stats.
+    - **Swap Mode Isolation**: While `isSwapMode === true`, tapping a bench player circle toggles substitution selection ($N\text{ in} = N\text{ out}$) and MUST NOT open `BenchPlayerStatsModal`.
+    - **Read-Only Invariant**: `BenchPlayerStatsModal` provides strictly an informational overview. No stat mutation actions or assist linkages are accessible.
+    - **Visual Prominence**: Total cumulative minutes (`Math.floor(secondsPlayed / 60)`) and points (`pts`) are positioned at the top of the modal with larger typography and greater visual distinction than secondary stats.
+    - **Throw Statistics Notation**: 1-point (`t1a`/`t1i`), 2-point (`t2a`/`t2i`), and 3-point (`t3a`/`t3i`) categories strictly adhere to the `s/a (#%)` format (`succeed / attempt (#%)`), displaying `0/0 (0%)` when total attempts equal 0 without NaN or calculation errors.
+    - **Dismissal**: Modal is immediately dismissed by tapping the header close cross (`✕`) button or tapping anywhere on the translucent backdrop overlay outside the modal container; touches inside the container are absorbed without dismissing.

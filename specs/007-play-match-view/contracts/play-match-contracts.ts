@@ -153,6 +153,12 @@ export interface PlayerStatSubtractionModalProps {
   onSubtractStat: (playerId: number, statType: StatActionType) => void;
 }
 
+export interface BenchPlayerStatsModalProps {
+  visible: boolean;
+  player: InGamePlayer | null;
+  onClose: () => void;
+}
+
 export interface PeriodSelectModalProps {
   visible: boolean;
   currentPeriod: PeriodKey;
@@ -201,3 +207,14 @@ export interface PlayerIdentifierInput {
 }
 
 export type FormatPlayerIdentifierFn = (player: PlayerIdentifierInput) => string;
+
+export interface ThrowStatBreakdown {
+  category: "1pt" | "2pt" | "3pt";
+  succeed: number;
+  missed: number;
+  attempts: number;
+  percentage: number;
+  formatted: string; // e.g. "4/5 (80%)" or "0/0 (0%)"
+}
+
+export type FormatThrowStatFn = (succeed: number, missed: number) => string;

@@ -274,4 +274,34 @@ describe("PlayMatch Integration Tests (T037 - Phase 7)", () => {
       expect(roster[2].jerseyName).toBeNull();
     });
   });
+
+  describe("US5 - Bench Player Stats Modal Integration", () => {
+    it("should manage bench player selection and informational stats display flow", () => {
+      const mockRoster = [
+        { id: 1, firstName: "Luka", lastName: "Doncic", number: "77", isOnCourt: false, secondsPlayed: 600, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+        { id: 2, firstName: "Kyrie", lastName: "Irving", number: "11", isOnCourt: false, secondsPlayed: 600, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+        { id: 3, firstName: "Klay", lastName: "Thompson", number: "31", isOnCourt: false, secondsPlayed: 600, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+        { id: 4, firstName: "PJ", lastName: "Washington", number: "25", isOnCourt: false, secondsPlayed: 600, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+        { id: 5, firstName: "Dereck", lastName: "Lively", number: "2", isOnCourt: false, secondsPlayed: 600, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+        { id: 6, firstName: "Daniel", lastName: "Gafford", number: "21", jerseyName: "GAFFORD", isOnCourt: false, secondsPlayed: 720, stintSeconds: 0, t1a: 2, t1i: 1, t2a: 4, t2i: 1, t3a: 0, t3i: 0, oreb: 3, dreb: 4, asis: 5, rec: 2, per: 1, falt: 2, valuation: 18 },
+      ];
+
+      const store = usePlayMatchStore.getState();
+      store.initMatch(1, mockRoster, [1, 2, 3, 4, 5]);
+
+      const bench = usePlayMatchStore.getState().getBenchPlayers();
+      expect(bench.length).toBe(1);
+      const benchPlayer = bench[0];
+      expect(benchPlayer.id).toBe(6);
+
+      // Verify formatting for modal consumption
+      const { formatThrowStat } = require("../../utils/formatThrowStat");
+      const { formatPlayerIdentifier } = require("../../utils/formatPlayerIdentifier");
+
+      expect(formatPlayerIdentifier(benchPlayer)).toBe("GAFFORD");
+      expect(formatThrowStat(benchPlayer.t1a, benchPlayer.t1i)).toBe("2/3 (67%)");
+      expect(formatThrowStat(benchPlayer.t2a, benchPlayer.t2i)).toBe("4/5 (80%)");
+      expect(formatThrowStat(benchPlayer.t3a, benchPlayer.t3i)).toBe("0/0 (0%)");
+    });
+  });
 });

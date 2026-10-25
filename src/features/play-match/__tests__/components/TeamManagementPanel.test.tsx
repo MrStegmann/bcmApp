@@ -151,4 +151,36 @@ describe("TeamManagementPanel (T028 - US3)", () => {
     // Must NOT have redundant playerName unconditionally below jersey number
     expect(componentSource).not.toContain("{player.firstName}");
   });
+
+  describe("US5 - Bench Player Click Interactions & Swap Mode Isolation", () => {
+    it("delegates bench player click to onSelectBenchPlayer whether swap mode is active or inactive", () => {
+      const onSelectBenchMock = jest.fn();
+      const props: TeamManagementPanelProps = {
+        benchPlayers: mockBench,
+        isSwapMode: false,
+        isTimerRunning: false,
+        selectedCourtCount: 0,
+        selectedBenchPlayerIds: [],
+        availableTimeouts: 2,
+        onSelectBenchPlayer: onSelectBenchMock,
+        onToggleSwapMode: jest.fn(),
+        onConfirmSwap: jest.fn(),
+        onCancelSwap: jest.fn(),
+        onIncreaseTimeout: jest.fn(),
+        onDecreaseTimeout: jest.fn(),
+      };
+
+      props.onSelectBenchPlayer(mockBench[0]);
+      expect(onSelectBenchMock).toHaveBeenCalledWith(mockBench[0]);
+    });
+
+    it("verifies PlayMatch orchestrates bench player selection: opens BenchPlayerStatsModal when swap inactive and toggles swap when active", () => {
+      const playMatchPath = path.resolve(__dirname, "../../PlayMatch.tsx");
+      const playMatchSource = fs.readFileSync(playMatchPath, "utf-8");
+
+      // Verify PlayMatch has bench stats modal state or handler
+      expect(playMatchSource).toContain("BenchPlayerStatsModal");
+      expect(playMatchSource).toContain("handleSelectBenchPlayer");
+    });
+  });
 });

@@ -11,6 +11,7 @@ import { ManualTimeModal } from "./components/ManualTimeModal";
 import { QuickAssignPlayerModal } from "./components/QuickAssignPlayerModal";
 import { PlayerStatsModal } from "./components/PlayerStatsModal";
 import { PlayerStatSubtractionModal } from "./components/PlayerStatSubtractionModal";
+import { BenchPlayerStatsModal } from "./components/BenchPlayerStatsModal";
 import { useClubStore } from "../../store/ClubStore";
 import { InGamePlayer, PlayMatchProps } from "./types";
 import { useDB } from "../../hooks/useDB";
@@ -76,6 +77,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
   const [quickAssignSlotIndex, setQuickAssignSlotIndex] = useState<number | null>(null);
   const [activePlayerForStats, setActivePlayerForStats] = useState<InGamePlayer | null>(null);
   const [activePlayerForSubtraction, setActivePlayerForSubtraction] = useState<InGamePlayer | null>(null);
+  const [activeBenchPlayerForStats, setActiveBenchPlayerForStats] = useState<InGamePlayer | null>(null);
 
   // Finish Match & Persist to SQLite
   const handleFinishMatch = useCallback(() => {
@@ -318,6 +320,8 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
     const isSwap = swap.isSwapMode || usePlayMatchStore.getState().swap.isSwapMode;
     if (isSwap) {
       selectSwapBenchPlayer(player.id);
+    } else {
+      setActiveBenchPlayerForStats(player);
     }
   };
 
@@ -424,6 +428,12 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
           subtractPlayerStat(pId, statType);
           setActivePlayerForSubtraction(null);
         }}
+      />
+
+      <BenchPlayerStatsModal
+        visible={activeBenchPlayerForStats !== null}
+        player={activeBenchPlayerForStats}
+        onClose={() => setActiveBenchPlayerForStats(null)}
       />
     </View>
   );

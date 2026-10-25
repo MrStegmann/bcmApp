@@ -11,14 +11,14 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3, US4)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3, US4, US5)
 - Include exact file paths in descriptions
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization, types synchronization, and core formatting utilities
 
-- [X] T001 [P] Synchronize type definitions and contracts in `src/features/play-match/types/index.ts` from `specs/007-play-match-view/contracts/play-match-contracts.ts`
+- [X] T001 [P] Synchronize type definitions and contracts in `src/features/play-match/types/index.ts` from `specs/007-play-match-view/contracts/play-match-contracts.ts` (including `BenchPlayerStatsModalProps`, `FormatThrowStatFn`, `ThrowStatBreakdown`)
 - [X] T002 [P] Verify and update player identification unit tests in `src/features/play-match/__tests__/utils/formatPlayerIdentifier.test.ts` asserting jersey number exclusivity, fallback name abbreviation, and edge cases
 - [X] T003 [P] Implement player identifier formatting pure utility in `src/features/play-match/utils/formatPlayerIdentifier.ts` handling jersey exclusivity, name trimming, and graceful fallback
 
@@ -136,18 +136,42 @@
 - [X] T035 [US4] Implement rival period score and foul mutations with automatic clock pause on +1 foul in `src/features/play-match/store/usePlayMatchStore.ts`
 - [X] T036 [US4] Redesign rival control panel to occupy full width (100% width), remove duplicate rival total score element, and wire score/foul buttons in `src/features/play-match/components/RivalPanelControl.tsx`
 
-**Checkpoint**: All user stories are independently functional and integrated
+**Checkpoint**: All user stories 1 through 4 are independently functional and integrated
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: User Story 5 - Bench Player Statistics Information Modal (Priority: P2)
+
+**Goal**: Dedicated, high-prominence read-only modal opened by tapping any bench player when Swap Mode is inactive, displaying total minutes and points at the top, shooting stats in `s/a (#%)` format (with `0/0 (0%)` when attempts = 0), complete statline (rebounds, assists, steals, turnovers, fouls, valuation), with dismissals via cross (`✕`) button and backdrop tap, and Swap Mode isolation.
+
+**Independent Test**: Tap bench player when Swap Mode is inactive -> verify modal opens displaying header minutes/points prominence, verify 1pt/2pt/3pt formatted strictly as `s/a (#%)` with `0/0 (0%)` zero-attempt handling, verify full statline, verify tap cross button dismisses, verify tap backdrop overlay dismisses, verify tap inside container does not dismiss, and verify tapping bench player during Swap Mode toggles substitution selection and suppresses modal.
+
+### Tests for User Story 5
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [X] T037 [P] [US5] Unit test throw statistics formatting pure utility in `src/features/play-match/__tests__/utils/formatThrowStat.test.ts` asserting `s/a (#%)` output, integer rounding, and `0/0 (0%)` zero-attempt safety
+- [X] T038 [P] [US5] Component test for `BenchPlayerStatsModal` in `src/features/play-match/__tests__/components/BenchPlayerStatsModal.test.tsx` asserting header minutes/points prominence, `s/a (#%)` shooting statistics, complete statline, cross button dismissal, backdrop click-outside dismissal, inside touch non-dismissal, and visual layering
+- [X] T039 [P] [US5] Component test for `TeamManagementPanel` bench player click interactions in `src/features/play-match/__tests__/components/TeamManagementPanel.test.tsx` asserting bench player tap opens stats modal when Swap Mode is inactive and toggles substitution selection when Swap Mode is active
+
+### Implementation for User Story 5
+
+- [X] T040 [P] [US5] Implement throw statistics formatting pure utility in `src/features/play-match/utils/formatThrowStat.ts` supporting `s/a (#%)` formatting and `0/0 (0%)` zero-attempt fallback
+- [X] T041 [P] [US5] Implement `BenchPlayerStatsModal` component in `src/features/play-match/components/BenchPlayerStatsModal.tsx` with header minutes/points prominence, `s/a (#%)` throw statistics, full statline, cross button, and backdrop overlay tap dismissal
+- [X] T042 [US5] Update `TeamManagementPanel` in `src/features/play-match/components/TeamManagementPanel.tsx` to handle bench player clicks for modal display when Swap Mode is inactive while preserving substitution selection when Swap Mode is active
+- [X] T043 [US5] Integrate `BenchPlayerStatsModal` state and handlers in `src/features/play-match/PlayMatch.tsx` and container in `src/page/PlayMatch.tsx`
+
+**Checkpoint**: At this point, User Stories 1 through 5 are fully functional and testable independently
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: End-to-end integration, barrel exports, regression validation, and documentation verification
 
-- [X] T037 [P] Integration test suite asserting complete end-to-end match play workflow in `src/features/play-match/__tests__/page/PlayMatch.test.tsx`
-- [X] T038 Integrate Component 1, Component 2, Component 3, header score display, and modals in `src/features/play-match/PlayMatch.tsx` and `src/page/PlayMatch.tsx`
-- [X] T039 [P] Update public barrel exports and module boundaries in `src/features/play-match/index.ts`
-- [X] T040 Validate quickstart.md validation scenarios and run full test suite with TypeScript type check (`npm test`)
+- [X] T044 [P] Integration test suite asserting complete end-to-end match play workflow including bench player stats modal flow in `src/features/play-match/__tests__/page/PlayMatch.test.tsx`
+- [X] T045 [P] Update public barrel exports and module boundaries in `src/features/play-match/index.ts` to export `BenchPlayerStatsModal` and `formatThrowStat`
+- [X] T046 Validate quickstart.md validation scenarios (especially Scenario 12 for bench player stats modal) and run full test suite with TypeScript type check (`npm test`)
 
 ---
 
@@ -162,6 +186,7 @@
   - User Story 2 (P1): Court canvas, stint tracking, stats & subtraction
   - User Story 3 (P2): Team management panel, unrestricted swap & timeouts
   - User Story 4 (P2): Rival control panel (100% width, no total score)
+  - User Story 5 (P2): Bench player statistics modal (depends on bench items from US3 and formatThrowStat utility)
 - **Polish (Final Phase)**: Depends on all user stories being complete
 
 ### User Story Dependencies
@@ -170,12 +195,13 @@
 - **User Story 2 (P1)**: Can start after Foundational (Phase 2) - Integrates with crono loop from US1 but independently testable
 - **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Integrates with roster from US2 but independently testable
 - **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Independent rival score/foul adjustments
+- **User Story 5 (P2)**: Can start after Foundational (Phase 2) - Operates on bench players from US3 roster state
 
 ### Within Each User Story
 
 - Tests MUST be written and fail before implementation (TDD Red-Green-Refactor)
 - Store mutations & actions before UI components
-- Modals before parent controller integration
+- Pure formatting utilities and isolated modals before parent container integration
 - Story complete and verified before moving to next priority
 
 ### Parallel Opportunities
@@ -187,25 +213,25 @@
   - T016, T017, T018, T019, T020 for US2
   - T027, T028, T029 for US3
   - T033, T034 for US4
+  - T037, T038, T039 for US5
 - Within US1: T013 and T014 modals can be built in parallel
 - Within US2: T022, T023, T024 modals can be built in parallel
-- Within Polish: T037, T039 can be developed in parallel
+- Within US5: T040 (formatThrowStat utility) and T041 (BenchPlayerStatsModal component) can be built in parallel
+- Within Polish: T044, T045 can be developed in parallel
 
 ---
 
-## Parallel Example: User Story 2
+## Parallel Example: User Story 5
 
 ```bash
-# Launch test creation for User Story 2 together:
-Task: T016 "Unit test stint accumulation, stint reset on court entry, score event tracking, stat subtraction, cascading assist reversal, and foul auto-pause in src/features/play-match/__tests__/store/usePlayMatchStore.test.ts"
-Task: T017 "Component test for HalfCourtCanvas in src/features/play-match/__tests__/components/HalfCourtCanvas.test.tsx"
-Task: T018 "Component test for PlayerStatsModal in src/features/play-match/__tests__/components/PlayerStatsModal.test.tsx"
-Task: T019 "Component test for PlayerStatSubtractionModal in src/features/play-match/__tests__/components/PlayerStatSubtractionModal.test.tsx"
+# Launch test creation for User Story 5 together:
+Task: T037 "Unit test throw statistics formatting pure utility in src/features/play-match/__tests__/utils/formatThrowStat.test.ts"
+Task: T038 "Component test for BenchPlayerStatsModal in src/features/play-match/__tests__/components/BenchPlayerStatsModal.test.tsx"
+Task: T039 "Component test for TeamManagementPanel bench player click interactions in src/features/play-match/__tests__/components/TeamManagementPanel.test.tsx"
 
-# Build modals for User Story 2 in parallel:
-Task: T022 "Implement player stat subtraction modal with cascading assist reversal in src/features/play-match/components/PlayerStatSubtractionModal.tsx"
-Task: T023 "Update player stats modal with assist prompt ('non assistant' option) and foul logging in src/features/play-match/components/PlayerStatsModal.tsx"
-Task: T024 "Implement quick assign player modal for empty court positions in src/features/play-match/components/QuickAssignPlayerModal.tsx"
+# Build utility and modal for User Story 5 in parallel:
+Task: T040 "Implement throw statistics formatting pure utility in src/features/play-match/utils/formatThrowStat.ts"
+Task: T041 "Implement BenchPlayerStatsModal component in src/features/play-match/components/BenchPlayerStatsModal.tsx"
 ```
 
 ---
@@ -227,7 +253,8 @@ Task: T024 "Implement quick assign player modal for empty court positions in src
 3. Add User Story 2 (P1) → Court canvas, stint tracking & stat subtraction with cascading assist deduction
 4. Add User Story 3 (P2) → Team management panel, unrestricted swap & timeout quotas
 5. Add User Story 4 (P2) → Full-width rival panel without duplicate total score
-6. Polish & Cross-Cutting → Full test suite & type validation
+6. Add User Story 5 (P2) → Bench player statistics information modal with shooting percentages and backdrop dismissal
+7. Polish & Cross-Cutting → Full test suite & type validation
 
 ---
 

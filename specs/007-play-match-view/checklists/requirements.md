@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-02
-**Last Updated**: 2026-10-24
+**Last Updated**: 2026-10-25
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -19,8 +19,8 @@
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
 - [x] All acceptance scenarios are defined
-- [x] Edge cases are identified (stint reset on bench re-entry, clock running during substitutions, 2-second hold gesture threshold, bench player long-press restriction, unassisted basket decrement, stat underflow floor at 0, jersey number fallback edge cases)
-- [x] Scope is clearly bounded into 3 core components, stint tracking, stat subtraction, unrestricted swap, and global state
+- [x] Edge cases are identified (bench player modal trigger when swap inactive, swap mode tap suppression, 0 shot attempts formatting, click-outside backdrop dismissal, touch inside containment, stint reset on bench re-entry, clock running during substitutions, 2-second hold gesture threshold, bench player long-press restriction, unassisted basket decrement, stat underflow floor at 0, jersey number fallback edge cases)
+- [x] Scope is clearly bounded into 3 core components, stint tracking, stat subtraction, unrestricted swap, bench player stats modal, and global state
 - [x] Dependencies and assumptions identified
 
 ## Feature Readiness
@@ -31,14 +31,17 @@
   - User Story 2: Court Canvas, Stint Tracking, Player Identification & In-Game Statistics Logging / Subtraction (2s hold, cascading assist reversal)
   - User Story 3: Team Management, Bench, Unrestricted Swap Mode (clock running or stopped) & Timeout Control
   - User Story 4: Rival Control Panel (full width, total points counter removed)
+  - User Story 5: Bench Player Statistics Information Modal (read-only stats view, prominent minutes/points header, 1pt/2pt/3pt formatted as `s/a (#%)`, cross and click-outside dismissal, visual layering)
 - [x] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
 ## Notes
 
 - Specification successfully updated and validated with the latest business requirements:
-  - **Stint Duration Tracking**: On-court quintet displays minutes played in the current continuous stint starting from 0 upon court entry and resetting to 0 whenever benched and re-entering, while cumulative match minutes remain preserved in the background.
-  - **Full-Width Rival Control Panel**: Removed duplicate rival total points counter element from the rival panel; extended rival panel to occupy 100% container width.
-  - **2-Second Hold Stat Subtraction**: Added 2-second hold gesture listener strictly for active on-court players to decrement stats, with automatic cascading assist subtraction for made 2pt/3pt baskets that had an attributed assist. Bench players cannot trigger stat subtraction.
-  - **Unrestricted Player Substitutions**: Removed clock-state restrictions; substitutions can be initiated and confirmed whether the chronometer is running or paused.
+  - **Bench Player Statistics Modal**: Tapping any player in the bench while Swap Mode is inactive opens an informational stats modal displaying the player's full match statistics.
+  - **Prominent Header**: Modal header prominently highlights cumulative minutes played and total points scored at the top with highest visual distinction.
+  - **Throw Formatter**: 1-point, 2-point, and 3-point throw statistics strictly formatted as `s/a (#%)` (success/attempt with calculated percentage; `0/0 (0%)` when attempts equal 0).
+  - **Modal Dismissal**: Supports dismissal via a close cross (`✕`) button and tapping on the translucent backdrop overlay outside the modal container.
+  - **Visual Layering**: Uses backdrop dimming overlay and container elevation to guarantee high contrast and legibility over the match view.
+  - **Swap Mode Isolation**: While Swap Mode is active, tapping a bench player toggles substitution selection without opening the stats modal.
 - Ready for `/speckit-plan`.

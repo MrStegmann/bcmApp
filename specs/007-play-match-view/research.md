@@ -1,13 +1,13 @@
 # Research & Architectural Decisions: Play Match View
 
-**Feature**: `007-play-match-view` | **Date**: 2026-10-24 (Updated with Stint Tracking, Rival Layout, Long-Press Stat Subtraction & Unrestricted Substitutions)
+**Feature**: `007-play-match-view` | **Date**: 2026-10-25 (Updated with Bench Player Statistics Modal)
 
 ## 1. Three-Component Architecture & Centralized Store
 
 ### Decision
 Structure the match play view into three distinct components coordinated by a single Zustand global store (`usePlayMatchStore`):
 - **Component 1 (Time, Score, and Fouls Controller)**: Manages period transitions (`q1`, `q2`, `q3`, `q4`, `extra`), chronometer, period/total scores, and period team fouls. Application Header displays live match score `${teamName} ${teamTotalScore} - ${rivalTotalScore} ${rivalName}`.
-- **Component 2 (Team Management & Court Canvas)**: Renders half-court canvas with 5 active position buttons, player representation circles (`jerseyNumber` or formatted name fallback, continuous stint minutes for court players, cumulative minutes for bench, `pts`), horizontal bench list, "Swap" balanced substitution mode, and quota-based timeout controls.
+- **Component 2 (Team Management & Court Canvas)**: Renders half-court canvas with 5 active position buttons, player representation circles (`jerseyNumber` or formatted name fallback, continuous stint minutes for court players, cumulative minutes for bench, `pts`), horizontal bench list, "Swap" balanced substitution mode, quota-based timeout controls, and read-only `BenchPlayerStatsModal`.
 - **Component 3 (Rival Panel Control)**: Full-width bottom panel for rival period score adjustments (+1, +2, +3, -1) and rival period team fouls (+1, -1), without redundant rival total points counter.
 
 ### Rationale
@@ -33,13 +33,15 @@ Implement distinct gesture handlers for core widgets across Component 1 and Comp
    - **Single Tap**: Opens `PlayerStatsModal` to log shots, rebounds, fouls, assists, steals, turnovers.
    - **2-Second Hold (`delayLongPress: 2000`)**: Opens `PlayerStatSubtractionModal` to decrement recorded statistics with cascading assist reversal.
 4. **Component 2 - Bench Player Circles**:
-   - **Single Tap**: In Swap Mode, toggles bench player selection. Outside Swap Mode, triggers quick inspect or position slot assignment.
+   - **Single Tap (Swap Mode Inactive)**: Opens `BenchPlayerStatsModal` displaying complete in-game statistics for the selected bench player.
+   - **Single Tap (Swap Mode Active)**: Toggles bench player selection for substitution ($N\text{ in} = N\text{ out}$).
    - **2-Second Hold**: Ignored (bench players cannot trigger stat subtraction).
 
 ### Rationale
 - Fast single-tap actions support quick in-game operation.
 - 3-second long-press on header widgets prevents accidental triggering of modal dialogs during high-stress live match conditions while providing full manual control when needed.
 - 2-second hold on on-court players establishes an intuitive, differentiated tactile entry for stat error correction without cluttering the primary tap-to-add stats flow.
+- Tapping a bench player outside Swap mode provides instant, zero-friction access to player box score statistics.
 
 ---
 
@@ -50,7 +52,7 @@ Maintain two distinct time counters per player:
 1. **`secondsPlayed` (Cumulative Match Seconds)**:
    - Continuously accumulates whenever the chronometer is running and the player is assigned to the on-court quintet.
    - Preserves total playing time across the entire match for database persistence and official box scores.
-   - Displayed on bench player circles below the divisor line: `${min}min / ${pts}pts`.
+   - Displayed on bench player circles below the divisor line: `${min}min / ${pts}pts` and in `BenchPlayerStatsModal`.
 2. **`stintSeconds` (Current Continuous On-Court Stint Seconds)**:
    - Tracks the duration a player has spent on the court during their current active stint.
    - Starts at `0` upon court entry (whether starting five, quick assign, or substitution).
@@ -168,3 +170,56 @@ Implement a pure utility `formatPlayerIdentifier(player)` for player identificat
 - In live basketball scorekeeping, coaches identify players primarily by their jersey numbers. Displaying only the jersey number when available keeps the player circle clean, highly legible, and free from text clutter inside compact touch targets (w-20 h-20, 80x80 dp).
 - When jersey numbers are missing, standard sports shorthand (`[First Initial]. [Last Name]`) provides concise yet unambiguous player identification without overflowing the circle width.
 - Graceful edge-case handling guarantees zero runtime null pointer crashes and zero UI layout breaks even with messy user input.
+
+---
+
+## 9. Bench Player Statistics Information Modal & Backdrop Dismissal
+
+### Decision
+Implement `BenchPlayerStatsModal` dedicated to displaying cumulative in-game statistics for benched players:
+1. **Trigger & Swap Mode Guard**:
+   - In `PlayMatch.tsx` / `TeamManagementPanel`, tapping a bench player circle invokes `onSelectBenchPlayer(player)`.
+   - If `swap.isSwapMode` is active, the click toggles selection for substitution (`selectSwapBenchPlayer(player.id)`) and suppresses opening the modal.
+   - If `swap.isSwapMode` is inactive, `selectedBenchPlayerForStats` state is set and `BenchPlayerStatsModal` opens.
+2. **Read-Only Character**:
+   - Unlike `PlayerStatsModal` (used for live court stat recording) and `PlayerStatSubtractionModal` (used for decrementing stats on court), `BenchPlayerStatsModal` is strictly an informational overview. No stat mutation buttons or assist linkages are exposed.
+3. **Dismissal Patterns**:
+   - Header close button: A prominent cross (`✕`) button (e.g., Lucide `X` icon) in the top right.
+   - Backdrop touch: Tapping the surrounding semi-transparent backdrop overlay (`TouchableWithoutFeedback` or overlay `Pressable`) dismisses the modal.
+   - Content bounds protection: Tapping inside the modal card container consumes the touch event and does NOT dismiss the modal.
+4. **Visual Layering & Prominence**:
+   - Dimmed backdrop overlay (`bg-black/75` or `bg-slate-950/80`) covering the full viewport (`inset-0 absolute/Modal`).
+   - Centered elevated card (`bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl max-w-sm w-11/12`).
+   - Top header: Player identification (via `formatPlayerIdentifier`) and subtitle, with **Total Minutes (`min`)** and **Points (`pts`)** rendered prominently in large, bold typography with distinct background pill containers (`bg-slate-800/80 px-4 py-2 rounded-xl`).
+   - Body: Divided into structured stat sections:
+     - Shooting breakdown (1pt, 2pt, 3pt) formatted via `formatThrowStat`.
+     - Rebounds: Offensive (`oreb`), Defensive (`dreb`), and Total (`oreb + dreb`).
+     - Playmaking & Defense: Assists (`asis`), Steals (`rec`), Turnovers (`per`), Personal Fouls (`falt`).
+     - Valuation badge: Prominently formatted composite valuation score (`valuation`).
+
+### Rationale
+- Quick access to bench player box scores enables informed tactical rotation decisions without interrupting match timing.
+- Clear dismissal mechanics (cross button + backdrop tap) adhere to mobile UX conventions and allow one-handed dismissal on mobile screens.
+
+---
+
+## 10. Throw Statistics Formatter (`s/a (#%)`) & Zero-Attempt Handling
+
+### Decision
+Implement a pure utility function `formatThrowStat(succeed: number, missed: number): string`:
+1. **Formula**:
+   - Total attempts: `attempts = succeed + missed`.
+   - If `attempts === 0`: Return `"0/0 (0%)"`.
+   - If `attempts > 0`:
+     - Percentage: `pct = Math.round((succeed / attempts) * 100)`.
+     - Output: `${succeed}/${attempts} (${pct}%)`.
+2. **Application in `BenchPlayerStatsModal`**:
+   - Free Throws (1pt): `formatThrowStat(player.t1a, player.t1i)` (e.g., `"2/3 (67%)"`).
+   - 2-Point Field Goals (2pt): `formatThrowStat(player.t2a, player.t2i)` (e.g., `"4/5 (80%)"`).
+   - 3-Point Field Goals (3pt): `formatThrowStat(player.t3a, player.t3i)` (e.g., `"1/4 (25%)"`).
+3. **Edge Case Safety**:
+   - Explicitly checks for 0 attempts and non-finite numbers before computing division, eliminating `NaN%`, `Infinity%`, or runtime division-by-zero defects.
+
+### Rationale
+- Basketball scorekeeping standardizes shooting efficiency in the `made/attempted (percentage%)` notation.
+- Isolating this logic into a pure, testable utility guarantees 100% adherence to FR-039 and constitution Principle I (TDD).

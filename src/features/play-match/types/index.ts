@@ -218,6 +218,12 @@ export interface PlayMatchProps {
   onReturn: () => void;
 }
 
+export interface BenchPlayerStatsModalProps {
+  visible: boolean;
+  player: InGamePlayer | null;
+  onClose: () => void;
+}
+
 // ==========================================
 // Player Identification Contract
 // ==========================================
@@ -229,3 +235,17 @@ export interface PlayerIdentifierInput {
 }
 
 export type FormatPlayerIdentifierFn = (player: PlayerIdentifierInput) => string;
+
+// ==========================================
+// Throw Statistics Formatting Contract
+// ==========================================
+export interface ThrowStatBreakdown {
+  category: "1pt" | "2pt" | "3pt";
+  succeed: number;
+  missed: number;
+  attempts: number;
+  percentage: number;
+  formatted: string; // e.g. "4/5 (80%)" or "0/0 (0%)"
+}
+
+export type FormatThrowStatFn = (succeed: number, missed: number) => string;
