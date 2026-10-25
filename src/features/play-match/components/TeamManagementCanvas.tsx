@@ -13,6 +13,7 @@ export const TeamManagementCanvas: React.FC<TeamManagementCanvasProps> = ({
   selectedBenchPlayerIds,
   availableTimeouts,
   onSelectCourtPosition,
+  onLongPressCourtPosition,
   onSelectBenchPlayer,
   onToggleSwapMode,
   onConfirmSwap,
@@ -28,6 +29,7 @@ export const TeamManagementCanvas: React.FC<TeamManagementCanvasProps> = ({
         isSwapMode={isSwapMode}
         selectedCourtPlayerIds={selectedCourtPlayerIds}
         onSelectCourtPosition={onSelectCourtPosition}
+        onLongPressCourtPosition={onLongPressCourtPosition}
       />
 
       {/* Bottom Team & Bench Management Panel */}

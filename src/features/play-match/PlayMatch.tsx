@@ -10,6 +10,7 @@ import { PeriodSelectModal } from "./components/PeriodSelectModal";
 import { ManualTimeModal } from "./components/ManualTimeModal";
 import { QuickAssignPlayerModal } from "./components/QuickAssignPlayerModal";
 import { PlayerStatsModal } from "./components/PlayerStatsModal";
+import { PlayerStatSubtractionModal } from "./components/PlayerStatSubtractionModal";
 import { useClubStore } from "../../store/ClubStore";
 import { InGamePlayer, PlayMatchProps } from "./types";
 import { useDB } from "../../hooks/useDB";
@@ -44,6 +45,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
     setPeriod,
     resetExtraTimeCrono,
     recordPlayerStat,
+    subtractPlayerStat,
     adjustRivalScore,
     adjustRivalFouls,
     toggleSwapMode,
@@ -74,6 +76,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
   const [isManualTimeModalOpen, setIsManualTimeModalOpen] = useState(false);
   const [quickAssignSlotIndex, setQuickAssignSlotIndex] = useState<number | null>(null);
   const [activePlayerForStats, setActivePlayerForStats] = useState<InGamePlayer | null>(null);
+  const [activePlayerForSubtraction, setActivePlayerForSubtraction] = useState<InGamePlayer | null>(null);
 
   // Finish Match & Persist to SQLite
   const handleFinishMatch = useCallback(() => {
@@ -285,7 +288,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
     };
   }, [isTimerRunning, match.id, match.status]);
 
-  // Handle Court Position Tap
+  // Handle Court Position Tap (1-tap opens stats modal or quick assign)
   const handleSelectCourtPosition = (positionIndex: number, player: InGamePlayer | null) => {
     const isSwap = swap.isSwapMode || usePlayMatchStore.getState().swap.isSwapMode;
     if (isSwap) {
@@ -302,6 +305,13 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
       // Active player -> open stats modal
       setActivePlayerForStats(player);
     }
+  };
+
+  // Handle Court Position Long-Press (2-second hold triggers stat subtraction)
+  const handleLongPressCourtPosition = (positionIndex: number, player: InGamePlayer) => {
+    const isSwap = swap.isSwapMode || usePlayMatchStore.getState().swap.isSwapMode;
+    if (isSwap) return;
+    setActivePlayerForSubtraction(player);
   };
 
   // Handle Bench Player Tap
@@ -324,7 +334,6 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
 
   return (
     <View className="flex-1 bg-slate-950">
-
       {/* Component 1: Time, Score and Fouls Controller */}
       <TimeScoreFoulsController
         activePeriod={activePeriod}
@@ -349,6 +358,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
         selectedBenchPlayerIds={swap.selectedBenchPlayerIds}
         availableTimeouts={getAvailableTimeouts()}
         onSelectCourtPosition={handleSelectCourtPosition}
+        onLongPressCourtPosition={handleLongPressCourtPosition}
         onSelectBenchPlayer={handleSelectBenchPlayer}
         onToggleSwapMode={toggleSwapMode}
         onConfirmSwap={confirmSwap}
@@ -357,12 +367,11 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
         onDecreaseTimeout={decreaseTimeout}
       />
 
-      {/* Component 3: Rival Panel Control */}
+      {/* Component 3: Rival Panel Control (Full width, no redundant total score) */}
       <RivalPanelControl
         activePeriod={activePeriod}
         rivalPeriodScore={periods[activePeriod].rivalScore}
         rivalPeriodFouls={periods[activePeriod].rivalFouls}
-        totalRivalScore={getTotalRivalScore()}
         onAdjustRivalScore={adjustRivalScore}
         onAdjustRivalFouls={adjustRivalFouls}
       />
@@ -405,6 +414,16 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
         onRecordStat={(pId, statType, assistId) => {
           recordPlayerStat(pId, statType, assistId);
           setActivePlayerForStats(null);
+        }}
+      />
+
+      <PlayerStatSubtractionModal
+        visible={activePlayerForSubtraction !== null}
+        player={activePlayerForSubtraction}
+        onClose={() => setActivePlayerForSubtraction(null)}
+        onSubtractStat={(pId, statType) => {
+          subtractPlayerStat(pId, statType);
+          setActivePlayerForSubtraction(null);
         }}
       />
     </View>

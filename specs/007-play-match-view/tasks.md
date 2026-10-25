@@ -1,141 +1,153 @@
 # Tasks: Play Match View
 
-**Input**: Design documents from `/specs/007-play-match-view/`
-**Prerequisites**: [plan.md](./plan.md) (required), [spec.md](./spec.md) (required), [research.md](./research.md), [data-model.md](./data-model.md), [contracts/play-match-contracts.ts](./contracts/play-match-contracts.ts), [quickstart.md](./quickstart.md)
-**Constitution Compliance**: Principle I (TDD First - Jest & React Native Testing Library), Principle II (Feature-Based Architecture in `src/features/play-match/`), Principle III (Drizzle ORM & Expo SQLite), Principle IV (Zustand Global State), Principle V (NativeWind utility styling), Principle VI (Strict TypeScript).
+**Input**: Design documents from `specs/007-play-match-view/` (`plan.md`, `spec.md`, `data-model.md`, `contracts/play-match-contracts.ts`, `research.md`, `quickstart.md`)
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story adhering to Test-Driven Development (TDD) as mandated by the project constitution.
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+
+**Tests**: Test tasks are included per **Principle I (Test-Driven Development First - NON-NEGOTIABLE)** of the project constitution (`.specify/memory/constitution.md`). Tests MUST be written and fail before implementation.
+
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (`[US1]`, `[US2]`, `[US3]`, `[US4]`)
-- Exact file paths are included in every task description
-
-## Path Conventions
-
-- Mobile app with source at `src/features/play-match/` and feature co-located test suites at `src/features/play-match/__tests__/`
-
----
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3, US4)
+- Include exact file paths in descriptions
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Establish feature directory structure and synchronize public contracts and type declarations.
+**Purpose**: Project initialization, types synchronization, and core formatting utilities
 
-- [X] T001 Initialize and verify feature directories in `src/features/play-match/` (`components/`, `store/`, `utils/`, `types/`, and `__tests__/`)
-- [X] T002 [P] Re-export feature contracts and types in `src/features/play-match/types/index.ts` referencing `specs/007-play-match-view/contracts/play-match-contracts.ts`
+- [X] T001 [P] Synchronize type definitions and contracts in `src/features/play-match/types/index.ts` from `specs/007-play-match-view/contracts/play-match-contracts.ts`
+- [X] T002 [P] Verify and update player identification unit tests in `src/features/play-match/__tests__/utils/formatPlayerIdentifier.test.ts` asserting jersey number exclusivity, fallback name abbreviation, and edge cases
+- [X] T003 [P] Implement player identifier formatting pure utility in `src/features/play-match/utils/formatPlayerIdentifier.ts` handling jersey exclusivity, name trimming, and graceful fallback
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core utilities, state store, and initial lineup selection modal that MUST be complete before user story components can be implemented.
+**Purpose**: Core infrastructure and state machine foundation that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: Foundational utilities, store actions, and lineup validation block all live match user stories.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T003 [P] Unit tests for player identifier formatting in `src/features/play-match/__tests__/utils/formatPlayerIdentifier.test.ts` covering jersey number priority, fallback abbreviation `[First Initial]. [Last Name]`, and edge cases (missing first/last name, extra whitespace, `"Jugador"`)
-- [X] T004 Implement `formatPlayerIdentifier` pure utility function in `src/features/play-match/utils/formatPlayerIdentifier.ts`
-- [X] T005 [P] Unit tests for centralized Zustand store in `src/features/play-match/__tests__/store/usePlayMatchStore.test.ts` asserting period state (`q1`-`extra`), period isolation, chronometer toggle & 3s manual set, live minute accumulation, player stats mutations, assist flow, balanced swap rules, and phase-based timeout quotas
-- [X] T006 Implement and verify centralized Zustand store in `src/features/play-match/store/usePlayMatchStore.ts`
-- [X] T007 [P] Unit tests for starting five selection modal in `src/features/play-match/__tests__/components/StartingFiveModal.test.tsx` verifying exact 5-player selection constraint
-- [X] T008 Implement `StartingFiveModal` component in `src/features/play-match/components/StartingFiveModal.tsx`
+- [X] T004 [P] Verify Drizzle SQLite database schema in `src/db/schema.ts` for games and player stats tables
+- [X] T005 [P] Setup store test suite for core state initialization, period structure, and tickTimer in `src/features/play-match/__tests__/store/usePlayMatchStore.test.ts`
+- [X] T006 Implement centralized state machine foundation, initial period data, and timer tick updates in `src/features/play-match/store/usePlayMatchStore.ts`
+- [X] T007 [P] Create roster initialization and player mapper helper functions in `src/features/play-match/utils/roster.ts`
 
-**Checkpoint**: Foundation ready - player identifier utility, state store, and lineup modal verified with tests.
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
 ## Phase 3: User Story 1 - Game Clock, Period Control & Isolated Period Scoring (Priority: P1) 🎯 MVP
 
-**Goal**: Deliver Component 1 (Time, Score & Fouls Controller) with 1-tap period advance, 3s long-press period selection modal, 1-tap crono toggle, 3s long-press manual time modal, extra time reset preserving scores/fouls (+1 timeout), period isolation, and total score aggregation.
+**Goal**: Dedicated controller for game periods (`q1`, `q2`, `q3`, `q4`, `extra`), chronometer (1-tap start/stop, 3-second hold manual time modal), isolated period scores/fouls, dynamic total score computation, and extra time reset (+1 timeout).
 
-**Independent Test**: Can be tested independently by running `TimeScoreFoulsController.test.tsx` and verifying 1-tap period advancement, 3s hold period modal, 1-tap timer start/stop, 3s hold manual time adjustment, and extra time crono reset (+1 timeout).
+**Independent Test**: Can be tested independently by starting/stopping timer via 1-tap, setting timer via 3-second hold, advancing period via 1-tap, picking arbitrary period via 3-second hold modal, logging period points/fouls, and resetting extra time to 05:00 while verifying scores and team fouls are preserved with +1 timeout awarded.
 
-### Tests for User Story 1 (TDD First) ⚠️
+### Tests for User Story 1
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Unit and interaction tests for `PeriodSelectModal` in `src/features/play-match/__tests__/components/PeriodSelectModal.test.tsx` (all periods listed, direct period selection)
-- [X] T010 [P] [US1] Unit and interaction tests for `ManualTimeModal` in `src/features/play-match/__tests__/components/ManualTimeModal.test.tsx` (remaining duration bounds, manual time configuration)
-- [X] T011 [P] [US1] Component tests for `TimeScoreFoulsController` in `src/features/play-match/__tests__/components/TimeScoreFoulsController.test.tsx` (1-tap period advance, 3s hold modal trigger, 1-tap crono toggle, 3s hold manual time trigger, extra time reset preserving scores/fouls and granting +1 timeout)
+- [X] T008 [P] [US1] Unit test period transitions, crono actions, manual time adjustment, and extra time reset in `src/features/play-match/__tests__/store/usePlayMatchStore.test.ts`
+- [X] T009 [P] [US1] Component test for period switcher (1-tap next, 3-sec hold modal) and crono widget in `src/features/play-match/__tests__/components/TimeScoreFoulsController.test.tsx`
+- [X] T010 [P] [US1] Component test for period selection modal in `src/features/play-match/__tests__/components/PeriodSelectModal.test.tsx`
+- [X] T011 [P] [US1] Component test for manual time entry modal in `src/features/play-match/__tests__/components/ManualTimeModal.test.tsx`
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `PeriodSelectModal` component in `src/features/play-match/components/PeriodSelectModal.tsx`
-- [X] T013 [P] [US1] Implement `ManualTimeModal` component in `src/features/play-match/components/ManualTimeModal.tsx`
-- [X] T014 [US1] Implement `TimeScoreFoulsController` (Component 1) in `src/features/play-match/components/TimeScoreFoulsController.tsx` (integrates period gestures, crono gestures, score/foul displays, and extra time reset)
+- [X] T012 [US1] Implement period transitions, 3-second hold selection, crono tick/pause, and extra time reset in `src/features/play-match/store/usePlayMatchStore.ts`
+- [X] T013 [P] [US1] Implement period selection modal dialog in `src/features/play-match/components/PeriodSelectModal.tsx`
+- [X] T014 [P] [US1] Implement manual time configuration modal dialog in `src/features/play-match/components/ManualTimeModal.tsx`
+- [X] T015 [US1] Implement Component 1 period controller, crono widget, and isolated period score/foul indicators in `src/features/play-match/components/TimeScoreFoulsController.tsx`
 
-**Checkpoint**: Component 1 is fully functional and testable independently.
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (MVP ready!)
 
 ---
 
-## Phase 4: User Story 2 - Court Canvas & Player In-Game Statistics Logging (Priority: P1)
+## Phase 4: User Story 2 - Court Canvas, Stint Tracking & Player Statistics Logging/Subtraction (Priority: P1)
 
-**Goal**: Deliver Component 2's interactive half-court canvas with 5 position buttons, empty position tap quick player assignment, player circle display (exclusively jersey number if present, or fallback `[First Initial]. [Last Name]`, divisor line, and `${min}min / ${pts}pts`), stats modal (`t1a`, `t1i`, `t2a`, `t2i`, `t3a`, `t3i`), assist prompt for `t2a`/`t3a` ("non assistant"), offensive/defensive rebounds, personal fouls with period team foul increment & crono auto-stop, and live player minutes tracking.
+**Goal**: Half-court canvas with 5 active positions, stint tracking (continuous on-court minutes starting at 0 and resetting upon re-entering from bench), exclusive jersey number display with name fallback, 1-tap stats modal with assist selection ("non assistant"), 2-second hold stat subtraction modal with automatic cascading assist deduction on 2pt/3pt baskets, and foul auto-pause.
 
-**Independent Test**: Can be tested independently by running `HalfCourtCanvas.test.tsx` and `PlayerStatsModal.test.tsx` to verify position buttons, player circle formatting (jersey exclusivity & fallback), stats recording, assist teammate routing, and foul clock stoppage.
+**Independent Test**: Tap court player circle to record stats/assists/fouls, verify crono pauses on personal foul, hold court player for 2s to open subtraction modal, verify cascading assist deduction when decrementing a 2pt/3pt basket, verify stint minutes increment while on court and reset to 0 upon return from bench, and verify bench players cannot trigger 2s hold subtraction.
 
-### Tests for User Story 2 (TDD First) ⚠️
+### Tests for User Story 2
 
-- [X] T015 [P] [US2] Component tests for `QuickAssignPlayerModal` in `src/features/play-match/__tests__/components/QuickAssignPlayerModal.test.tsx` (bench player quick assignment to empty slot)
-- [X] T016 [P] [US2] Component tests for `PlayerStatsModal` in `src/features/play-match/__tests__/components/PlayerStatsModal.test.tsx` (shooting make/miss options, assist prompt on t2a/t3a with "non assistant", offensive/defensive rebounds, personal foul clock stoppage)
-- [X] T017 [P] [US2] Component tests for `HalfCourtCanvas` in `src/features/play-match/__tests__/components/HalfCourtCanvas.test.tsx` (rendering 5 position buttons, player representation circles asserting jersey number exclusivity, fallback `[First Initial]. [Last Name]`, and empty slot tap behavior)
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [X] T016 [P] [US2] Unit test stint accumulation, stint reset on court entry, score event tracking, stat subtraction, cascading assist reversal, and foul auto-pause in `src/features/play-match/__tests__/store/usePlayMatchStore.test.ts`
+- [X] T017 [P] [US2] Component test for `HalfCourtCanvas` (exclusive jersey number, stint display, 2s hold subtraction trigger, empty position tap) in `src/features/play-match/__tests__/components/HalfCourtCanvas.test.tsx`
+- [X] T018 [P] [US2] Component test for `PlayerStatsModal` (shot logging, assist prompt, non-assistant option, rebounds, personal fouls) in `src/features/play-match/__tests__/components/PlayerStatsModal.test.tsx`
+- [X] T019 [P] [US2] Component test for `PlayerStatSubtractionModal` (stat decrement, cascading assist deduction, floor at 0) in `src/features/play-match/__tests__/components/PlayerStatSubtractionModal.test.tsx`
+- [X] T020 [P] [US2] Component test for `QuickAssignPlayerModal` in `src/features/play-match/__tests__/components/QuickAssignPlayerModal.test.tsx`
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Implement `QuickAssignPlayerModal` in `src/features/play-match/components/QuickAssignPlayerModal.tsx` (for tapping empty court position buttons)
-- [X] T019 [P] [US2] Implement `PlayerStatsModal` in `src/features/play-match/components/PlayerStatsModal.tsx` (multi-step stats modal with shooting options, assist selector, rebounds, and fouls)
-- [X] T020 [US2] Implement `HalfCourtCanvas` in `src/features/play-match/components/HalfCourtCanvas.tsx` (half basketball court canvas with 5 interactive position buttons using `formatPlayerIdentifier` for player circle identification)
+- [X] T021 [US2] Implement stint tracking, `ScoreEventLink` history, `subtractPlayerStat` with cascading assist deduction, and foul auto-pause in `src/features/play-match/store/usePlayMatchStore.ts`
+- [X] T022 [P] [US2] Implement player stat subtraction modal with cascading assist reversal in `src/features/play-match/components/PlayerStatSubtractionModal.tsx`
+- [X] T023 [P] [US2] Update player stats modal with assist prompt ("non assistant" option) and foul logging in `src/features/play-match/components/PlayerStatsModal.tsx`
+- [X] T024 [P] [US2] Implement quick assign player modal for empty court positions in `src/features/play-match/components/QuickAssignPlayerModal.tsx`
+- [X] T025 [US2] Update half-court canvas with 5 position buttons, exclusive jersey number display, continuous stint minutes, and 2-second hold subtraction gesture in `src/features/play-match/components/HalfCourtCanvas.tsx`
+- [X] T026 [US2] Update court canvas wrapper container in `src/features/play-match/components/TeamManagementCanvas.tsx`
 
-**Checkpoint**: Half-court canvas and player statistics logging are fully functional and testable independently.
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Team Management, Bench, Swap Mode & Timeout Control (Priority: P2)
+## Phase 5: User Story 3 - Team Management, Bench, Unrestricted Swap Mode & Timeout Control (Priority: P2)
 
-**Goal**: Deliver Component 2's bottom team panel with horizontal bench list (player circles using `formatPlayerIdentifier`), "Swap" button activating balanced substitution mode ($N\text{ in} = N\text{ out}$) with clock-stopped constraint, and timeout increase/decrease controls enforcing quota rules (2 for `q1`-`q2`, 3 for `q3`-`q4`, 1 for `extra` + resets).
+**Goal**: Horizontal bench scroll list with exclusive jersey number / name fallback, unrestricted Swap Mode accessible and executable at any time (running or paused clock) enforcing $N\text{ in} = N\text{ out}$, incoming players stint timer initialized to 0, timeout quota rules (2 for Q1-Q2, 3 for Q3-Q4, 1 for extra + resets).
 
-**Independent Test**: Can be tested independently by running `TeamManagementPanel.test.tsx` and verifying bench circle rendering (jersey number exclusivity & fallback), Swap mode equal-count enforcement, clock-running substitution prevention, and timeout quota limits.
+**Independent Test**: Execute substitutions while clock is running, execute substitutions while clock is paused, verify incoming players reset stint minutes to 0, verify bench players display cumulative minutes, verify bench circles ignore 2s hold, and verify timeout quota controls.
 
-### Tests for User Story 3 (TDD First) ⚠️
+### Tests for User Story 3
 
-- [X] T021 [P] [US3] Component tests for `TeamManagementPanel` in `src/features/play-match/__tests__/components/TeamManagementPanel.test.tsx` (horizontal bench list with jersey exclusivity & fallback name display, Swap mode equal-count rules, clock-stopped restriction, timeout increase/decrease and quotas)
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [X] T027 [P] [US3] Unit test unrestricted swap mode (running vs paused clock), stint reset to 0, and timeout quota calculations in `src/features/play-match/__tests__/store/usePlayMatchStore.test.ts`
+- [X] T028 [P] [US3] Component test for `TeamManagementPanel` (unrestricted swap button, equal exchange validation, timeout buttons, bench circles) in `src/features/play-match/__tests__/components/TeamManagementPanel.test.tsx`
+- [X] T029 [P] [US3] Component test for `StartingFiveModal` in `src/features/play-match/__tests__/components/StartingFiveModal.test.tsx`
 
 ### Implementation for User Story 3
 
-- [X] T022 [US3] Implement `TeamManagementPanel` in `src/features/play-match/components/TeamManagementPanel.tsx` (horizontal bench list with `formatPlayerIdentifier`, Swap button, and timeout controls spaced in the same row)
-- [X] T023 [US3] Implement `TeamManagementCanvas` container in `src/features/play-match/components/TeamManagementCanvas.tsx` (combines `HalfCourtCanvas` and `TeamManagementPanel` into Component 2)
+- [X] T030 [US3] Implement unrestricted swap action, stint reset on substitution, and timeout quota management in `src/features/play-match/store/usePlayMatchStore.ts`
+- [X] T031 [US3] Update team management panel to enable swap mode at any time (running or paused), render bench player circles with exclusive jersey number / name fallback, and provide timeout quota controls in `src/features/play-match/components/TeamManagementPanel.tsx`
+- [X] T032 [P] [US3] Update starting five selection modal with 5-player quota validation and initial lineup assignment in `src/features/play-match/components/StartingFiveModal.tsx`
 
-**Checkpoint**: Component 2 (Court Canvas + Team Management Panel) is complete and testable independently.
+**Checkpoint**: User Stories 1, 2, and 3 are functional and integrated
 
 ---
 
-## Phase 6: User Story 4 - Rival Control Panel (Priority: P2)
+## Phase 6: User Story 4 - Rival Control Panel (Full-Width, Period Score & Fouls) (Priority: P2)
 
-**Goal**: Deliver Component 3 (Rival Panel Control) with quick adjustment buttons for rival period score (+1, +2, +3, -1) and rival period team fouls (+1, -1, with +1 automatically pausing the chronometer).
+**Goal**: Full-width (100% width) rival panel with controls for rival period score (+1, +2, +3, -1) and rival period team fouls (+1, -1, auto-pausing crono), completely omitting redundant rival total points counter.
 
-**Independent Test**: Can be tested independently by running `RivalPanelControl.test.tsx` and asserting that rival points/fouls update active period state, update total rival score, and +1 foul pauses the running timer.
+**Independent Test**: Verify rival panel spans 100% container width, contains no duplicate total points counter element, updates active period rival scores (+1, +2, +3, -1), updates rival fouls (+1, -1), and halts running chronometer on rival foul increment.
 
-### Tests for User Story 4 (TDD First) ⚠️
+### Tests for User Story 4
 
-- [X] T024 [P] [US4] Component tests for `RivalPanelControl` in `src/features/play-match/__tests__/components/RivalPanelControl.test.tsx` (score buttons +1/+2/+3/-1, foul buttons +1/-1, clock auto-stop on foul)
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [X] T033 [P] [US4] Unit test rival period score adjustments and rival foul chronometer pause in `src/features/play-match/__tests__/store/usePlayMatchStore.test.ts`
+- [X] T034 [P] [US4] Component test for `RivalPanelControl` (full-width layout, omission of rival total score element, score/foul handlers) in `src/features/play-match/__tests__/components/RivalPanelControl.test.tsx`
 
 ### Implementation for User Story 4
 
-- [X] T025 [US4] Implement `RivalPanelControl` (Component 3) in `src/features/play-match/components/RivalPanelControl.tsx`
+- [X] T035 [US4] Implement rival period score and foul mutations with automatic clock pause on +1 foul in `src/features/play-match/store/usePlayMatchStore.ts`
+- [X] T036 [US4] Redesign rival control panel to occupy full width (100% width), remove duplicate rival total score element, and wire score/foul buttons in `src/features/play-match/components/RivalPanelControl.tsx`
 
-**Checkpoint**: Component 3 is complete and testable independently.
+**Checkpoint**: All user stories are independently functional and integrated
 
 ---
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-**Purpose**: Wire all 3 components into the main `PlayMatch` page, synchronize state persistence with SQLite (`games` and `player_stats`), and validate all quickstart scenarios.
+**Purpose**: End-to-end integration, barrel exports, regression validation, and documentation verification
 
-- [X] T026 [P] Integration tests for `PlayMatch` screen in `src/features/play-match/__tests__/page/PlayMatch.test.tsx` validating full game flow across all 3 components, application header live score formatting `${teamName} ${teamTotalScore} - ${rivalTotalScore} ${rivalName}`, and player circle display
-- [X] T027 Implement `PlayMatch` container in `src/features/play-match/PlayMatch.tsx` and re-export in `src/features/play-match/index.ts` and `src/page/PlayMatch.tsx` with header score display and Drizzle SQLite persistence on game events / finish
-- [X] T028 [P] Documentation updates in `specs/007-play-match-view/` reflecting implementation status and player identifier formatting rules
-- [X] T029 Run full TypeScript verification (`npx tsc --noEmit`) and Jest test suite (`npm test`) across all play-match unit and component tests
-- [X] T030 Validate end-to-end functionality against all 9 validation scenarios in `specs/007-play-match-view/quickstart.md`
+- [X] T037 [P] Integration test suite asserting complete end-to-end match play workflow in `src/features/play-match/__tests__/page/PlayMatch.test.tsx`
+- [X] T038 Integrate Component 1, Component 2, Component 3, header score display, and modals in `src/features/play-match/PlayMatch.tsx` and `src/page/PlayMatch.tsx`
+- [X] T039 [P] Update public barrel exports and module boundaries in `src/features/play-match/index.ts`
+- [X] T040 Validate quickstart.md validation scenarios and run full test suite with TypeScript type check (`npm test`)
 
 ---
 
@@ -143,70 +155,57 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies — can start immediately.
-- **Foundational (Phase 2)**: Depends on Setup — BLOCKS all user stories.
-- **User Story 1 (Phase 3)**: Depends on Foundational (Phase 2).
-- **User Story 2 (Phase 4)**: Depends on Foundational (Phase 2).
-- **User Story 3 (Phase 5)**: Depends on Foundational (Phase 2) and integrates with User Story 2.
-- **User Story 4 (Phase 6)**: Depends on Foundational (Phase 2).
-- **Polish & Integration (Phase 7)**: Depends on all User Stories (Phases 3–6) complete.
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User Story 1 (P1): Period & crono controls (blocks match clock loop)
+  - User Story 2 (P1): Court canvas, stint tracking, stats & subtraction
+  - User Story 3 (P2): Team management panel, unrestricted swap & timeouts
+  - User Story 4 (P2): Rival control panel (100% width, no total score)
+- **Polish (Final Phase)**: Depends on all user stories being complete
 
 ### User Story Dependencies
 
-```mermaid
-graph TD
-    P1[Phase 1: Setup] --> P2[Phase 2: Foundational Utilities, Store & Lineup Modal]
-    P2 --> US1[Phase 3: US1 - Time, Score & Fouls Controller]
-    P2 --> US2[Phase 4: US2 - Court Canvas & Stats Logging]
-    P2 --> US3[Phase 5: US3 - Team Management, Bench, Swap & Timeouts]
-    P2 --> US4[Phase 6: US4 - Rival Control Panel]
-    US2 --> US3
-    US1 --> P7[Phase 7: Integration & Persistence]
-    US3 --> P7
-    US4 --> P7
-```
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - Integrates with crono loop from US1 but independently testable
+- **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Integrates with roster from US2 but independently testable
+- **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Independent rival score/foul adjustments
 
 ### Within Each User Story
 
-- Tests MUST be written and fail before implementation (TDD Red-Green-Refactor).
-- Modals and child components before parent containers.
-- Core gestures/buttons before integrations.
-- User Story independently testable before proceeding to the next priority.
+- Tests MUST be written and fail before implementation (TDD Red-Green-Refactor)
+- Store mutations & actions before UI components
+- Modals before parent controller integration
+- Story complete and verified before moving to next priority
 
 ### Parallel Opportunities
 
-- **Phase 1**: T001 and T002 can run in parallel.
-- **Phase 2**: T003 (identifier utility tests), T005 (store tests), and T007 (lineup modal tests) can run in parallel.
-- **Phase 3 (US1)**: T009, T010, and T011 test files can run in parallel; T012 and T013 modals can run in parallel.
-- **Phase 4 (US2)**: T015, T016, and T017 test files can run in parallel; T018 and T019 modals can run in parallel.
-- **Phase 5 (US3) & Phase 6 (US4)**: US3 and US4 can proceed in parallel once Phase 2 is complete.
+- Phase 1 setup tasks T001, T002, T003 can execute in parallel
+- Foundational tasks T004, T005, T007 can execute in parallel
+- After Phase 2 completes, user story test tasks can be authored in parallel:
+  - T008, T009, T010, T011 for US1
+  - T016, T017, T018, T019, T020 for US2
+  - T027, T028, T029 for US3
+  - T033, T034 for US4
+- Within US1: T013 and T014 modals can be built in parallel
+- Within US2: T022, T023, T024 modals can be built in parallel
+- Within Polish: T037, T039 can be developed in parallel
 
 ---
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch test suites for User Story 1 together:
-Task: "Unit and interaction tests for PeriodSelectModal in src/features/play-match/__tests__/components/PeriodSelectModal.test.tsx"
-Task: "Unit and interaction tests for ManualTimeModal in src/features/play-match/__tests__/components/ManualTimeModal.test.tsx"
-Task: "Component tests for TimeScoreFoulsController in src/features/play-match/__tests__/components/TimeScoreFoulsController.test.tsx"
-
-# Implement child modals in parallel:
-Task: "Implement PeriodSelectModal component in src/features/play-match/components/PeriodSelectModal.tsx"
-Task: "Implement ManualTimeModal component in src/features/play-match/components/ManualTimeModal.tsx"
-```
 
 ## Parallel Example: User Story 2
 
 ```bash
-# Launch test suites for User Story 2 together:
-Task: "Component tests for QuickAssignPlayerModal in src/features/play-match/__tests__/components/QuickAssignPlayerModal.test.tsx"
-Task: "Component tests for PlayerStatsModal in src/features/play-match/__tests__/components/PlayerStatsModal.test.tsx"
-Task: "Component tests for HalfCourtCanvas in src/features/play-match/__tests__/components/HalfCourtCanvas.test.tsx"
+# Launch test creation for User Story 2 together:
+Task: T016 "Unit test stint accumulation, stint reset on court entry, score event tracking, stat subtraction, cascading assist reversal, and foul auto-pause in src/features/play-match/__tests__/store/usePlayMatchStore.test.ts"
+Task: T017 "Component test for HalfCourtCanvas in src/features/play-match/__tests__/components/HalfCourtCanvas.test.tsx"
+Task: T018 "Component test for PlayerStatsModal in src/features/play-match/__tests__/components/PlayerStatsModal.test.tsx"
+Task: T019 "Component test for PlayerStatSubtractionModal in src/features/play-match/__tests__/components/PlayerStatSubtractionModal.test.tsx"
 
-# Implement sub-modals in parallel:
-Task: "Implement QuickAssignPlayerModal in src/features/play-match/components/QuickAssignPlayerModal.tsx"
-Task: "Implement PlayerStatsModal in src/features/play-match/components/PlayerStatsModal.tsx"
+# Build modals for User Story 2 in parallel:
+Task: T022 "Implement player stat subtraction modal with cascading assist reversal in src/features/play-match/components/PlayerStatSubtractionModal.tsx"
+Task: T023 "Update player stats modal with assist prompt ('non assistant' option) and foul logging in src/features/play-match/components/PlayerStatsModal.tsx"
+Task: T024 "Implement quick assign player modal for empty court positions in src/features/play-match/components/QuickAssignPlayerModal.tsx"
 ```
 
 ---
@@ -215,36 +214,27 @@ Task: "Implement PlayerStatsModal in src/features/play-match/components/PlayerSt
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup (T001–T002)
-2. Complete Phase 2: Foundational (T003–T008)
-3. Complete Phase 3: User Story 1 (T009–T014)
-4. **STOP and VALIDATE**: Run `TimeScoreFoulsController` tests to confirm timer, period transitions, and period score isolation.
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1 (Clock, Period & Isolated Period Scoring)
+4. **STOP and VALIDATE**: Verify timer start/pause, 3s hold modals, and period scoring independently
+5. Deploy/demo initial MVP clock controller
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational (`formatPlayerIdentifier`, `usePlayMatchStore`, `StartingFiveModal`) with 100% unit test coverage.
-2. Deliver Component 1 (`TimeScoreFoulsController`) -> Test independently (MVP!).
-3. Deliver Component 2 (`HalfCourtCanvas` + `PlayerStatsModal` + `TeamManagementPanel`) with jersey number priority and fallback formatting -> Test independently.
-4. Deliver Component 3 (`RivalPanelControl`) -> Test independently.
-5. Deliver `PlayMatch` root integration with SQLite persistence and header score display -> Execute `quickstart.md` scenarios.
-
-### Parallel Team Strategy
-
-With multiple developers:
-1. Team completes Setup + Foundational together.
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Clock, Period Control & Scoring)
-   - Developer B: User Story 2 (Court Canvas, Player Stats & Identification)
-   - Developer C: User Story 3 (Bench, Swap Mode & Timeouts)
-   - Developer D: User Story 4 (Rival Panel Control)
-3. Integrate in Phase 7.
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 (P1) → Test independently → Deliver MVP!
+3. Add User Story 2 (P1) → Court canvas, stint tracking & stat subtraction with cascading assist deduction
+4. Add User Story 3 (P2) → Team management panel, unrestricted swap & timeout quotas
+5. Add User Story 4 (P2) → Full-width rival panel without duplicate total score
+6. Polish & Cross-Cutting → Full test suite & type validation
 
 ---
 
 ## Notes
 
-- `[P]` tasks = different files, no dependencies
-- `[Story]` label maps task to specific user story for traceability
-- Strict checklist format `- [ ] [TaskID] [P?] [Story?] Description with file path` enforced on all tasks
-- TDD Red-Green-Refactor strictly adhered to per Constitution Principle I
-- Stop at any checkpoint to validate story independently
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story is independently completable and testable
+- Strict adherence to Constitution Principle I (TDD first) and Principle II (feature encapsulation)
+- Commit after each task or logical group

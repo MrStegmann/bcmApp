@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import { InGamePlayer, PeriodData, PeriodKey, StatActionType, SwapState, TimeoutBudget } from "../types";
+import {
+  InGamePlayer,
+  PeriodData,
+  PeriodKey,
+  ScoreEventLink,
+  StatActionType,
+  SwapState,
+  TimeoutBudget,
+} from "../types";
 
 export function calculatePlayerValuation(player: Partial<InGamePlayer>): number {
   if (!player) return 0;
@@ -57,6 +65,7 @@ export interface PlayMatchStoreState {
   players: InGamePlayer[];
   timeouts: TimeoutBudget;
   swap: SwapState;
+  scoreEvents: ScoreEventLink[];
 
   // Actions
   initMatch: (matchId: number, roster: InGamePlayer[], startingFiveIds?: number[]) => void;
@@ -70,6 +79,7 @@ export interface PlayMatchStoreState {
   setPeriod: (period: PeriodKey) => void;
   resetExtraTimeCrono: () => void;
   recordPlayerStat: (playerId: number, statType: StatActionType, assistingPlayerId?: number | null) => void;
+  subtractPlayerStat: (playerId: number, statType: StatActionType) => void;
   adjustRivalScore: (delta: number) => void;
   adjustRivalFouls: (delta: number) => void;
   toggleSwapMode: () => void;
@@ -98,26 +108,30 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
   players: [],
   timeouts: createInitialTimeouts(),
   swap: createInitialSwap(),
+  scoreEvents: [],
 
   initMatch: (matchId, roster, startingFiveIds) => {
     let startingSet = new Set<number>();
     if (startingFiveIds && startingFiveIds.length === 5) {
-      startingSet = new Set(startingFiveIds);
+      startingSet = new Set(startingFiveIds.map(Number));
     }
 
     const courtAssignments: number[] = [];
     if (startingFiveIds && startingFiveIds.length === 5) {
-      courtAssignments.push(...startingFiveIds);
+      courtAssignments.push(...startingFiveIds.map(Number));
     }
 
     const initializedPlayers: InGamePlayer[] = roster.map((p) => {
-      const isOnCourt = startingSet.has(p.id);
-      const courtPositionIndex = isOnCourt ? courtAssignments.indexOf(p.id) : null;
+      const pId = Number(p.id);
+      const isOnCourt = startingSet.has(pId);
+      const courtPositionIndex = isOnCourt ? courtAssignments.indexOf(pId) : null;
       return {
         ...p,
+        id: pId,
         isOnCourt,
         courtPositionIndex,
         secondsPlayed: p.secondsPlayed || 0,
+        stintSeconds: 0,
         t1a: p.t1a || 0,
         t1i: p.t1i || 0,
         t2a: p.t2a || 0,
@@ -142,6 +156,7 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
       players: initializedPlayers,
       timeouts: createInitialTimeouts(),
       swap: createInitialSwap(),
+      scoreEvents: [],
     });
   },
 
@@ -153,12 +168,14 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
     set((state) => ({
       players: state.players.map((p) => {
         const pId = Number(p.id);
+        const wasOnCourt = p.isOnCourt;
         const isOnCourt = startingSet.has(pId);
         const courtPositionIndex = isOnCourt ? playerIds.map(Number).indexOf(pId) : null;
         return {
           ...p,
           isOnCourt,
           courtPositionIndex,
+          stintSeconds: isOnCourt && !wasOnCourt ? 0 : p.stintSeconds || 0,
         };
       }),
     }));
@@ -168,14 +185,23 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
     if (positionIndex < 0 || positionIndex > 4) return;
     const targetId = Number(playerId);
     set((state) => {
-      // Find if another player occupies this position
       const players = state.players.map((p) => {
         const pId = Number(p.id);
         if (pId === targetId) {
-          return { ...p, isOnCourt: true, courtPositionIndex: positionIndex };
+          return {
+            ...p,
+            isOnCourt: true,
+            courtPositionIndex: positionIndex,
+            stintSeconds: 0,
+          };
         }
         if (p.courtPositionIndex === positionIndex && pId !== targetId) {
-          return { ...p, isOnCourt: false, courtPositionIndex: null };
+          return {
+            ...p,
+            isOnCourt: false,
+            courtPositionIndex: null,
+            stintSeconds: 0,
+          };
         }
         return p;
       });
@@ -200,7 +226,11 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
 
       const updatedPlayers = state.players.map((p) => {
         if (p.isOnCourt) {
-          return { ...p, secondsPlayed: p.secondsPlayed + secondsDelta };
+          return {
+            ...p,
+            secondsPlayed: p.secondsPlayed + secondsDelta,
+            stintSeconds: (p.stintSeconds || 0) + secondsDelta,
+          };
         }
         return p;
       });
@@ -265,10 +295,13 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
       let scoreDelta = 0;
       let foulDelta = 0;
       let shouldStopClock = false;
+      const targetId = Number(playerId);
+      const assistId = assistingPlayerId !== null && assistingPlayerId !== undefined ? Number(assistingPlayerId) : null;
 
       const updatedPlayers = state.players.map((p) => {
+        const pId = Number(p.id);
         let updated = { ...p };
-        if (p.id === playerId) {
+        if (pId === targetId) {
           switch (statType) {
             case "t1a":
               updated.t1a += 1;
@@ -315,7 +348,7 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
               updated.rec += 1;
               break;
           }
-        } else if (assistingPlayerId !== null && p.id === assistingPlayerId) {
+        } else if (assistId !== null && pId === assistId) {
           updated.asis += 1;
         }
 
@@ -330,6 +363,19 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
         teamFouls: activePeriodData.teamFouls + foulDelta,
       };
 
+      const newScoreEvents = [...state.scoreEvents];
+      if (statType === "t2a" || statType === "t3a") {
+        newScoreEvents.push({
+          id: `${Date.now()}-${Math.random()}`,
+          scoringPlayerId: targetId,
+          period: state.activePeriod,
+          shotType: statType,
+          points: statType === "t2a" ? 2 : 3,
+          assistingPlayerId: assistId,
+          timestamp: Date.now(),
+        });
+      }
+
       return {
         isTimerRunning: shouldStopClock ? false : state.isTimerRunning,
         players: updatedPlayers,
@@ -337,6 +383,127 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
           ...state.periods,
           [state.activePeriod]: updatedPeriodData,
         },
+        scoreEvents: newScoreEvents,
+      };
+    });
+  },
+
+  subtractPlayerStat: (playerId, statType) => {
+    set((state) => {
+      const targetId = Number(playerId);
+      let scoreDelta = 0;
+      let foulDelta = 0;
+      let assistToRevertId: number | null = null;
+      let newScoreEvents = [...state.scoreEvents];
+
+      if (statType === "t2a" || statType === "t3a") {
+        // Find the last score event for this player and shot type
+        for (let i = newScoreEvents.length - 1; i >= 0; i--) {
+          const ev = newScoreEvents[i];
+          if (ev.scoringPlayerId === targetId && ev.shotType === statType) {
+            if (ev.assistingPlayerId !== null && ev.assistingPlayerId !== undefined) {
+              assistToRevertId = Number(ev.assistingPlayerId);
+            }
+            newScoreEvents.splice(i, 1);
+            break;
+          }
+        }
+      }
+
+      const updatedPlayers = state.players.map((p) => {
+        const pId = Number(p.id);
+        let updated = { ...p };
+
+        if (pId === targetId) {
+          switch (statType) {
+            case "t1a":
+              if (updated.t1a > 0) {
+                updated.t1a -= 1;
+                scoreDelta = 1;
+              }
+              if (updated.t1i > 0) {
+                updated.t1i -= 1;
+              }
+              break;
+            case "t1i":
+              if (updated.t1i > 0) {
+                updated.t1i -= 1;
+              }
+              break;
+            case "t2a":
+              if (updated.t2a > 0) {
+                updated.t2a -= 1;
+                scoreDelta = 2;
+              }
+              if (updated.t2i > 0) {
+                updated.t2i -= 1;
+              }
+              break;
+            case "t2i":
+              if (updated.t2i > 0) {
+                updated.t2i -= 1;
+              }
+              break;
+            case "t3a":
+              if (updated.t3a > 0) {
+                updated.t3a -= 1;
+                scoreDelta = 3;
+              }
+              if (updated.t3i > 0) {
+                updated.t3i -= 1;
+              }
+              break;
+            case "t3i":
+              if (updated.t3i > 0) {
+                updated.t3i -= 1;
+              }
+              break;
+            case "oreb":
+              updated.oreb = Math.max(0, updated.oreb - 1);
+              break;
+            case "dreb":
+              updated.dreb = Math.max(0, updated.dreb - 1);
+              break;
+            case "fault":
+              if (updated.falt > 0) {
+                updated.falt -= 1;
+                foulDelta = 1;
+              }
+              break;
+            case "asis":
+              updated.asis = Math.max(0, updated.asis - 1);
+              break;
+            case "lost":
+              updated.per = Math.max(0, updated.per - 1);
+              break;
+            case "recovers":
+              updated.rec = Math.max(0, updated.rec - 1);
+              break;
+          }
+        }
+
+        if (assistToRevertId !== null && pId === assistToRevertId) {
+          updated.asis = Math.max(0, updated.asis - 1);
+        }
+
+        updated.valuation = calculatePlayerValuation(updated);
+        return updated;
+      });
+
+      const activePeriodData = state.periods[state.activePeriod];
+      const updatedPeriodData: PeriodData = {
+        ...activePeriodData,
+        teamScore: Math.max(0, activePeriodData.teamScore - scoreDelta),
+        teamFouls: Math.max(0, activePeriodData.teamFouls - foulDelta),
+      };
+
+      return {
+        players: updatedPlayers,
+        periods: {
+          ...state.periods,
+          [state.activePeriod]: updatedPeriodData,
+        },
+        scoreEvents: newScoreEvents,
       };
     });
   },
@@ -376,10 +543,8 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
   },
 
   toggleSwapMode: () => {
-    const { isTimerRunning, swap } = get();
-    if (isTimerRunning) {
-      return;
-    }
+    // Unrestricted substitutions: available and executable whether clock is running or paused
+    const { swap } = get();
     set({
       swap: {
         isSwapMode: !swap.isSwapMode,
@@ -422,10 +587,8 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
   },
 
   confirmSwap: () => {
-    const { swap, players, isTimerRunning } = get();
-    if (isTimerRunning) {
-      return;
-    }
+    // Unrestricted substitutions: available and executable whether clock is running or paused
+    const { swap, players } = get();
     const selectedCourtPlayerIds = swap.selectedCourtPlayerIds.map((id) => Number(id));
     const selectedBenchPlayerIds = swap.selectedBenchPlayerIds.map((id) => Number(id));
 
@@ -474,7 +637,6 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
     selectedBenchPlayerIds.forEach((benchId, i) => {
       let targetSlot = outgoingSlots[i];
       if (targetSlot === undefined || remainingCourtSlots.has(targetSlot)) {
-        // Find first slot 0..4 not used by remaining court players or already assigned bench players
         for (let s = 0; s < 5; s++) {
           if (!remainingCourtSlots.has(s) && !Array.from(benchToSlotMap.values()).includes(s)) {
             targetSlot = s;
@@ -487,7 +649,7 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
       }
     });
 
-    // Update all player records
+    // Update all player records: incoming players enter court with stintSeconds = 0, outgoing reset stintSeconds = 0
     const updatedPlayers = players.map((p) => {
       const pId = Number(p.id);
       if (selectedCourtPlayerIds.includes(pId)) {
@@ -496,6 +658,7 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
           id: pId,
           isOnCourt: false,
           courtPositionIndex: null,
+          stintSeconds: 0,
         };
       }
       if (benchToSlotMap.has(pId)) {
@@ -505,6 +668,7 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
           id: pId,
           isOnCourt: true,
           courtPositionIndex: slot,
+          stintSeconds: 0,
         };
       }
       return { ...p, id: pId };
@@ -524,12 +688,27 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
     set((state) => {
       const { activePeriod, timeouts } = state;
       if (activePeriod === "q1" || activePeriod === "q2") {
-        return { timeouts: { ...timeouts, firstHalfRemaining: timeouts.firstHalfRemaining + 1 } };
+        return {
+          timeouts: {
+            ...timeouts,
+            firstHalfRemaining: timeouts.firstHalfRemaining + 1,
+          },
+        };
       }
       if (activePeriod === "q3" || activePeriod === "q4") {
-        return { timeouts: { ...timeouts, secondHalfRemaining: timeouts.secondHalfRemaining + 1 } };
+        return {
+          timeouts: {
+            ...timeouts,
+            secondHalfRemaining: timeouts.secondHalfRemaining + 1,
+          },
+        };
       }
-      return { timeouts: { ...timeouts, extraTimeRemaining: timeouts.extraTimeRemaining + 1 } };
+      return {
+        timeouts: {
+          ...timeouts,
+          extraTimeRemaining: timeouts.extraTimeRemaining + 1,
+        },
+      };
     });
   },
 
@@ -537,54 +716,54 @@ export const usePlayMatchStore = create<PlayMatchStoreState>((set, get) => ({
     set((state) => {
       const { activePeriod, timeouts } = state;
       if (activePeriod === "q1" || activePeriod === "q2") {
-        return { timeouts: { ...timeouts, firstHalfRemaining: Math.max(0, timeouts.firstHalfRemaining - 1) } };
+        return {
+          timeouts: {
+            ...timeouts,
+            firstHalfRemaining: Math.max(0, timeouts.firstHalfRemaining - 1),
+          },
+        };
       }
       if (activePeriod === "q3" || activePeriod === "q4") {
-        return { timeouts: { ...timeouts, secondHalfRemaining: Math.max(0, timeouts.secondHalfRemaining - 1) } };
+        return {
+          timeouts: {
+            ...timeouts,
+            secondHalfRemaining: Math.max(0, timeouts.secondHalfRemaining - 1),
+          },
+        };
       }
-      return { timeouts: { ...timeouts, extraTimeRemaining: Math.max(0, timeouts.extraTimeRemaining - 1) } };
+      return {
+        timeouts: {
+          ...timeouts,
+          extraTimeRemaining: Math.max(0, timeouts.extraTimeRemaining - 1),
+        },
+      };
     });
   },
 
   getTotalTeamScore: () => {
     const { periods } = get();
-    return (
-      periods.q1.teamScore +
-      periods.q2.teamScore +
-      periods.q3.teamScore +
-      periods.q4.teamScore +
-      periods.extra.teamScore
-    );
+    return Object.values(periods).reduce((sum, p) => sum + p.teamScore, 0);
   },
 
   getTotalRivalScore: () => {
     const { periods } = get();
-    return (
-      periods.q1.rivalScore +
-      periods.q2.rivalScore +
-      periods.q3.rivalScore +
-      periods.q4.rivalScore +
-      periods.extra.rivalScore
-    );
+    return Object.values(periods).reduce((sum, p) => sum + p.rivalScore, 0);
   },
 
   getActiveCourtPlayers: () => {
     const { players } = get();
     const court: (InGamePlayer | null)[] = [null, null, null, null, null];
-    const onCourtPlayers = players.filter((p) => p.isOnCourt);
 
-    // First pass: Place players with unique valid positions
-    onCourtPlayers.forEach((p) => {
-      const pos = p.courtPositionIndex;
-      if (pos !== null && pos !== undefined && pos >= 0 && pos < 5 && court[pos] === null) {
-        court[pos] = p;
+    players.forEach((p) => {
+      if (p.isOnCourt && p.courtPositionIndex !== null && p.courtPositionIndex !== undefined) {
+        if (p.courtPositionIndex >= 0 && p.courtPositionIndex < 5) {
+          court[p.courtPositionIndex] = p;
+        }
       }
     });
 
-    // Second pass: Place remaining on-court players into empty slots
-    onCourtPlayers.forEach((p) => {
-      const alreadyPlaced = court.some((cp) => cp !== null && Number(cp.id) === Number(p.id));
-      if (!alreadyPlaced) {
+    players.forEach((p) => {
+      if (p.isOnCourt && (p.courtPositionIndex === null || p.courtPositionIndex === undefined)) {
         const emptyIndex = court.findIndex((slot) => slot === null);
         if (emptyIndex !== -1) {
           court[emptyIndex] = p;
@@ -621,5 +800,6 @@ export const resetPlayMatchStore = () => {
     players: [],
     timeouts: createInitialTimeouts(),
     swap: createInitialSwap(),
+    scoreEvents: [],
   });
 };

@@ -30,6 +30,7 @@ export function buildMatchRoster(
       isOnCourt: false,
       courtPositionIndex: null,
       secondsPlayed: (stat?.minutes || 0) * 60,
+      stintSeconds: 0,
       t1a: stat?.t1a || 0,
       t1i: stat?.t1i || 0,
       t2a: stat?.t2a || 0,

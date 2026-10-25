@@ -18,6 +18,7 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
     isOnCourt: true,
     courtPositionIndex: 0,
     secondsPlayed: 180,
+    stintSeconds: 120,
     t1a: 2,
     t1i: 3,
     t2a: 4,
@@ -42,6 +43,7 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
     isOnCourt: true,
     courtPositionIndex: 1,
     secondsPlayed: 120,
+    stintSeconds: 60,
     t1a: 0,
     t1i: 0,
     t2a: 2,
@@ -65,14 +67,16 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
     null,
   ];
 
-  it("should conform to HalfCourtCanvasProps contract", () => {
+  it("should conform to HalfCourtCanvasProps contract and support 2-second hold subtraction trigger", () => {
     const onSelectPositionMock = jest.fn();
+    const onLongPressPositionMock = jest.fn();
 
     const props: HalfCourtCanvasProps = {
       courtPlayers: mockCourtPlayers,
       isSwapMode: false,
       selectedCourtPlayerIds: [],
       onSelectCourtPosition: onSelectPositionMock,
+      onLongPressCourtPosition: onLongPressPositionMock,
     };
 
     expect(props.courtPlayers.length).toBe(5);
@@ -80,54 +84,64 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
     expect(props.courtPlayers[1]?.id).toBe(2);
     expect(props.courtPlayers[2]).toBeNull();
 
-    // Select assigned player at position 0
+    // Select assigned player at position 0 (1-tap opens stats modal)
     props.onSelectCourtPosition(0, mockCourtPlayers[0]);
     expect(onSelectPositionMock).toHaveBeenCalledWith(0, mockCourtPlayers[0]);
 
-    // Select empty slot at position 2
+    // Long-press assigned player at position 0 (2-second hold triggers stat subtraction)
+    if (props.onLongPressCourtPosition && mockCourtPlayers[0]) {
+      props.onLongPressCourtPosition(0, mockCourtPlayers[0]);
+      expect(onLongPressPositionMock).toHaveBeenCalledWith(0, mockCourtPlayers[0]);
+    }
+
+    // Select empty slot at position 2 (opens quick assign modal)
     props.onSelectCourtPosition(2, null);
     expect(onSelectPositionMock).toHaveBeenCalledWith(2, null);
   });
 
-  it("should evaluate player identification with jersey name priority and fallback formatting", () => {
-    // When jerseyName is present, it returns jerseyName exclusively
-    const playerWithJerseyName: InGamePlayer = {
+  it("should evaluate player identification with jerseyName priority and F. Lastname fallback", () => {
+    // When jerseyName is absent, it falls back to "F. Lastname" ("L. Doncic")
+    const idWithNumber = formatPlayerIdentifier(mockPlayerWithNumber);
+    expect(idWithNumber).toBe("L. Doncic");
+
+    // When jerseyName is present, it returns jerseyName
+    const idWithJerseyName = formatPlayerIdentifier({
       ...mockPlayerWithNumber,
       jerseyName: "DONCIC",
-    };
-    const idWithJerseyName = formatPlayerIdentifier(playerWithJerseyName);
+    });
     expect(idWithJerseyName).toBe("DONCIC");
-    expect(idWithJerseyName).not.toBe("#77");
 
-    // When jerseyName is absent, it falls back to '[First Initial]. [Last Name]'
-    const idWithoutJerseyName = formatPlayerIdentifier(mockPlayerWithNumber);
-    expect(idWithoutJerseyName).toBe("L. Doncic");
-
+    // When number is absent and jerseyName absent, it falls back to "F. Lastname" ("A. Delgado")
     const idWithoutNumber = formatPlayerIdentifier(mockPlayerWithoutNumber);
     expect(idWithoutNumber).toBe("A. Delgado");
   });
 
-  it("should format player statistics display as ${min}min / ${pts}pts", () => {
-    const player = mockCourtPlayers[0]!;
-    const min = Math.floor(player.secondsPlayed / 60);
-    const pts = player.t1a * 1 + player.t2a * 2 + player.t3a * 3;
-    const statText = `${min}min / ${pts}pts`;
-    expect(statText).toBe("3min / 16pts");
-  });
-
-  it("should integrate formatPlayerIdentifier and render jersey number above jersey name in HalfCourtCanvas source code", () => {
+  it("should verify player circle renders jersey number on top line and identifier on second line", () => {
     const componentPath = path.resolve(__dirname, "../../components/HalfCourtCanvas.tsx");
     const componentSource = fs.readFileSync(componentPath, "utf-8");
 
-    // Must import formatPlayerIdentifier
-    expect(componentSource).toContain("formatPlayerIdentifier");
-    // Must call formatPlayerIdentifier(player)
-    expect(componentSource).toContain("formatPlayerIdentifier(player)");
-    // Must display #{player.number ?? "-"}
-    expect(componentSource).toContain("#{player.number ?? \"-\"}");
-    // Must display identifier below jersey number
+    expect(componentSource).toContain("Top Line: Jersey Number");
+    expect(componentSource).toContain("player.number");
     expect(componentSource).toContain("{identifier}");
-    // Must NOT have redundant playerName unconditionally below jersey number
-    expect(componentSource).not.toContain("{player.firstName}");
+  });
+
+  it("should compute continuous stint minutes accurately from stintSeconds", () => {
+    expect(Math.floor(mockPlayerWithNumber.stintSeconds / 60)).toBe(2); // 120s -> 2min
+    expect(Math.floor(mockPlayerWithoutNumber.stintSeconds / 60)).toBe(1); // 60s -> 1min
+  });
+
+  it("should verify delayLongPress is set to 2000ms for 2-second hold subtraction in component source", () => {
+    const componentPath = path.resolve(__dirname, "../../components/HalfCourtCanvas.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    expect(componentSource).toContain("delayLongPress={2000}");
+  });
+
+  it("should verify static layout without freeze-inducing animation classes", () => {
+    const componentPath = path.resolve(__dirname, "../../components/HalfCourtCanvas.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    expect(componentSource).not.toContain("animate-pulse");
+    expect(componentSource).not.toContain("animate-");
   });
 });

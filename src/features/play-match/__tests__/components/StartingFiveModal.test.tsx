@@ -3,7 +3,7 @@ import { InGamePlayer, StartingFiveModalProps } from "../../types";
 
 declare const jest: any;
 
-describe("StartingFiveModal (T005 - Lineup Modal)", () => {
+describe("StartingFiveModal (T029 - US3)", () => {
   const mockRoster: InGamePlayer[] = [
     {
       id: 1,
@@ -13,6 +13,7 @@ describe("StartingFiveModal (T005 - Lineup Modal)", () => {
       position: "Point Guard",
       isOnCourt: false,
       secondsPlayed: 0,
+      stintSeconds: 0,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
@@ -24,6 +25,7 @@ describe("StartingFiveModal (T005 - Lineup Modal)", () => {
       position: "Shooting Guard",
       isOnCourt: false,
       secondsPlayed: 0,
+      stintSeconds: 0,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
@@ -35,6 +37,7 @@ describe("StartingFiveModal (T005 - Lineup Modal)", () => {
       position: "Small Forward",
       isOnCourt: false,
       secondsPlayed: 0,
+      stintSeconds: 0,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
@@ -46,6 +49,7 @@ describe("StartingFiveModal (T005 - Lineup Modal)", () => {
       position: "Power Forward",
       isOnCourt: false,
       secondsPlayed: 0,
+      stintSeconds: 0,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
@@ -57,6 +61,7 @@ describe("StartingFiveModal (T005 - Lineup Modal)", () => {
       position: "Center",
       isOnCourt: false,
       secondsPlayed: 0,
+      stintSeconds: 0,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
@@ -68,6 +73,7 @@ describe("StartingFiveModal (T005 - Lineup Modal)", () => {
       position: "Center",
       isOnCourt: false,
       secondsPlayed: 0,
+      stintSeconds: 0,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },

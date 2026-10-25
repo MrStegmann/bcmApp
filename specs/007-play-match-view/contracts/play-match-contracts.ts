@@ -26,7 +26,8 @@ export interface InGamePlayer {
   position?: string | null;
   isOnCourt: boolean;
   courtPositionIndex?: number | null; // 0..4 for position on court
-  secondsPlayed: number;
+  secondsPlayed: number; // Cumulative total seconds played across all stints (for DB box scores)
+  stintSeconds: number;  // Continuous seconds played in current on-court stint (displayed on court circles)
   t1a: number; // 1pt made
   t1i: number; // 1pt missed
   t2a: number; // 2pt made
@@ -40,6 +41,20 @@ export interface InGamePlayer {
   per: number;  // Ball lost (turnovers)
   falt: number; // Personal fouls
   valuation: number;
+}
+
+/**
+ * Historical record of a scoring event with assist linkage
+ * Used for automatic cascading assist subtraction.
+ */
+export interface ScoreEventLink {
+  id: string;
+  scoringPlayerId: number;
+  period: PeriodKey;
+  shotType: "t2a" | "t3a";
+  points: 2 | 3;
+  assistingPlayerId?: number | null;
+  timestamp: number;
 }
 
 export interface TimeoutBudget {
@@ -96,6 +111,7 @@ export interface TeamManagementCanvasProps {
   selectedBenchPlayerIds: number[];
   availableTimeouts: number;
   onSelectCourtPosition: (positionIndex: number, player: InGamePlayer | null) => void;
+  onLongPressCourtPosition?: (positionIndex: number, player: InGamePlayer) => void; // 2-second hold listener for stat subtraction
   onSelectBenchPlayer: (player: InGamePlayer) => void;
   onToggleSwapMode: () => void;
   onConfirmSwap: () => void;
@@ -105,13 +121,12 @@ export interface TeamManagementCanvasProps {
 }
 
 // ==========================================
-// Component 3: Rival Panel Control
+// Component 3: Rival Panel Control (Full-Width, No Duplicate Total Score)
 // ==========================================
 export interface RivalPanelControlProps {
   activePeriod: PeriodKey;
   rivalPeriodScore: number;
   rivalPeriodFouls: number;
-  totalRivalScore: number;
   onAdjustRivalScore: (points: number) => void; // +1, +2, +3, -1
   onAdjustRivalFouls: (delta: number) => void;  // +1, -1
 }
@@ -131,6 +146,13 @@ export interface PlayerStatsModalProps {
   ) => void;
 }
 
+export interface PlayerStatSubtractionModalProps {
+  visible: boolean;
+  player: InGamePlayer | null;
+  onClose: () => void;
+  onSubtractStat: (playerId: number, statType: StatActionType) => void;
+}
+
 export interface PeriodSelectModalProps {
   visible: boolean;
   currentPeriod: PeriodKey;
@@ -143,6 +165,14 @@ export interface ManualTimeModalProps {
   currentSeconds: number;
   periodKey: PeriodKey;
   onSaveTime: (newSeconds: number) => void;
+  onClose: () => void;
+}
+
+export interface QuickAssignPlayerModalProps {
+  visible: boolean;
+  targetPositionIndex: number | null;
+  benchPlayers: InGamePlayer[];
+  onAssignPlayer: (playerId: number, positionIndex: number) => void;
   onClose: () => void;
 }
 
@@ -171,4 +201,3 @@ export interface PlayerIdentifierInput {
 }
 
 export type FormatPlayerIdentifierFn = (player: PlayerIdentifierInput) => string;
-

@@ -8,7 +8,7 @@ declare const __dirname: string;
 const fs = require("fs");
 const path = require("path");
 
-describe("TeamManagementPanel (T021 - US3)", () => {
+describe("TeamManagementPanel (T028 - US3)", () => {
   const mockBench: InGamePlayer[] = [
     {
       id: 6,
@@ -18,6 +18,7 @@ describe("TeamManagementPanel (T021 - US3)", () => {
       position: "Center",
       isOnCourt: false,
       secondsPlayed: 120,
+      stintSeconds: 0,
       t1a: 1,
       t1i: 2,
       t2a: 3,
@@ -40,6 +41,7 @@ describe("TeamManagementPanel (T021 - US3)", () => {
       position: "Guard",
       isOnCourt: false,
       secondsPlayed: 60,
+      stintSeconds: 0,
       t1a: 0,
       t1i: 0,
       t2a: 1,
@@ -96,21 +98,19 @@ describe("TeamManagementPanel (T021 - US3)", () => {
     expect(onDecreaseTimeoutMock).toHaveBeenCalledTimes(1);
   });
 
-  it("should evaluate player identification on bench with jersey name priority and fallback formatting", () => {
-    // When jerseyName is present, it returns jerseyName exclusively
-    const benchWithJerseyName: InGamePlayer = {
+  it("should evaluate player identification on bench with jerseyName priority and F. Lastname fallback", () => {
+    // When jerseyName is absent, it returns 'D. Gafford'
+    const idWithNumber = formatPlayerIdentifier(mockBench[0]);
+    expect(idWithNumber).toBe("D. Gafford");
+
+    // When jerseyName is present, it returns jerseyName
+    const idWithJerseyName = formatPlayerIdentifier({
       ...mockBench[0],
       jerseyName: "GAFFORD",
-    };
-    const idWithJerseyName = formatPlayerIdentifier(benchWithJerseyName);
+    });
     expect(idWithJerseyName).toBe("GAFFORD");
-    expect(idWithJerseyName).not.toBe("#21");
 
-    // When jerseyName is absent, it falls back to '[First Initial]. [Last Name]'
-    const idWithoutJerseyName = formatPlayerIdentifier(mockBench[0]);
-    expect(idWithoutJerseyName).toBe("D. Gafford");
-
-    // When jersey number is null, it returns 'J. Hardy'
+    // When number is absent, it returns 'J. Hardy'
     const idWithoutNumber = formatPlayerIdentifier(mockBench[1]);
     expect(idWithoutNumber).toBe("J. Hardy");
   });
@@ -127,13 +127,15 @@ describe("TeamManagementPanel (T021 - US3)", () => {
     expect(isSwapValid(1, 1)).toBe(true);
   });
 
-  it("should restrict swap button when timer is running", () => {
-    const isSwapAllowed = (isTimerRunning: boolean) => !isTimerRunning;
-    expect(isSwapAllowed(true)).toBe(false);
-    expect(isSwapAllowed(false)).toBe(true);
+  it("should support unrestricted swap mode accessible whether clock is running or paused", () => {
+    // Component allows tapping swap button without disabled={isTimerRunning}
+    const componentPath = path.resolve(__dirname, "../../components/TeamManagementPanel.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    expect(componentSource).not.toContain("disabled={isTimerRunning}");
   });
 
-  it("should integrate formatPlayerIdentifier and render jersey number above jersey name in TeamManagementPanel source code", () => {
+  it("should integrate formatPlayerIdentifier in TeamManagementPanel with jersey number on top and identifier on second line", () => {
     const componentPath = path.resolve(__dirname, "../../components/TeamManagementPanel.tsx");
     const componentSource = fs.readFileSync(componentPath, "utf-8");
 
@@ -141,9 +143,10 @@ describe("TeamManagementPanel (T021 - US3)", () => {
     expect(componentSource).toContain("formatPlayerIdentifier");
     // Must call formatPlayerIdentifier(player)
     expect(componentSource).toContain("formatPlayerIdentifier(player)");
-    // Must display #{player.number ?? "-"}
-    expect(componentSource).toContain("#{player.number ?? \"-\"}");
-    // Must display identifier below jersey number
+    // Must display jersey number on top line
+    expect(componentSource).toContain("Top Line: Jersey Number");
+    expect(componentSource).toContain("player.number");
+    // Must display {identifier}
     expect(componentSource).toContain("{identifier}");
     // Must NOT have redundant playerName unconditionally below jersey number
     expect(componentSource).not.toContain("{player.firstName}");

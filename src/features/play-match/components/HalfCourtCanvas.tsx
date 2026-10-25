@@ -8,6 +8,7 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
   isSwapMode,
   selectedCourtPlayerIds,
   onSelectCourtPosition,
+  onLongPressCourtPosition,
 }) => {
   const calculatePts = (p: InGamePlayer): number => {
     if (!p) return 0;
@@ -22,9 +23,8 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
   // 4: Right Post (Low Right)
   const renderPlayerSlot = (index: number, player: InGamePlayer | null) => {
     const pId = player ? Number(player.id) : null;
-    const isSelected = pId !== null
-      ? selectedCourtPlayerIds.some((id) => Number(id) === pId)
-      : false;
+    const isSelected =
+      pId !== null ? selectedCourtPlayerIds.some((id) => Number(id) === pId) : false;
 
     if (!player) {
       return (
@@ -36,12 +36,14 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
           className="items-center justify-center w-20 h-20 rounded-full border-2 border-dashed border-amber-500 bg-slate-900 p-1 shadow-lg"
         >
           <Text className="text-amber-400 font-extrabold text-base">+</Text>
-          <Text className="text-amber-300 font-semibold text-[9px] text-center">Pos #{index + 1}</Text>
+          <Text className="text-amber-300 font-semibold text-[9px] text-center">
+            Pos #{index + 1}
+          </Text>
         </TouchableOpacity>
       );
     }
 
-    const min = Math.floor(player.secondsPlayed / 60);
+    const stintMin = Math.floor((player.stintSeconds || 0) / 60);
     const pts = calculatePts(player);
     const identifier = formatPlayerIdentifier(player);
 
@@ -50,6 +52,12 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
         key={`player-${player.id}`}
         activeOpacity={0.8}
         onPress={() => onSelectCourtPosition(index, player)}
+        onLongPress={() => {
+          if (!isSwapMode && onLongPressCourtPosition) {
+            onLongPressCourtPosition(index, player);
+          }
+        }}
+        delayLongPress={2000}
         testID={`court-player-${player.id}`}
         className={`items-center justify-center w-20 h-20 rounded-full shadow-lg p-1 relative ${
           isSelected
@@ -65,22 +73,28 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
           </View>
         )}
         <View className="items-center justify-center w-full px-1">
-          {/* Jersey Number above Jersey Name */}
-          <Text className="text-amber-400 font-black text-sm leading-tight">
-            #{player.number ?? "-"}
+          {/* Top Line: Jersey Number */}
+          <Text
+            className="text-amber-400 font-black text-sm leading-tight text-center"
+            numberOfLines={1}
+          >
+            {player.number ? (String(player.number).startsWith("#") ? player.number : `#${player.number}`) : "#-"}
           </Text>
 
-          {/* Jersey Name or fallback [First Initial]. [Last Name] */}
-          <Text className="text-slate-200 font-semibold text-[8px] leading-tight text-center" numberOfLines={1}>
+          {/* Second Line: Jersey Name or Fallback "F. Lastname" */}
+          <Text
+            className="text-slate-200 font-semibold text-[8px] leading-tight text-center"
+            numberOfLines={1}
+          >
             {identifier}
           </Text>
 
-          {/* Divisor line */}
+          {/* Middle Section: Divisor line */}
           <View className="w-10 h-px bg-slate-700 my-0.5" />
 
-          {/* Separated by divisor line: ${min}min / ${pts}pts */}
-          <Text className="text-emerald-400 font-mono font-bold text-[8px] leading-tight">
-            {min}min / {pts}pts
+          {/* Bottom Section: Continuous Stint Minutes / Points */}
+          <Text className="text-emerald-400 font-mono font-bold text-[8px] leading-tight text-center">
+            {stintMin}min / {pts}pts
           </Text>
         </View>
       </TouchableOpacity>
@@ -133,4 +147,3 @@ export const HalfCourtCanvas: React.FC<HalfCourtCanvasProps> = ({
     </View>
   );
 };
-

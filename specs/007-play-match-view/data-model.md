@@ -1,6 +1,6 @@
 # Data Model: Play Match View
 
-**Feature**: `007-play-match-view` | **Date**: 2026-10-03
+**Feature**: `007-play-match-view` | **Date**: 2026-10-24 (Updated with Stint Tracking, Rival Layout, Long-Press Stat Subtraction & Unrestricted Substitutions)
 
 ## 1. Domain Entities & Database Schema Mapping
 
@@ -35,7 +35,7 @@ export const playerStats = sqliteTable("player_stats", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   gameId: integer("game_id").notNull().references(() => games.id, { onDelete: "cascade" }),
   playerId: integer("player_id").notNull().references(() => players.id, { onDelete: "cascade" }),
-  minutes: integer("minutes").default(0),
+  minutes: integer("minutes").default(0), // Cumulative match minutes
   t1a: integer("t1a").default(0),
   t1i: integer("t1i").default(0),
   t2a: integer("t2a").default(0),
@@ -80,7 +80,8 @@ export interface InGamePlayer {
   position?: string | null;
   isOnCourt: boolean;
   courtPositionIndex?: number | null; // 0, 1, 2, 3, 4 for the 5 half-court positions
-  secondsPlayed: number;
+  secondsPlayed: number; // Cumulative total seconds played across all stints (persisted to DB)
+  stintSeconds: number;  // Continuous seconds played in current on-court stint (displayed on court circles)
   t1a: number; // 1pt made
   t1i: number; // 1pt missed
   t2a: number; // 2pt made
@@ -97,9 +98,19 @@ export interface InGamePlayer {
 }
 
 /**
- * Player Identification Formatting
- * Evaluates jersey number priority and produces fallback name representation.
+ * Score Event Record with Assist Linkage
+ * Enables cascading assist reversal when made baskets are decremented.
  */
+export interface ScoreEventLink {
+  id: string;
+  scoringPlayerId: number;
+  period: PeriodKey;
+  shotType: "t2a" | "t3a";
+  points: 2 | 3;
+  assistingPlayerId?: number | null; // null if recorded as "non assistant"
+  timestamp: number;
+}
+
 export type PlayerIdentifierInput = {
   number?: string | null;
   firstName?: string | null;
@@ -124,13 +135,14 @@ export interface PlayMatchState {
   periods: Record<PeriodKey, PeriodData>;
   isTimerRunning: boolean;
   players: InGamePlayer[];
+  scoreEvents: ScoreEventLink[]; // In-memory history for assist linkage and subtraction
   timeouts: TimeoutBudget;
   swap: SwapState;
   
   // Computed getters / selectors
   totalTeamScore: () => number;
   totalRivalScore: () => number;
-  activeCourtPlayers: () => InGamePlayer[];
+  activeCourtPlayers: () => (InGamePlayer | null)[];
   benchPlayers: () => InGamePlayer[];
   currentPeriodData: () => PeriodData;
   availableTimeouts: () => number;
@@ -144,7 +156,7 @@ export interface PlayMatchState {
 ```mermaid
 stateDiagram-v2
     [*] --> StartingFiveModal: Match lacks active starting quintet
-    StartingFiveModal --> LiveMatchReady: Exactly 5 players assigned
+    StartingFiveModal --> LiveMatchReady: Exactly 5 players assigned (stintSeconds = 0)
     
     state LiveMatchReady {
         [*] --> ClockPaused
@@ -155,7 +167,11 @@ stateDiagram-v2
         ManualTimeModal --> ClockPaused: Save / Cancel Time
         
         ClockPaused --> SwapModeActive: Tap "Swap" Button
-        SwapModeActive --> ClockPaused: Cancel or Confirm Balanced Swap (N court = N bench)
+        ClockRunning --> SwapModeActive: Tap "Swap" Button (Unrestricted Swap)
+        SwapModeActive --> ClockPaused: Confirm Balanced Swap (if clock was paused)
+        SwapModeActive --> ClockRunning: Confirm Balanced Swap (if clock was running)
+        SwapModeActive --> ClockPaused: Cancel Swap (if clock was paused)
+        SwapModeActive --> ClockRunning: Cancel Swap (if clock was running)
         
         ClockPaused --> PeriodSelectModal: 3-Second Hold Period
         ClockRunning --> PeriodSelectModal: 3-Second Hold Period
@@ -166,24 +182,51 @@ stateDiagram-v2
         
         ClockPaused --> OvertimeReset: In Extra Time & tap Reset Crono
         OvertimeReset --> ClockPaused: Clock set to 5:00 (+1 Timeout awarded)
+
+        ClockPaused --> PlayerStatsModal: 1-Tap On-Court Player
+        ClockRunning --> PlayerStatsModal: 1-Tap On-Court Player
+        PlayerStatsModal --> ClockPaused: Complete Stat Logging / Assist Flow
+
+        ClockPaused --> StatSubtractionModal: 2-Second Hold On-Court Player
+        ClockRunning --> StatSubtractionModal: 2-Second Hold On-Court Player
+        StatSubtractionModal --> ClockPaused: Decrement Stat (Cascading Assist Deduction)
     }
 ```
 
-### Invariants:
-1. **5-Player Quintet Invariant**: `players.filter(p => p.isOnCourt).length === 5` during live play (or 0 during initial pending setup before starting 5 selection).
-2. **Clock-Stopped Substitution Invariant**: Swap Mode can only be toggled and committed when `isTimerRunning === false`.
-3. **Balanced Substitution Invariant**: Substitutions require `selectedCourtPlayerIds.length === selectedBenchPlayerIds.length` and `selectedCourtPlayerIds.length > 0`.
-4. **Score Isolation & Aggregation Invariant**: Each period maintains its own `teamScore` and `rivalScore`. Total scores equal the exact sum of all 5 period scores:
-   $$\text{Total Score} = \sum_{p \in \{q1, q2, q3, q4, extra\}} \text{PeriodScore}_p$$
-5. **Foul Auto-Stop Invariant**: Any increment to home personal fouls or rival fouls triggers `isTimerRunning = false`.
-6. **Timeout Budget Invariant**:
+---
+
+## 4. Invariants
+
+1. **5-Player Quintet Invariant**: `players.filter(p => p.isOnCourt).length === 5` during active match play.
+2. **Unrestricted Balanced Substitution Invariant**:
+   - Substitutions can be initiated and confirmed at any time, whether the chronometer is running (`isTimerRunning === true`) or paused (`isTimerRunning === false`).
+   - Substitutions require `selectedCourtPlayerIds.length === selectedBenchPlayerIds.length` and `selectedCourtPlayerIds.length > 0` ($N\text{ in} = N\text{ out} \ge 1$).
+3. **Stint Tracking Invariant**:
+   - `stintSeconds` starts at `0` whenever a player enters the court (initial lineup, quick assign, or substitution).
+   - `stintSeconds` increments every second while on court and the chronometer is running.
+   - When a player leaves the court to the bench, their `stintSeconds` stops.
+   - When a benched player re-enters the court, `stintSeconds` resets to `0` for the new stint.
+   - Cumulative `secondsPlayed` never resets during a match and continues accumulating in parallel for database records.
+4. **Player Circle Identification Invariant**:
+   - If `player.number` is present and non-empty after trimming, the player circle MUST exclusively display `#${player.number.trim()}`.
+   - If `player.number` is absent, null, undefined, or empty/whitespace, the identifier MUST display `[First Initial]. [Last Name]` (e.g., `A. Arias`), falling back gracefully to single name or `"Jugador"` without runtime errors or layout overflow.
+   - On-court circles display stint time: `${stintMin}min / ${pts}pts`.
+   - Bench circles display cumulative match time: `${min}min / ${pts}pts`.
+5. **Stat Subtraction & Cascading Assist Invariant**:
+   - Only active on-court players can trigger stat subtraction via 2-second hold (`delayLongPress: 2000`). Bench players ignore long press.
+   - Decrementing a made 2-point (`t2a`) or 3-point (`t3a`) shot automatically finds the corresponding `ScoreEventLink` and decrements the assist (`asis`) of the assisting teammate if one was linked.
+   - No stat (`points`, `shots`, `rebounds`, `fouls`, `assists`, `steals`, `turnovers`, period scores, team fouls) can drop below 0.
+6. **Full-Width Rival Layout Invariant**:
+   - The rival control panel spans 100% of the available container width (`w-full`).
+   - The rival total points counter element is completely omitted from the rival control component.
+7. **Score Isolation & Aggregation Invariant**:
+   - Each period maintains isolated `teamScore` and `rivalScore`. Total scores equal the exact sum of all 5 period scores:
+     $$\text{Total Score} = \sum_{p \in \{q1, q2, q3, q4, extra\}} \text{PeriodScore}_p$$
+8. **Foul Auto-Stop Invariant**: Any increment to home personal fouls (`falt`) or rival fouls (+1 Foul) triggers `isTimerRunning = false`.
+9. **Timeout Budget Invariant**:
    - `q1` and `q2` share a single pool of 2 timeouts (max 2 used across both periods).
    - `q3` and `q4` share a single pool of 3 timeouts (max 3 used across both periods).
    - `extra` has 1 timeout initially + 1 timeout per extra time crono reset.
    - Available timeouts cannot drop below 0.
-7. **Player Points Invariant**:
-   $$\text{Player Pts} = (\text{t1a} \times 1) + (\text{t2a} \times 2) + (\text{t3a} \times 3)$$
-8. **Player Identification Priority & Fallback Invariant**:
-   - If `player.number` is present and non-empty after trimming, the player circle identifier MUST exclusively display `#${player.number.trim()}`.
-   - If `player.number` is missing, null, undefined, or empty/whitespace string, the identifier MUST display `[First Initial]. [Last Name]` (e.g., `A. Arias`), falling back to single name or `"Jugador"` without runtime errors or layout overflow.
-
+10. **Player Points Invariant**:
+    $$\text{Player Pts} = (\text{t1a} \times 1) + (\text{t2a} \times 2) + (\text{t3a} \times 3)$$

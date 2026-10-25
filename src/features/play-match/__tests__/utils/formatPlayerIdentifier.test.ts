@@ -1,79 +1,86 @@
 import { formatPlayerIdentifier } from "../../utils/formatPlayerIdentifier";
 
 describe("formatPlayerIdentifier", () => {
-  describe("Jersey Name Priority (Exclusive Rendering)", () => {
-    it("renders 'jerseyName' when present, even when number and names are present", () => {
+  describe("Jersey Name Priority", () => {
+    it("renders jerseyName when present, trimmed, and non-empty", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: "SANCHEZ",
           number: "7",
+          jerseyName: "SANCHEZ",
           firstName: "Gorka",
           lastName: "Sanchez",
         })
       ).toBe("SANCHEZ");
     });
 
-    it("handles trimmed string jersey names", () => {
+    it("handles trimmed string jerseyName", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: "  DONCIC  ",
           number: "77",
+          jerseyName: "  DONCIC  ",
           firstName: "Luka",
           lastName: "Doncic",
         })
       ).toBe("DONCIC");
     });
 
-    it("preserves custom casing of jersey name", () => {
+    it("prioritizes jerseyName over first and last names", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: "P. Stegmann",
-          number: "10",
-          firstName: "Pablo",
-          lastName: "Stegmann",
+          jerseyName: "AIR",
+          firstName: "Michael",
+          lastName: "Jordan",
         })
-      ).toBe("P. Stegmann");
+      ).toBe("AIR");
     });
   });
 
-  describe("Name Fallback Formatting (When Jersey Name is Absent or Empty)", () => {
-    it("formats '[First Initial]. [Last Name]' when jerseyName is null", () => {
+  describe("Name Fallback Formatting 'F. Lastname' (When Jersey Name is Absent or Empty)", () => {
+    it("formats 'F. Lastname' when jerseyName is missing/undefined and player has number", () => {
       expect(
         formatPlayerIdentifier({
+          number: "7",
+          firstName: "Gorka",
+          lastName: "Sanchez",
+        })
+      ).toBe("G. Sanchez");
+    });
+
+    it("formats 'F. Lastname' when jerseyName is null and player has number", () => {
+      expect(
+        formatPlayerIdentifier({
+          number: "77",
           jerseyName: null,
-          number: "12",
+          firstName: "Luka",
+          lastName: "Doncic",
+        })
+      ).toBe("L. Doncic");
+    });
+
+    it("formats 'F. Lastname' when jerseyName is empty string or spaces", () => {
+      expect(
+        formatPlayerIdentifier({
+          number: "23",
+          jerseyName: "   ",
+          firstName: "Michael",
+          lastName: "Jordan",
+        })
+      ).toBe("M. Jordan");
+    });
+
+    it("formats 'F. Lastname' when number is also absent/null", () => {
+      expect(
+        formatPlayerIdentifier({
+          number: null,
           firstName: "Alex",
           lastName: "Delgado",
         })
       ).toBe("A. Delgado");
     });
 
-    it("formats '[First Initial]. [Last Name]' when jerseyName is undefined", () => {
-      expect(
-        formatPlayerIdentifier({
-          number: "30",
-          firstName: "Stephen",
-          lastName: "Curry",
-        })
-      ).toBe("S. Curry");
-    });
-
-    it("formats '[First Initial]. [Last Name]' when jerseyName is empty string or spaces", () => {
-      expect(
-        formatPlayerIdentifier({
-          jerseyName: "   ",
-          number: "23",
-          firstName: "Pablo",
-          lastName: "Stegmann",
-        })
-      ).toBe("P. Stegmann");
-    });
-
     it("handles trimmed names and uppercase first initial", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: "",
-          number: "5",
           firstName: "  pablo  ",
           lastName: " stegmann ",
         })
@@ -85,7 +92,6 @@ describe("formatPlayerIdentifier", () => {
     it("returns last name only when first name and jerseyName are missing/empty", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: null,
           number: "9",
           firstName: "",
           lastName: "Ibaka",
@@ -96,7 +102,6 @@ describe("formatPlayerIdentifier", () => {
     it("returns first name only when last name and jerseyName are missing/empty", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: "",
           number: "9",
           firstName: "Ricky",
           lastName: "",
@@ -104,33 +109,21 @@ describe("formatPlayerIdentifier", () => {
       ).toBe("Ricky");
     });
 
-    it("returns '#[number]' when jerseyName and both names are missing/empty but number is present", () => {
+    it("returns 'Jugador' fallback when both names and jerseyName are missing/null", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: null,
-          number: "23",
-          firstName: null,
-          lastName: null,
-        })
-      ).toBe("#23");
-    });
-
-    it("returns 'Jugador' fallback when both names, jerseyName, and number are missing/null", () => {
-      expect(
-        formatPlayerIdentifier({
-          jerseyName: null,
-          number: null,
+          number: "7",
           firstName: null,
           lastName: null,
         })
       ).toBe("Jugador");
     });
 
-    it("returns 'Jugador' when names, jerseyName, and number are empty strings or whitespace", () => {
+    it("returns 'Jugador' when all names are empty strings or whitespace", () => {
       expect(
         formatPlayerIdentifier({
-          jerseyName: "  ",
-          number: " ",
+          number: "7",
+          jerseyName: "   ",
           firstName: "   ",
           lastName: "",
         })
@@ -139,6 +132,9 @@ describe("formatPlayerIdentifier", () => {
 
     it("handles empty object or undefined safely", () => {
       expect(formatPlayerIdentifier({} as any)).toBe("Jugador");
+      expect(formatPlayerIdentifier(null)).toBe("Jugador");
+      expect(formatPlayerIdentifier(undefined)).toBe("Jugador");
     });
   });
 });
+

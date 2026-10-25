@@ -3,7 +3,7 @@ import { InGamePlayer, PlayerStatsModalProps, StatActionType } from "../../types
 
 declare const jest: any;
 
-describe("PlayerStatsModal (T014 - US2)", () => {
+describe("PlayerStatsModal (T018 - US2)", () => {
   const mockPlayer: InGamePlayer = {
     id: 1,
     firstName: "Luka",
@@ -13,6 +13,7 @@ describe("PlayerStatsModal (T014 - US2)", () => {
     isOnCourt: true,
     courtPositionIndex: 0,
     secondsPlayed: 120,
+    stintSeconds: 120,
     t1a: 2, t1i: 3, t2a: 4, t2i: 6, t3a: 2, t3i: 5,
     oreb: 1, dreb: 4, asis: 5, rec: 2, per: 1, falt: 2, valuation: 18,
   };
@@ -27,6 +28,7 @@ describe("PlayerStatsModal (T014 - US2)", () => {
       isOnCourt: true,
       courtPositionIndex: 1,
       secondsPlayed: 120,
+      stintSeconds: 120,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },
@@ -39,6 +41,7 @@ describe("PlayerStatsModal (T014 - US2)", () => {
       isOnCourt: true,
       courtPositionIndex: 2,
       secondsPlayed: 120,
+      stintSeconds: 120,
       t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0,
       oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0,
     },

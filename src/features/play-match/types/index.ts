@@ -1,6 +1,6 @@
 /**
  * Feature 007: Play Match View
- * Type definitions and component contracts.
+ * Type definitions and component contracts synchronized from contracts/play-match-contracts.ts
  */
 
 import { Game } from "../../../types/database";
@@ -22,12 +22,13 @@ export interface InGamePlayer {
   id: number;
   firstName: string;
   lastName: string;
-  jerseyName?: string | null;
   number?: string | null;
+  jerseyName?: string | null;
   position?: string | null;
   isOnCourt: boolean;
   courtPositionIndex?: number | null; // 0..4 for position on court
-  secondsPlayed: number;
+  secondsPlayed: number; // Cumulative total seconds played across all stints (for DB box scores)
+  stintSeconds: number; // Continuous seconds played in current on-court stint (displayed on court circles)
   t1a: number; // 1pt made
   t1i: number; // 1pt missed
   t2a: number; // 2pt made
@@ -41,6 +42,20 @@ export interface InGamePlayer {
   per: number; // Ball lost (turnovers)
   falt: number; // Personal fouls
   valuation: number;
+}
+
+/**
+ * Historical record of a scoring event with assist linkage
+ * Used for automatic cascading assist subtraction.
+ */
+export interface ScoreEventLink {
+  id: string;
+  scoringPlayerId: number;
+  period: PeriodKey;
+  shotType: "t2a" | "t3a";
+  points: 2 | 3;
+  assistingPlayerId?: number | null;
+  timestamp: number;
 }
 
 export interface TimeoutBudget {
@@ -97,6 +112,7 @@ export interface TeamManagementCanvasProps {
   selectedBenchPlayerIds: number[];
   availableTimeouts: number;
   onSelectCourtPosition: (positionIndex: number, player: InGamePlayer | null) => void;
+  onLongPressCourtPosition?: (positionIndex: number, player: InGamePlayer) => void; // 2-second hold listener for stat subtraction
   onSelectBenchPlayer: (player: InGamePlayer) => void;
   onToggleSwapMode: () => void;
   onConfirmSwap: () => void;
@@ -110,6 +126,7 @@ export interface HalfCourtCanvasProps {
   isSwapMode: boolean;
   selectedCourtPlayerIds: number[];
   onSelectCourtPosition: (positionIndex: number, player: InGamePlayer | null) => void;
+  onLongPressCourtPosition?: (positionIndex: number, player: InGamePlayer) => void; // 2-second hold listener for stat subtraction
 }
 
 export interface TeamManagementPanelProps {
@@ -128,13 +145,13 @@ export interface TeamManagementPanelProps {
 }
 
 // ==========================================
-// Component 3: Rival Panel Control
+// Component 3: Rival Panel Control (Full-Width, No Duplicate Total Score)
 // ==========================================
 export interface RivalPanelControlProps {
   activePeriod: PeriodKey;
-  rivalPeriodScore: number;
-  rivalPeriodFouls: number;
-  totalRivalScore: number;
+  rivalPeriodScore?: number;
+  rivalPeriodFouls?: number;
+  totalRivalScore?: number; // Optional backwards compatibility if needed
   onAdjustRivalScore: (points: number) => void; // +1, +2, +3, -1
   onAdjustRivalFouls: (delta: number) => void; // +1, -1
 }
@@ -154,6 +171,13 @@ export interface PlayerStatsModalProps {
   ) => void;
 }
 
+export interface PlayerStatSubtractionModalProps {
+  visible: boolean;
+  player: InGamePlayer | null;
+  onClose: () => void;
+  onSubtractStat: (playerId: number, statType: StatActionType) => void;
+}
+
 export interface PeriodSelectModalProps {
   visible: boolean;
   currentPeriod: PeriodKey;
@@ -169,18 +193,20 @@ export interface ManualTimeModalProps {
   onClose: () => void;
 }
 
+export interface QuickAssignPlayerModalProps {
+  visible: boolean;
+  targetPositionIndex?: number | null;
+  positionIndex?: number;
+  benchPlayers?: InGamePlayer[];
+  availableBenchPlayers?: InGamePlayer[];
+  onAssignPlayer: (playerId: number, positionIndex: number) => void;
+  onClose: () => void;
+}
+
 export interface StartingFiveModalProps {
   visible: boolean;
   roster: InGamePlayer[];
   onConfirmStartingFive: (selectedPlayerIds: number[]) => void;
-}
-
-export interface QuickAssignPlayerModalProps {
-  visible: boolean;
-  positionIndex: number;
-  availableBenchPlayers: InGamePlayer[];
-  onAssignPlayer: (playerId: number, positionIndex: number) => void;
-  onClose: () => void;
 }
 
 // ==========================================
@@ -196,11 +222,10 @@ export interface PlayMatchProps {
 // Player Identification Contract
 // ==========================================
 export interface PlayerIdentifierInput {
-  jerseyName?: string | null;
   number?: string | null;
+  jerseyName?: string | null;
   firstName?: string | null;
   lastName?: string | null;
 }
 
 export type FormatPlayerIdentifierFn = (player: PlayerIdentifierInput) => string;
-

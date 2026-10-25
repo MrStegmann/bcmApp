@@ -3,9 +3,12 @@ import { PlayerIdentifierInput } from "../types";
 /**
  * Pure utility function to format player identification for player representation circles.
  * Priority:
- * 1. Exclusively renders `jerseyName` when present and non-empty.
- * 2. If jerseyName is missing/empty, safely falls back to `[First Initial]. [Last Name]`.
- * 3. Handles edge cases: single name (last or first only), number-only, whitespace, or missing names ("Jugador").
+ * 1. If `jerseyName` is present, trimmed, and non-empty, returns it.
+ * 2. If `jerseyName` is missing, empty, or whitespace, returns fallback "F. Lastname" ([First Initial]. [Last Name]).
+ * 3. Handles edge cases:
+ *    - Only lastName: Capitalized lastName
+ *    - Only firstName: Capitalized firstName
+ *    - Neither: "Jugador"
  */
 export function formatPlayerIdentifier(player?: PlayerIdentifierInput | null): string {
   if (!player) {
@@ -35,10 +38,6 @@ export function formatPlayerIdentifier(player?: PlayerIdentifierInput | null): s
     return capitalize(trimmedFirst);
   }
 
-  const trimmedNumber = player.number != null ? String(player.number).trim() : "";
-  if (trimmedNumber.length > 0) {
-    return `#${trimmedNumber}`;
-  }
-
   return "Jugador";
 }
+

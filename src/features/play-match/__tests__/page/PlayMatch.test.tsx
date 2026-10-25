@@ -1,10 +1,11 @@
 import React from "react";
 import { Game } from "../../../../types/database";
 import { PlayMatchProps } from "../../types";
+import { usePlayMatchStore, resetPlayMatchStore } from "../../store/usePlayMatchStore";
 
 declare const jest: any;
 
-describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
+describe("PlayMatch Integration Tests (T037 - Phase 7)", () => {
   const mockMatch: Game = {
     id: 1,
     teamId: 1,
@@ -34,6 +35,10 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
     foulsC4Opponent: 0,
     foulsExtraOpponent: 0,
   };
+
+  beforeEach(() => {
+    resetPlayMatchStore();
+  });
 
   it("should conform to PlayMatchProps contract", () => {
     const onFinishMock = jest.fn();
@@ -127,6 +132,53 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
     expect(useMenuStore.getState().headerTitle).toBe("Partidos");
   });
 
+  it("should execute full match lifecycle: lineup, timer, stats, 2s hold subtraction with cascading assist, and unrestricted substitutions", () => {
+    const mockRoster = [
+      { id: 1, firstName: "Luka", lastName: "Doncic", number: "77", isOnCourt: false, secondsPlayed: 0, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+      { id: 2, firstName: "Kyrie", lastName: "Irving", number: "11", isOnCourt: false, secondsPlayed: 0, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+      { id: 3, firstName: "Klay", lastName: "Thompson", number: "31", isOnCourt: false, secondsPlayed: 0, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+      { id: 4, firstName: "PJ", lastName: "Washington", number: "25", isOnCourt: false, secondsPlayed: 0, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+      { id: 5, firstName: "Dereck", lastName: "Lively", number: "2", isOnCourt: false, secondsPlayed: 0, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+      { id: 6, firstName: "Daniel", lastName: "Gafford", number: "21", isOnCourt: false, secondsPlayed: 0, stintSeconds: 0, t1a: 0, t1i: 0, t2a: 0, t2i: 0, t3a: 0, t3i: 0, oreb: 0, dreb: 0, asis: 0, rec: 0, per: 0, falt: 0, valuation: 0 },
+    ];
+
+    const store = usePlayMatchStore.getState();
+    store.initMatch(1, mockRoster, [1, 2, 3, 4, 5]);
+
+    // Verify 5 active court players
+    const court = usePlayMatchStore.getState().getActiveCourtPlayers();
+    expect(court.filter((p) => p !== null).length).toBe(5);
+
+    // Start timer and tick 180 seconds
+    store.toggleTimer();
+    expect(usePlayMatchStore.getState().isTimerRunning).toBe(true);
+    store.tickTimer(180);
+
+    const luka = usePlayMatchStore.getState().players.find((p) => p.id === 1);
+    expect(luka?.stintSeconds).toBe(180);
+
+    // Record 2pt made basket by Kyrie assisted by Luka
+    store.recordPlayerStat(2, "t2a", 1);
+    expect(usePlayMatchStore.getState().periods.q1.teamScore).toBe(2);
+    expect(usePlayMatchStore.getState().players.find((p) => p.id === 1)?.asis).toBe(1);
+
+    // Subtract 2pt made basket (simulating 2s hold subtraction modal confirmation)
+    store.subtractPlayerStat(2, "t2a");
+    expect(usePlayMatchStore.getState().periods.q1.teamScore).toBe(0);
+    expect(usePlayMatchStore.getState().players.find((p) => p.id === 1)?.asis).toBe(0); // Cascaded!
+
+    // Unrestricted substitution while clock is running
+    store.toggleSwapMode();
+    store.selectSwapCourtPlayer(1);
+    store.selectSwapBenchPlayer(6);
+    store.confirmSwap();
+
+    const state = usePlayMatchStore.getState();
+    expect(state.players.find((p) => p.id === 1)?.isOnCourt).toBe(false);
+    expect(state.players.find((p) => p.id === 6)?.isOnCourt).toBe(true);
+    expect(state.players.find((p) => p.id === 6)?.stintSeconds).toBe(0); // Reset for incoming
+  });
+
   describe("Roster Filtering (Bug Fix: initial-quintet-match-roster)", () => {
     const mockTeamPlayers = [
       { id: 1, firstName: "Luka", lastName: "Doncic", number: "77", position: "Base" },
@@ -142,7 +194,6 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
 
     it("should filter team players down strictly to the called-up match roster defined in playerStats", () => {
       const { buildMatchRoster } = require("../../utils/roster");
-      // Simulate called-up players: 6 players called up (IDs 1, 2, 3, 4, 5, 6)
       const existingStats = [
         { gameId: 1, playerId: 1, minutes: 0 },
         { gameId: 1, playerId: 2, minutes: 0 },
@@ -157,7 +208,6 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
       expect(roster).toHaveLength(6);
       expect(roster.map((p: any) => p.id)).toEqual([1, 2, 3, 4, 5, 6]);
 
-      // Non-called-up players (7, 8, 9) MUST NOT be present
       expect(roster.some((p: any) => p.id === 7)).toBe(false);
       expect(roster.some((p: any) => p.id === 8)).toBe(false);
       expect(roster.some((p: any) => p.id === 9)).toBe(false);
@@ -173,7 +223,7 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
       expect(roster.map((p: any) => p.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     });
 
-    it("should correctly populate InGamePlayer statistics and properties from playerStats", () => {
+    it("should correctly populate InGamePlayer statistics and stintSeconds from playerStats", () => {
       const { buildMatchRoster } = require("../../utils/roster");
       const existingStats = [
         {
@@ -203,6 +253,7 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
       expect(player1.id).toBe(1);
       expect(player1.firstName).toBe("Luka");
       expect(player1.secondsPlayed).toBe(600); // 10 minutes * 60
+      expect(player1.stintSeconds).toBe(0);
       expect(player1.t1a).toBe(2);
       expect(player1.t3a).toBe(3);
       expect(player1.asis).toBe(5);
@@ -224,4 +275,3 @@ describe("PlayMatch Integration Tests (T024 - Phase 7)", () => {
     });
   });
 });
-
