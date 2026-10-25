@@ -74,13 +74,13 @@ export const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Body: Assist Prompt or Main Stat Panel */}
           {pendingShotType ? (
             <View>
-              <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4">
+              <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2 mb-3">
                 <Text className="text-amber-400 font-bold text-sm text-center">
-                  ¿Quién dio la asistencia?
+                  Asistencia
                 </Text>
               </View>
 
-              <ScrollView className="max-h-56 mb-3">
+              <ScrollView className="max-h-72 mb-3">
                 {availableAssistTeammates.map((teammate) => (
                   <TouchableOpacity
                     key={teammate.id}
