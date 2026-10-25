@@ -17,5 +17,7 @@ export * from "./components/TeamManagementPanel";
 export * from "./components/TeamManagementCanvas";
 export * from "./components/RivalPanelControl";
 export * from "./utils/formatPlayerIdentifier";
+export * from "./utils/formatStintTime";
+export * from "./utils/courtArcPositions";
 export * from "./utils/roster";
 export * from "./PlayMatch";

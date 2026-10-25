@@ -1,6 +1,11 @@
 import React from "react";
 import { HalfCourtCanvasProps, InGamePlayer } from "../../types";
 import { formatPlayerIdentifier } from "../../utils/formatPlayerIdentifier";
+import { formatStintTime } from "../../utils/formatStintTime";
+import {
+  COURT_ARC_POSITIONS,
+  calculateEuclideanDistance,
+} from "../../utils/courtArcPositions";
 
 declare const jest: any;
 declare const require: any;
@@ -125,9 +130,13 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
     expect(componentSource).toContain("{identifier}");
   });
 
-  it("should compute continuous stint minutes accurately from stintSeconds", () => {
-    expect(Math.floor(mockPlayerWithNumber.stintSeconds / 60)).toBe(2); // 120s -> 2min
-    expect(Math.floor(mockPlayerWithoutNumber.stintSeconds / 60)).toBe(1); // 60s -> 1min
+  it("should compute continuous stint time accurately formatted as mm:ss", () => {
+    expect(formatStintTime(mockPlayerWithNumber.stintSeconds)).toBe("02:00"); // 120s -> 02:00
+    expect(formatStintTime(mockPlayerWithoutNumber.stintSeconds)).toBe("01:00"); // 60s -> 01:00
+    expect(formatStintTime(45)).toBe("00:45");
+    expect(formatStintTime(0)).toBe("00:00");
+    expect(formatStintTime(null)).toBe("00:00");
+    expect(formatStintTime(undefined)).toBe("00:00");
   });
 
   it("should verify delayLongPress is set to 2000ms for 2-second hold subtraction in component source", () => {
@@ -143,5 +152,95 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
 
     expect(componentSource).not.toContain("animate-pulse");
     expect(componentSource).not.toContain("animate-");
+  });
+
+  it("should arrange 5 court positions along the Outer 3-Point Arc (Corners, Wings, Center)", () => {
+    const componentPath = path.resolve(__dirname, "../../components/HalfCourtCanvas.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    // Outer 3-Point Arc positioning anchors
+    expect(componentSource).toContain("Row 1 (Corners)");
+    expect(componentSource).toContain("Row 2 (Wings)");
+    expect(componentSource).toContain("Row 3 (Center)");
+    expect(componentSource).toContain("{stintTime}");
+  });
+
+  it("should ensure identical Euclidean distances between adjacent arc positions (Corner-Wing-Center)", () => {
+    const leftCorner = COURT_ARC_POSITIONS.find((p) => p.index === 3)!;
+    const leftWing = COURT_ARC_POSITIONS.find((p) => p.index === 1)!;
+    const center = COURT_ARC_POSITIONS.find((p) => p.index === 0)!;
+    const rightWing = COURT_ARC_POSITIONS.find((p) => p.index === 2)!;
+    const rightCorner = COURT_ARC_POSITIONS.find((p) => p.index === 4)!;
+
+    expect(leftCorner).toBeDefined();
+    expect(leftWing).toBeDefined();
+    expect(center).toBeDefined();
+    expect(rightWing).toBeDefined();
+    expect(rightCorner).toBeDefined();
+
+    const distLeftCornerToLeftWing = calculateEuclideanDistance(leftCorner, leftWing);
+    const distLeftWingToCenter = calculateEuclideanDistance(leftWing, center);
+    const distCenterToRightWing = calculateEuclideanDistance(center, rightWing);
+    const distRightWingToRightCorner = calculateEuclideanDistance(rightWing, rightCorner);
+
+    // Verify all 4 adjacent intervals are strictly equal:
+    // D(Left Corner, Left Wing) === D(Left Wing, Center) === D(Center, Right Wing) === D(Right Wing, Right Corner)
+    expect(distLeftCornerToLeftWing).toBeCloseTo(distLeftWingToCenter, 5);
+    expect(distLeftWingToCenter).toBeCloseTo(distCenterToRightWing, 5);
+    expect(distCenterToRightWing).toBeCloseTo(distRightWingToRightCorner, 5);
+
+    // Verify exact Euclidean distance equals sqrt(9760) ~ 98.79px
+    expect(distLeftCornerToLeftWing).toBeCloseTo(Math.sqrt(9760), 5);
+  });
+
+  it("should confirm all 5 positions maintain slot index mapping and radial ordering along Outer 3-Point Arc", () => {
+    expect(COURT_ARC_POSITIONS).toHaveLength(5);
+
+    const slot0 = COURT_ARC_POSITIONS.find((p) => p.index === 0)!;
+    const slot1 = COURT_ARC_POSITIONS.find((p) => p.index === 1)!;
+    const slot2 = COURT_ARC_POSITIONS.find((p) => p.index === 2)!;
+    const slot3 = COURT_ARC_POSITIONS.find((p) => p.index === 3)!;
+    const slot4 = COURT_ARC_POSITIONS.find((p) => p.index === 4)!;
+
+    // Slot 0: Center (top of arc)
+    expect(slot0.role).toBe("center");
+    expect(slot0.name).toBe("Center");
+    expect(slot0.angleDeg).toBe(90);
+    expect(slot0.xOffset).toBe(0);
+
+    // Slot 1: Left Wing
+    expect(slot1.role).toBe("left-wing");
+    expect(slot1.name).toBe("Left Wing");
+    expect(slot1.angleDeg).toBe(135);
+    expect(slot1.xOffset).toBeLessThan(0);
+
+    // Slot 2: Right Wing
+    expect(slot2.role).toBe("right-wing");
+    expect(slot2.name).toBe("Right Wing");
+    expect(slot2.angleDeg).toBe(45);
+    expect(slot2.xOffset).toBeGreaterThan(0);
+
+    // Slot 3: Left Corner
+    expect(slot3.role).toBe("left-corner");
+    expect(slot3.name).toBe("Left Corner");
+    expect(slot3.angleDeg).toBe(180);
+    expect(slot3.xOffset).toBeLessThan(slot1.xOffset);
+
+    // Slot 4: Right Corner
+    expect(slot4.role).toBe("right-corner");
+    expect(slot4.name).toBe("Right Corner");
+    expect(slot4.angleDeg).toBe(0);
+    expect(slot4.xOffset).toBeGreaterThan(slot2.xOffset);
+
+    // Component source renders all 5 slots
+    const componentPath = path.resolve(__dirname, "../../components/HalfCourtCanvas.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    expect(componentSource).toContain("renderPlayerSlot(0");
+    expect(componentSource).toContain("renderPlayerSlot(1");
+    expect(componentSource).toContain("renderPlayerSlot(2");
+    expect(componentSource).toContain("renderPlayerSlot(3");
+    expect(componentSource).toContain("renderPlayerSlot(4");
+    expect(componentSource).toContain("COURT_ARC_POSITIONS");
   });
 });

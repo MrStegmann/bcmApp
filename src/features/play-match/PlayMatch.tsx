@@ -39,7 +39,6 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
     setStartingFive,
     assignBenchPlayerToPosition,
     toggleTimer,
-    tickTimer,
     setPeriodTime,
     nextPeriod,
     setPeriod,

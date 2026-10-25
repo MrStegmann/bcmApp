@@ -15,9 +15,6 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
     onClose();
   };
 
-  const currentPts =
-    Number(player.t1a || 0) * 1 + Number(player.t2a || 0) * 2 + Number(player.t3a || 0) * 3;
-
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View className="flex-1 bg-black/80 justify-center items-center p-4">
@@ -35,7 +32,7 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                   {player.firstName} {player.lastName}
                 </Text>
                 <Text className="text-rose-400 font-bold text-xs">
-                  Restar / Corregir Estadística
+                  Restar Estadística
                 </Text>
               </View>
             </View>
@@ -47,7 +44,7 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
           <ScrollView className="max-h-96">
             {/* Section 1: Made Shots (Cascading assist on 2pt/3pt) */}
             <Text className="text-slate-400 text-[11px] font-bold tracking-wider uppercase mb-2">
-              Canastas Anotadas (Resta puntos y revierte asistencia)
+              Canastas Anotadas
             </Text>
             <View className="flex-row space-x-2 mb-2">
               <TouchableOpacity
@@ -56,7 +53,7 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                 testID="subtract-t1a-button"
                 className="flex-1 py-2.5 bg-rose-500/20 border border-rose-500/40 rounded-xl items-center"
               >
-                <Text className="text-rose-300 font-bold text-xs">−1 Canasto (1pt)</Text>
+                <Text className="text-rose-300 font-bold text-xs">T1A ({player.t1a})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -64,7 +61,7 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                 testID="subtract-t2a-button"
                 className="flex-1 py-2.5 bg-rose-500/20 border border-rose-500/40 rounded-xl items-center"
               >
-                <Text className="text-rose-300 font-bold text-xs">−1 Canasto (2pt)</Text>
+                <Text className="text-rose-300 font-bold text-xs">T2A ({player.t2a})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -72,7 +69,7 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                 testID="subtract-t3a-button"
                 className="flex-1 py-2.5 bg-rose-500/20 border border-rose-500/40 rounded-xl items-center"
               >
-                <Text className="text-rose-300 font-bold text-xs">−1 Canasto (3pt)</Text>
+                <Text className="text-rose-300 font-bold text-xs">T3A ({player.t3a})</Text>
               </TouchableOpacity>
             </View>
 
@@ -86,21 +83,21 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                 onPress={() => handleSubtract("t1i")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Fallado (1pt)</Text>
+                <Text className="text-slate-300 font-medium text-xs">T1I ({player.t1i})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => handleSubtract("t2i")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Fallado (2pt)</Text>
+                <Text className="text-slate-300 font-medium text-xs">T2I ({player.t2i})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => handleSubtract("t3i")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Fallado (3pt)</Text>
+                <Text className="text-slate-300 font-medium text-xs">T3I ({player.t3i})</Text>
               </TouchableOpacity>
             </View>
 
@@ -114,14 +111,14 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                 onPress={() => handleSubtract("oreb")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Reb. Ofensivo</Text>
+                <Text className="text-slate-300 font-medium text-xs">OREB ({player.oreb})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => handleSubtract("dreb")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Reb. Defensivo</Text>
+                <Text className="text-slate-300 font-medium text-xs">DREB ({player.dreb})</Text>
               </TouchableOpacity>
             </View>
 
@@ -131,21 +128,21 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
                 onPress={() => handleSubtract("recovers")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Recuperación</Text>
+                <Text className="text-slate-300 font-medium text-xs">REC ({player.rec})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => handleSubtract("lost")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Pérdida</Text>
+                <Text className="text-slate-300 font-medium text-xs">PER ({player.per})</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => handleSubtract("asis")}
                 className="flex-1 py-2.5 bg-slate-800 border border-slate-700 rounded-xl items-center"
               >
-                <Text className="text-slate-300 font-medium text-xs">−1 Asistencia</Text>
+                <Text className="text-slate-300 font-medium text-xs">ASIS ({player.asis})</Text>
               </TouchableOpacity>
             </View>
 
@@ -157,7 +154,7 @@ export const PlayerStatSubtractionModal: React.FC<PlayerStatSubtractionModalProp
               className="py-3 bg-amber-500/20 border border-amber-500/50 rounded-xl items-center justify-center mt-2 mb-1"
             >
               <Text className="text-amber-300 font-bold text-sm">
-                −1 Falta Personal (Resta falta a jugador y periodo)
+                FALTA ({player.falt})
               </Text>
             </TouchableOpacity>
           </ScrollView>
