@@ -13,6 +13,7 @@ export interface FormattedPlayerBoxScore {
   jerseyNumber: string;
   playerName: string;
   minutes: number;
+  seconds?: number;
   pts: number;
   t2a: number;
   t2i: number;

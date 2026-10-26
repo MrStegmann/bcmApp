@@ -68,7 +68,9 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
                 </View>
               </View>
               <Text className="text-on-surface-variant text-xs font-medium">
-                {mvpPlayer.minutes} min
+                {mvpPlayer.seconds
+                  ? `${mvpPlayer.minutes}:${String(mvpPlayer.seconds).padStart(2, "0")} min`
+                  : `${mvpPlayer.minutes} min`}
               </Text>
             </View>
           </View>
@@ -149,7 +151,9 @@ export const RosterValuationList: React.FC<RosterValuationListProps> = ({
                       {player.fullName || "Jugador"}
                     </Text>
                     <Text className="text-on-surface-variant text-[10px]">
-                      {player.minutes} min
+                      {player.seconds
+                        ? `${player.minutes}:${String(player.seconds).padStart(2, "0")} min`
+                        : `${player.minutes} min`}
                     </Text>
                   </View>
                 </View>

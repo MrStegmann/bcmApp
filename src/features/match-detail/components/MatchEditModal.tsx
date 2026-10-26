@@ -84,6 +84,7 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
       initialPlayers.forEach((p) => {
         initialPlayersRecord[p.id] = {
           minutes: p.minutes,
+          seconds: p.seconds ?? 0,
           t1a: p.t1a,
           t1i: p.t1i,
           t2a: p.t2a,
@@ -130,7 +131,10 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
     field: keyof MatchEditBuffer["players"][number],
     textVal: string
   ) => {
-    const num = Math.max(0, parseInt(textVal, 10) || 0);
+    let num = Math.max(0, parseInt(textVal, 10) || 0);
+    if (field === "seconds") {
+      num = Math.min(59, num);
+    }
     setBuffer((prev) => ({
       ...prev,
       players: {
@@ -394,17 +398,28 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
                           </Text>
                         </View>
 
-                        <View className="flex-row items-center">
-                          <Text className="text-on-surface-variant text-[11px] mr-1">
+                        <View className="flex-row items-center gap-1">
+                          <Text className="text-on-surface-variant text-[11px]">
                             Min:
                           </Text>
                           <TextInput
-                            value={String(pStats.minutes)}
+                            value={String(pStats.minutes || 0)}
                             onChangeText={(val) =>
                               updatePlayerField(player.id, "minutes", val)
                             }
                             keyboardType="numeric"
-                            className="bg-slate-dark border border-slate-border rounded px-2 py-0.5 text-white text-xs w-12 text-center"
+                            className="bg-slate-dark border border-slate-border rounded px-1.5 py-0.5 text-white text-xs w-10 text-center"
+                          />
+                          <Text className="text-on-surface-variant text-[11px] ml-1">
+                            Seg:
+                          </Text>
+                          <TextInput
+                            value={String(pStats.seconds || 0)}
+                            onChangeText={(val) =>
+                              updatePlayerField(player.id, "seconds", val)
+                            }
+                            keyboardType="numeric"
+                            className="bg-slate-dark border border-slate-border rounded px-1.5 py-0.5 text-white text-xs w-10 text-center"
                           />
                         </View>
                       </View>

@@ -163,6 +163,7 @@ export const useMatchDetailStore = create<MatchDetailState>((set, get) => ({
         const per = Number(s?.per || 0);
         const falt = Number(s?.falt || 0);
         const minutes = Number(s?.minutes || 0);
+        const seconds = Number((s as any)?.seconds || 0);
 
         const points = t1a * 1 + t2a * 2 + t3a * 3;
         const valuation = calculatePlayerValuation({
@@ -188,6 +189,7 @@ export const useMatchDetailStore = create<MatchDetailState>((set, get) => ({
           lastName: player.lastName || "",
           fullName: `${player.firstName || ""} ${player.lastName || ""}`.trim(),
           minutes,
+          seconds,
           points,
           valuation,
           t1a,

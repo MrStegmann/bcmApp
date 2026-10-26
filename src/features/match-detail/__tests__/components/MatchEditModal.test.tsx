@@ -117,4 +117,55 @@ describe("MatchEditModal Component Contract (T029 - US4)", () => {
     await props.onSave(updatedBuffer);
     expect(onSaveMock).toHaveBeenCalledWith(updatedBuffer);
   });
+
+  it("should support seconds in player roster and buffer edits", async () => {
+    const onSaveMock = jest.fn().mockResolvedValue(undefined);
+    const playerWithSeconds: PlayerRosterItem = {
+      ...samplePlayers[0],
+      minutes: 20,
+      seconds: 30,
+    };
+    const props: MatchEditModalProps = {
+      visible: true,
+      initialMatch: mockMatch,
+      initialPlayers: [playerWithSeconds],
+      onSave: onSaveMock,
+      onCancel: jest.fn(),
+      isSaving: false,
+    };
+
+    expect(props.initialPlayers[0].seconds).toBe(30);
+
+    const updatedBuffer: MatchEditBuffer = {
+      periods: {
+        q1: { teamPoints: 10, teamFouls: 1, rivalPoints: 10, rivalFouls: 1 },
+        q2: { teamPoints: 10, teamFouls: 1, rivalPoints: 10, rivalFouls: 1 },
+        q3: { teamPoints: 10, teamFouls: 1, rivalPoints: 10, rivalFouls: 1 },
+        q4: { teamPoints: 10, teamFouls: 1, rivalPoints: 10, rivalFouls: 1 },
+        extra: { teamPoints: 0, teamFouls: 0, rivalPoints: 0, rivalFouls: 0 },
+      },
+      players: {
+        1: {
+          minutes: 22,
+          seconds: 45,
+          t1a: 0,
+          t1i: 0,
+          t2a: 0,
+          t2i: 0,
+          t3a: 0,
+          t3i: 0,
+          oreb: 0,
+          dreb: 0,
+          asis: 0,
+          rec: 0,
+          per: 0,
+          falt: 0,
+        },
+      },
+    };
+
+    await props.onSave(updatedBuffer);
+    expect(onSaveMock).toHaveBeenCalledWith(updatedBuffer);
+    expect(updatedBuffer.players[1].seconds).toBe(45);
+  });
 });

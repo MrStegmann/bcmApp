@@ -73,6 +73,7 @@ export const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({
         const stats: PlayerStatInput = playerStats[player.id] || {
           playerId: player.id,
           minutes: 0,
+          seconds: 0,
           t1a: 0,
           t1i: 0,
           t2a: 0,
@@ -155,16 +156,27 @@ export const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({
             {/* Expanded Stat Entry Form */}
             {isExpanded && (
               <View className="p-3 pt-1 border-t border-slate-border/40 gap-3">
-                {/* General & Minutes */}
+                {/* General: Minutes & Seconds */}
                 <View className="flex-row gap-2 items-center">
-                  <View className="w-[100px]">
-                    {renderStatInput(
-                      "Minutos (MIN)",
-                      stats.minutes,
-                      "minutes",
-                      player.id,
-                      `input-player-${player.id}-minutes`
-                    )}
+                  <View className="flex-row gap-1.5 w-[150px]">
+                    <View className="flex-1">
+                      {renderStatInput(
+                        "Min (MIN)",
+                        stats.minutes,
+                        "minutes",
+                        player.id,
+                        `input-player-${player.id}-minutes`
+                      )}
+                    </View>
+                    <View className="flex-1">
+                      {renderStatInput(
+                        "Seg (SEG)",
+                        stats.seconds ?? 0,
+                        "seconds",
+                        player.id,
+                        `input-player-${player.id}-seconds`
+                      )}
+                    </View>
                   </View>
                   <View className="flex-1 items-end justify-center">
                     <Text className="text-[11px] text-on-surface-variant">

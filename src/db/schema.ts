@@ -92,6 +92,7 @@ export const playerStats = sqliteTable("player_stats", {
     .notNull()
     .references(() => players.id, { onDelete: "cascade" }),
   minutes: integer("minutes").default(0),
+  seconds: integer("seconds").default(0),
   t1a: integer("t1a").default(0),
   t1i: integer("t1i").default(0),
   t2a: integer("t2a").default(0),

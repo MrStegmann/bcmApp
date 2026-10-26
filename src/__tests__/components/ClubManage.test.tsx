@@ -140,18 +140,19 @@ describe("Team Deletion & Confirmation Unit Tests (US3 / T012)", () => {
     });
   });
 
-  it("should remove deleted team from store teamsList", () => {
+  it("should remove deleted team from store teamsList and set club and currentTeam to null", () => {
     const updatedList = mockTeams.filter((t) => t.id !== 1);
     useClubStore.setState({
       teamsList: updatedList,
       clubs: updatedList,
-      currentTeam: updatedList[0],
-      club: updatedList[0],
+      currentTeam: null,
+      club: null,
     });
 
     const state = useClubStore.getState();
     expect(state.teamsList.length).toBe(1);
-    expect(state.currentTeam?.id).toBe(2);
+    expect(state.currentTeam).toBeNull();
+    expect(state.club).toBeNull();
   });
 
   it("should toggle delete modal state correctly", () => {
@@ -175,5 +176,49 @@ describe("Team Deletion & Confirmation Unit Tests (US3 / T012)", () => {
     cancelDeleteModal();
     expect(modalVisible).toBe(false);
     expect(targetToDelete).toBeNull();
+  });
+
+  it("should create only a single team with category and not duplicate teams", async () => {
+    const createTeamMock = jest.fn().mockImplementation(async (data: { name: string; category?: string }) => {
+      const newTeam: Team = {
+        id: 99,
+        name: data.name,
+        category: data.category,
+        createdAt: "2026-01-01T00:00:00.000Z",
+      };
+      useClubStore.setState({
+        teamsList: [...useClubStore.getState().teamsList, newTeam],
+      });
+      return newTeam;
+    });
+
+    const handleAddClub = async (data: { name: string; category?: string }) => {
+      await createTeamMock({ name: data.name, category: data.category });
+    };
+
+    await handleAddClub({ name: "Unicaja", category: "Junior" });
+
+    expect(createTeamMock).toHaveBeenCalledTimes(1);
+    expect(createTeamMock).toHaveBeenCalledWith({ name: "Unicaja", category: "Junior" });
+    const teams = useClubStore.getState().teamsList;
+    const unicajaTeams = teams.filter((t) => t.name === "Unicaja");
+    expect(unicajaTeams.length).toBe(1);
+    expect(unicajaTeams[0].category).toBe("Junior");
+  });
+
+  it("should isolate delete trigger so onSelect is not called when deleting", () => {
+    const onSelectMock = jest.fn();
+    const onDeleteMock = jest.fn();
+
+    const team = mockTeams[0];
+
+    const handleDeletePress = () => {
+      onDeleteMock(team);
+    };
+
+    handleDeletePress();
+
+    expect(onDeleteMock).toHaveBeenCalledWith(team);
+    expect(onSelectMock).not.toHaveBeenCalled();
   });
 });

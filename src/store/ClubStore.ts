@@ -56,8 +56,8 @@ export const useClubStore = create<ClubStoreState>((set, get) => ({
       set({
         teamsList: updatedList,
         clubs: updatedList,
-        currentTeam: newTeam,
-        club: newTeam,
+        currentTeam: null,
+        club: null,
         isLoading: false,
       });
       return newTeam;
@@ -96,12 +96,11 @@ export const useClubStore = create<ClubStoreState>((set, get) => ({
     try {
       await db.delete(teams).where(eq(teams.id, teamId));
       const updatedList = get().teamsList.filter((t) => t.id !== teamId);
-      const nextTeam = updatedList.length > 0 ? updatedList[0] : null;
       set({
         teamsList: updatedList,
         clubs: updatedList,
-        currentTeam: nextTeam,
-        club: nextTeam,
+        currentTeam: null,
+        club: null,
         isLoading: false,
       });
       return true;

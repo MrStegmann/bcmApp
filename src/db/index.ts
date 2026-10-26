@@ -65,6 +65,7 @@ export function initDatabase(): void {
       game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
       player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
       minutes INTEGER DEFAULT 0,
+      seconds INTEGER DEFAULT 0,
       t1a INTEGER DEFAULT 0,
       t1i INTEGER DEFAULT 0,
       t2a INTEGER DEFAULT 0,
@@ -138,6 +139,10 @@ export function initDatabase(): void {
       sqliteDb.execSync(`ALTER TABLE games ADD COLUMN ${col} INTEGER DEFAULT 0;`);
     } catch {}
   }
+
+  try {
+    sqliteDb.execSync("ALTER TABLE player_stats ADD COLUMN seconds INTEGER DEFAULT 0;");
+  } catch {}
 }
 
 export * from "./schema";

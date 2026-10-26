@@ -84,11 +84,15 @@ export const DirectResultModal: React.FC<DirectResultModalProps> = ({
     field: keyof Omit<PlayerStatInput, "playerId" | "statId">,
     value: string
   ) => {
-    const num = sanitizePositiveInteger(value);
+    let num = sanitizePositiveInteger(value);
+    if (field === "seconds") {
+      num = Math.min(59, num);
+    }
     setBuffer((prev) => {
       const currentStat = prev.players[playerId] || {
         playerId,
         minutes: 0,
+        seconds: 0,
         t1a: 0,
         t1i: 0,
         t2a: 0,

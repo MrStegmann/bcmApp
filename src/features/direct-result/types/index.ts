@@ -13,6 +13,7 @@ export interface PlayerStatInput {
   playerId: number;
   statId?: number;
   minutes: number;
+  seconds?: number;
   t1a: number;
   t1i: number;
   t2a: number;

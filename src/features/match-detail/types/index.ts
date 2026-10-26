@@ -20,6 +20,7 @@ export interface PlayerRosterItem {
   lastName: string;
   fullName: string;
   minutes: number;
+  seconds?: number;
   points: number; // t1a * 1 + t2a * 2 + t3a * 3
   valuation: number;
 
@@ -90,6 +91,7 @@ export interface MatchEditBuffer {
     number,
     {
       minutes: number;
+      seconds?: number;
       t1a: number;
       t1i: number;
       t2a: number;

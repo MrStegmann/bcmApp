@@ -91,7 +91,9 @@ export const MatchStatsGraphic = forwardRef<View, MatchStatsGraphicProps>(
                 <Text style={[styles.tdCell, styles.colName, styles.textLeft]} numberOfLines={1}>
                   {p.playerName}
                 </Text>
-                <Text style={[styles.tdCell, styles.colMin]}>{p.minutes}</Text>
+                <Text style={[styles.tdCell, styles.colMin]}>
+                  {p.seconds ? `${p.minutes}:${String(p.seconds).padStart(2, "0")}` : p.minutes}
+                </Text>
                 <Text style={[styles.tdCell, styles.colPts, styles.tdHighlight, styles.boldText]}>
                   {p.pts}
                 </Text>

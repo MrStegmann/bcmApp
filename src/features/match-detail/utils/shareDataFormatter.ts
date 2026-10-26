@@ -124,6 +124,7 @@ export function formatMatchShareData(params: FormatMatchShareDataParams): MatchS
   // 2. Players Box Score
   const formattedPlayers: FormattedPlayerBoxScore[] = players.map((p) => {
     const minutes = Number(p.minutes || 0);
+    const seconds = Number(p.seconds || 0);
     const t1a = Number(p.t1a || 0);
     const t1i = Number(p.t1i || 0);
     const t2a = Number(p.t2a || 0);
@@ -144,6 +145,7 @@ export function formatMatchShareData(params: FormatMatchShareDataParams): MatchS
       jerseyNumber: p.jerseyNumber || "-",
       playerName: p.fullName || `${p.firstName || ""} ${p.lastName || ""}`.trim() || "Jugador",
       minutes,
+      seconds,
       pts,
       t2a,
       t2i,

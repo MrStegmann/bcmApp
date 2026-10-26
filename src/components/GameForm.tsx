@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useClubStore } from "../store/ClubStore";
 import Button from "../framework/Button";
 import Input from "../framework/Input";
@@ -78,49 +79,57 @@ const GameForm: React.FC<GameFormProps> = ({ gameData, onSubmit, onCancel }) => 
   };
 
   return (
-    <View className="w-full px-5 py-4 flex flex-col justify-start">
-      <Input
-        label="Equipo Contrario"
-        placeholder="Equipo contrario"
-        value={rivalTeamName}
-        onChange={setRivalTeamName}
-        wrongMsg={wrongRivalTeamName}
-      />
-
-      <View className="flex flex-col w-full gap-2 my-2">
+    <KeyboardAwareScrollView
+      className="w-full flex-1"
+      enableOnAndroid={true}
+      extraScrollHeight={100}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      <View className="w-full px-5 py-4 flex flex-col justify-start">
         <Input
-          label="Jornada"
-          placeholder="Jornada"
-          value={round}
-          onChange={setRound}
-          wrongMsg={wrongRound}
+          label="Equipo Contrario"
+          placeholder="Equipo contrario"
+          value={rivalTeamName}
+          onChange={setRivalTeamName}
+          wrongMsg={wrongRivalTeamName}
         />
 
-        <Input
-          type="date"
-          label="Fecha"
-          placeholder="dd/mm/aaaa"
-          value={date}
-          onChange={setDate}
-          wrongMsg={wrongDate}
-        />
-      </View>
+        <View className="flex flex-col w-full gap-2 my-2">
+          <Input
+            label="Jornada"
+            placeholder="Jornada"
+            value={round}
+            onChange={setRound}
+            wrongMsg={wrongRound}
+          />
 
-      <View className="w-full flex flex-col gap-2.5 mt-4">
-        <Button
-          title={gameData ? "Guardar" : "Añadir Partido"}
-          onPress={handleSubmit}
-        />
-        {onCancel ? (
-          <TouchableOpacity
-            onPress={onCancel}
-            className="w-full min-h-[48px] py-3 items-center justify-center rounded-xl bg-slate-card border border-slate-border active:bg-slate-dark"
-          >
-            <Text className="text-on-surface font-semibold text-base">Cancelar</Text>
-          </TouchableOpacity>
-        ) : null}
+          <Input
+            type="date"
+            label="Fecha"
+            placeholder="dd/mm/aaaa"
+            value={date}
+            onChange={setDate}
+            wrongMsg={wrongDate}
+          />
+        </View>
+
+        <View className="w-full flex flex-col gap-2.5 mt-4">
+          <Button
+            title={gameData ? "Guardar" : "Añadir Partido"}
+            onPress={handleSubmit}
+          />
+          {onCancel ? (
+            <TouchableOpacity
+              onPress={onCancel}
+              className="w-full min-h-[48px] py-3 items-center justify-center rounded-xl bg-slate-card border border-slate-border active:bg-slate-dark"
+            >
+              <Text className="text-on-surface font-semibold text-base">Cancelar</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 

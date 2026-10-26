@@ -67,38 +67,6 @@ export const MatchShareModal: React.FC<MatchShareModalProps> = ({
     }
   };
 
-  const handleSaveToGallery = async () => {
-    if (isProcessing) return;
-    try {
-      setIsProcessing(true);
-      setProcessingAction("saving");
-
-      const fileUri = await matchShareService.captureViewToPng(graphicRef, shareFileName);
-      const result = await matchShareService.saveImageToGallery(fileUri, shareFileName);
-
-      if (result.success) {
-        Alert.alert(
-          "Guardado con Éxito",
-          result.message || "La imagen de las estadísticas ha sido guardada en tu galería de fotos."
-        );
-      } else {
-        if (result.permissionDenied) {
-          Alert.alert(
-            "Permiso Denegado",
-            "Se requiere permiso de acceso a la galería de fotos para guardar la imagen."
-          );
-        } else {
-          Alert.alert("Error", result.error || "No se pudo guardar la imagen en la galería.");
-        }
-      }
-    } catch (err: any) {
-      Alert.alert("Error", err.message || "Error al guardar la imagen en la galería.");
-    } finally {
-      setIsProcessing(false);
-      setProcessingAction(null);
-    }
-  };
-
   return (
     <Modal
       visible={visible}
@@ -147,9 +115,7 @@ export const MatchShareModal: React.FC<MatchShareModalProps> = ({
             <View style={styles.loadingOverlay} testID="share-processing-overlay">
               <ActivityIndicator size="large" color="#38bdf8" />
               <Text style={styles.loadingText}>
-                {processingAction === "saving"
-                  ? "Guardando imagen en la galería..."
-                  : "Preparando imagen para compartir..."}
+                Preparando imagen para compartir...
               </Text>
             </View>
           )}
@@ -164,27 +130,12 @@ export const MatchShareModal: React.FC<MatchShareModalProps> = ({
             testID="share-whatsapp-action-button"
             activeOpacity={0.8}
           >
-            {isProcessing && processingAction === "sharing" ? (
+            {isProcessing ? (
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
               <Feather name="share-2" size={18} color="#ffffff" />
             )}
-            <Text style={styles.shareActionText}>Compartir / WhatsApp</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleSaveToGallery}
-            disabled={isProcessing}
-            style={[styles.actionButton, styles.saveActionButton]}
-            testID="save-gallery-action-button"
-            activeOpacity={0.8}
-          >
-            {isProcessing && processingAction === "saving" ? (
-              <ActivityIndicator size="small" color="#38bdf8" />
-            ) : (
-              <Feather name="download" size={18} color="#38bdf8" />
-            )}
-            <Text style={styles.saveActionText}>Guardar en Galería</Text>
+            <Text style={styles.shareActionText}>Compartir Estadísticas</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

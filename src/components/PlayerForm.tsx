@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useClubStore } from "../store/ClubStore";
 import Input from "../framework/Input";
 import Button from "../framework/Button";
@@ -80,37 +81,55 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ onSubmit, onCancel, playerData 
   };
 
   return (
-    <View className="w-full px-4 flex-1 gap-4">
-      <Input
-        placeholder="Nombre del Jugador"
-        value={firstName}
-        onChange={setFirstName}
-        wrongMsg={wrongFirstName}
-      />
-      <Input
-        placeholder="Apellido del Jugador"
-        value={lastName}
-        onChange={setLastName}
-        wrongMsg={wrongLastName}
-      />
-      <Input
-        placeholder="Número del Jugador"
-        value={number}
-        onChange={setNumber}
-        wrongMsg={wrongNumber}
-        keyboardType="numeric"
-      />
-      <Input
-        placeholder="Nombre en camiseta (opcional)"
-        value={jerseyName}
-        onChange={setJerseyName}
-        wrongMsg={wrongJerseyName}
-      />
-      <Button
-        title={playerData ? "Guardar" : "Añadir jugador"}
-        onPress={handleSubmit}
-      />
-    </View>
+    <KeyboardAwareScrollView
+      className="w-full flex-1"
+      enableOnAndroid={true}
+      extraScrollHeight={100}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{ flexGrow: 1 }}
+    >
+      <View className="w-full px-4 flex-1 gap-4 py-2">
+        <Input
+          placeholder="Nombre del Jugador"
+          value={firstName}
+          onChange={setFirstName}
+          wrongMsg={wrongFirstName}
+        />
+        <Input
+          placeholder="Apellido del Jugador"
+          value={lastName}
+          onChange={setLastName}
+          wrongMsg={wrongLastName}
+        />
+        <Input
+          placeholder="Número del Jugador"
+          value={number}
+          onChange={setNumber}
+          wrongMsg={wrongNumber}
+          keyboardType="numeric"
+        />
+        <Input
+          placeholder="Nombre en camiseta (opcional)"
+          value={jerseyName}
+          onChange={setJerseyName}
+          wrongMsg={wrongJerseyName}
+        />
+        <View className="w-full flex flex-col gap-2.5 mt-2">
+          <Button
+            title={playerData ? "Guardar" : "Añadir jugador"}
+            onPress={handleSubmit}
+          />
+          {onCancel ? (
+            <TouchableOpacity
+              onPress={onCancel}
+              className="w-full min-h-[48px] py-3 items-center justify-center rounded-xl bg-slate-card border border-slate-border active:bg-slate-dark"
+            >
+              <Text className="text-on-surface font-semibold text-base">Cancelar</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 

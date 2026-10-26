@@ -120,4 +120,19 @@ describe("PlayerStatsSection Contract & Logic Tests (T009 - US3)", () => {
     expect(props.players.length).toBe(0);
     expect(Object.keys(props.playerStats).length).toBe(0);
   });
+
+  it("should support updating seconds alongside minutes", () => {
+    const onUpdateMock = jest.fn();
+    const props: PlayerStatsSectionProps = {
+      players: mockPlayers,
+      playerStats: {
+        1: { ...createInitialStat(1), minutes: 15, seconds: 45 },
+      },
+      onUpdateStat: onUpdateMock,
+    };
+
+    props.onUpdateStat(1, "seconds", "45");
+    expect(onUpdateMock).toHaveBeenCalledWith(1, "seconds", "45");
+    expect(props.playerStats[1].seconds).toBe(45);
+  });
 });

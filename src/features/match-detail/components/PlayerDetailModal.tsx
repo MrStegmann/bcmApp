@@ -40,7 +40,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({
                   {player.fullName || "Jugador"}
                 </Text>
                 <Text className="text-on-surface-variant text-xs">
-                  Tiempo en pista: {player.minutes} min
+                  Tiempo en pista:{" "}
+                  {player.seconds
+                    ? `${player.minutes}:${String(player.seconds).padStart(2, "0")} min`
+                    : `${player.minutes} min`}
                 </Text>
               </View>
             </View>

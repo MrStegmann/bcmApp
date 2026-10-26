@@ -25,46 +25,43 @@ interface TeamCardProps {
 
 const TeamCard: React.FC<TeamCardProps> = ({ team, onSelect, onEdit, onDelete }) => {
   return (
-    <TouchableOpacity
-      onPress={() => onSelect(team)}
-      className="my-2 w-full active:opacity-85"
-      testID={`team-card-${team.id}`}
+    <View
+      className="my-2 w-full h-20 flex-row bg-slate-card rounded-xl justify-between items-center px-5 border border-slate-border shadow-md"
+      testID={`team-card-container-${team.id}`}
     >
-      <View className="w-full h-20 flex-row bg-slate-card rounded-xl justify-between items-center px-5 border border-slate-border shadow-md">
+      <TouchableOpacity
+        onPress={() => onSelect(team)}
+        className="flex-1 h-full justify-center active:opacity-85"
+        testID={`team-card-${team.id}`}
+      >
         <View className="flex-col">
           <Text className="text-white text-xl font-bold">{team.name}</Text>
           {team.category ? (
             <Text className="text-on-surface-variant text-sm">{team.category}</Text>
           ) : null}
         </View>
+      </TouchableOpacity>
 
-        <View className="flex-row items-center space-x-1 gap-1">
-          {onEdit ? (
-            <TouchableOpacity
-              onPress={(e) => {
-                e.stopPropagation();
-                onEdit(team);
-              }}
-              className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
-              testID={`edit-team-${team.id}`}
-            >
-              <Feather name="edit-2" size={20} color="#0EA5E9" />
-            </TouchableOpacity>
-          ) : null}
-
+      <View className="flex-row items-center space-x-1 gap-1">
+        {onEdit ? (
           <TouchableOpacity
-            onPress={(e) => {
-              e.stopPropagation();
-              onDelete(team);
-            }}
+            onPress={() => onEdit(team)}
             className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
-            testID={`delete-team-${team.id}`}
+            testID={`edit-team-${team.id}`}
           >
-            <Feather name="trash-2" size={20} color="#EF4444" />
+            <Feather name="edit-2" size={20} color="#0EA5E9" />
           </TouchableOpacity>
-        </View>
+        ) : null}
+
+        <TouchableOpacity
+          onPress={() => onDelete(team)}
+          className="p-2 min-w-[48px] min-h-[48px] items-center justify-center rounded-lg active:bg-slate-dark"
+          testID={`delete-team-${team.id}`}
+        >
+          <Feather name="trash-2" size={20} color="#EF4444" />
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

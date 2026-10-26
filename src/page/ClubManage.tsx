@@ -92,33 +92,26 @@ const ClubManage: React.FC = () => {
   }, [createMode, editingTeam, club, setHeaderTitle, setBottomMenu, setActiveTab]);
 
   const handleAddClub = useCallback(async (data: { name: string; category?: string }) => {
-    if (TeamController?.add) {
-      await TeamController.add(data.name);
-    }
     await createTeam({ name: data.name, category: data.category });
     setCreateMode(false);
+    setClub(null);
     await loadData();
-  }, [TeamController, createTeam, loadData]);
+  }, [createTeam, setClub, loadData]);
 
   const handleUpdateClub = useCallback(async (data: { name: string; category?: string; id?: number }) => {
     if (data.id) {
-      if (TeamController?.edit) {
-        await TeamController.edit(data.id, data.name);
-      }
       await updateTeam(data.id, { name: data.name, category: data.category });
     }
     setEditingTeam(null);
     await loadData();
-  }, [TeamController, updateTeam, loadData]);
+  }, [updateTeam, loadData]);
 
   const handleDeleteClub = useCallback(async (teamOrId: Team | number) => {
     const id = typeof teamOrId === "number" ? teamOrId : teamOrId.id;
-    if (TeamController?.remove) {
-      await TeamController.remove(id);
-    }
     await deleteTeam(id);
+    setClub(null);
     await loadData();
-  }, [TeamController, deleteTeam, loadData]);
+  }, [deleteTeam, setClub, loadData]);
 
   const handleSelectTeam = useCallback((selected: Team) => {
     setClub(selected);
@@ -139,47 +132,43 @@ const ClubManage: React.FC = () => {
       <Header />
 
       <View className="flex-1 w-full py-2 bg-surface">
-        <KeyboardAwareScrollView
-          enableOnAndroid={true}
-          extraScrollHeight={130}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ flexGrow: 1 }}
-        >
-          {club ? (
-            <ClubProfile
-              handleReturn={handleReturnClubManage}
-              handleUpdate={handleUpdateClub}
+        {club ? (
+          <ClubProfile
+            handleReturn={handleReturnClubManage}
+            handleUpdate={handleUpdateClub}
+          />
+        ) : createMode || editingTeam ? (
+          <KeyboardAwareScrollView
+            enableOnAndroid={true}
+            extraScrollHeight={130}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
+            <View className="w-full justify-center items-center flex mt-5 px-4">
+              <ClubForm
+                onSubmit={editingTeam ? handleUpdateClub : handleAddClub}
+                initialData={editingTeam}
+                clubData={editingTeam || undefined}
+                onCancel={() => {
+                  setCreateMode(false);
+                  setEditingTeam(null);
+                }}
+              />
+            </View>
+          </KeyboardAwareScrollView>
+        ) : (
+          <View className="w-full flex-1 justify-start items-center flex mt-5">
+            <ClubList
+              teams={teamsList}
+              onSelectTeam={handleSelectTeam}
+              onSelect={handleSelectTeam}
+              onEditTeam={handleEditTeamTrigger}
+              onDeleteTeam={handleDeleteClub}
+              onDelete={handleDeleteClub}
+              onCreateTeam={() => setCreateMode(true)}
             />
-          ) : (
-            <>
-              {createMode || editingTeam ? (
-                <View className="w-full justify-center items-center flex mt-5 px-4">
-                  <ClubForm
-                    onSubmit={editingTeam ? handleUpdateClub : handleAddClub}
-                    initialData={editingTeam}
-                    clubData={editingTeam || undefined}
-                    onCancel={() => {
-                      setCreateMode(false);
-                      setEditingTeam(null);
-                    }}
-                  />
-                </View>
-              ) : (
-                <View className="w-full flex-1 justify-start items-center flex mt-5">
-                  <ClubList
-                    teams={teamsList}
-                    onSelectTeam={handleSelectTeam}
-                    onSelect={handleSelectTeam}
-                    onEditTeam={handleEditTeamTrigger}
-                    onDeleteTeam={handleDeleteClub}
-                    onDelete={handleDeleteClub}
-                    onCreateTeam={() => setCreateMode(true)}
-                  />
-                </View>
-              )}
-            </>
-          )}
-        </KeyboardAwareScrollView>
+          </View>
+        )}
       </View>
 
       <BottomNavBar />

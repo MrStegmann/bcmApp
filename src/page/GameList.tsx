@@ -264,6 +264,7 @@ const GameList: React.FC<GameListProps> = ({ onReturn }) => {
         gameId: matchId,
         playerId: stat.playerId,
         minutes: stat.minutes,
+        seconds: stat.seconds ?? 0,
         t1a: stat.t1a,
         t1i: stat.t1i,
         t2a: stat.t2a,

@@ -67,10 +67,9 @@ describe("MatchShareModal Component Contract (T012 & T018 - US2/US3)", () => {
     expect(mockClose).toHaveBeenCalledTimes(1);
   });
 
-  it("should verify contract requirements for share and gallery actions", () => {
-    const actionLabels = ["Compartir / WhatsApp", "Guardar en Galería"];
-    expect(actionLabels).toContain("Compartir / WhatsApp");
-    expect(actionLabels).toContain("Guardar en Galería");
+  it("should verify contract requirements for single share action", () => {
+    const actionLabels = ["Compartir Estadísticas"];
+    expect(actionLabels).toContain("Compartir Estadísticas");
   });
 
   it("should integrate with matchShareService methods for capture, share, and save", () => {
