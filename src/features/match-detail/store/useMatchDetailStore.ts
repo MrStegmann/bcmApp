@@ -138,7 +138,7 @@ export const useMatchDetailStore = create<MatchDetailState>((set, get) => ({
 
     let rosterItems: PlayerRosterItem[] = [];
     try {
-      const teamPlayers = await db
+      let teamPlayers = await db
         .select()
         .from(playersSchema)
         .where(eq(playersSchema.teamId, match.teamId));
@@ -148,7 +148,27 @@ export const useMatchDetailStore = create<MatchDetailState>((set, get) => ({
         .where(eq(playerStats.gameId, match.id));
       const statsByPlayerId = new Map(statsRows.map((s) => [s.playerId, s]));
 
-      rosterItems = teamPlayers.map((player) => {
+      if (statsRows.length > 0) {
+        const knownPlayerIds = new Set(teamPlayers.map((p) => p.id));
+        const missingPlayerIds = statsRows
+          .map((s) => s.playerId)
+          .filter((id) => id != null && !knownPlayerIds.has(id));
+
+        if (missingPlayerIds.length > 0) {
+          const allPlayers = await db.select().from(playersSchema);
+          const extraPlayers = allPlayers.filter((p) => missingPlayerIds.includes(p.id));
+          teamPlayers = [...teamPlayers, ...extraPlayers];
+        }
+      }
+
+      // If match has declared stats/roster rows, strictly filter to those players.
+      // If statsRows is empty (legacy match), fallback to all team players.
+      const activePlayers =
+        statsRows.length > 0
+          ? teamPlayers.filter((player) => statsByPlayerId.has(player.id))
+          : teamPlayers;
+
+      rosterItems = activePlayers.map((player) => {
         const s = statsByPlayerId.get(player.id);
         const t1a = Number(s?.t1a || 0);
         const t1i = Number(s?.t1i || 0);

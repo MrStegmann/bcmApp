@@ -1,6 +1,7 @@
 import { useMatchDetailStore } from "../store/useMatchDetailStore";
 import { Game } from "../../../types/database";
 import { MatchEditBuffer, PlayerRosterItem } from "../types";
+import { db, teams, players as playersSchema, playerStats, games } from "../../../db";
 
 describe("useMatchDetailStore Unit Tests (T010)", () => {
   const mockMatch: Game = {
@@ -167,4 +168,100 @@ describe("useMatchDetailStore Unit Tests (T010)", () => {
       }
     }
   });
+
+  it("should only include called-up roster players in players when playerStats exist", async () => {
+    // Insert test team
+    const [insertedTeam] = await db
+      .insert(teams)
+      .values({ name: "Roster Test Team", category: "Senior" })
+      .returning();
+
+    // Insert 12 players for this team
+    const createdPlayers = [];
+    for (let i = 1; i <= 12; i++) {
+      const [p] = await db
+        .insert(playersSchema)
+        .values({
+          teamId: insertedTeam.id,
+          firstName: `Player`,
+          lastName: `${i}`,
+          number: `${i}`,
+        })
+        .returning();
+      createdPlayers.push(p);
+    }
+
+    // Insert match
+    const [insertedMatch] = await db
+      .insert(games)
+      .values({
+        teamId: insertedTeam.id,
+        opponent: "Rival Team",
+        date: "26/10/2026 - 18:00",
+        round: "1",
+        status: "finished",
+      })
+      .returning();
+
+    // Insert playerStats for only 8 players (the called-up match roster)
+    const rosterPlayers = createdPlayers.slice(0, 8);
+    for (const p of rosterPlayers) {
+      await db.insert(playerStats).values({
+        gameId: insertedMatch.id,
+        playerId: p.id,
+        t2a: 2,
+        t2i: 3,
+        minutes: 15,
+        valuation: 5,
+      });
+    }
+
+    await useMatchDetailStore.getState().initializeMatch(insertedMatch);
+
+    const storePlayers = useMatchDetailStore.getState().players;
+    expect(storePlayers).toHaveLength(8);
+    const storePlayerIds = storePlayers.map((p) => p.id);
+    expect(storePlayerIds.sort()).toEqual(rosterPlayers.map((p) => p.id).sort());
+    for (const nonRoster of createdPlayers.slice(8)) {
+      expect(storePlayerIds).not.toContain(nonRoster.id);
+    }
+  });
+
+  it("should fallback to all team players when playerStats is empty (legacy match)", async () => {
+    const [insertedTeam] = await db
+      .insert(teams)
+      .values({ name: "Legacy Test Team", category: "Cadete" })
+      .returning();
+
+    const createdPlayers = [];
+    for (let i = 1; i <= 5; i++) {
+      const [p] = await db
+        .insert(playersSchema)
+        .values({
+          teamId: insertedTeam.id,
+          firstName: `Legacy`,
+          lastName: `${i}`,
+          number: `${i}`,
+        })
+        .returning();
+      createdPlayers.push(p);
+    }
+
+    const [legacyMatch] = await db
+      .insert(games)
+      .values({
+        teamId: insertedTeam.id,
+        opponent: "Legacy Opponent",
+        date: "26/10/2026 - 19:00",
+        round: "2",
+        status: "finished",
+      })
+      .returning();
+
+    await useMatchDetailStore.getState().initializeMatch(legacyMatch);
+
+    const storePlayers = useMatchDetailStore.getState().players;
+    expect(storePlayers).toHaveLength(5);
+  });
 });
+

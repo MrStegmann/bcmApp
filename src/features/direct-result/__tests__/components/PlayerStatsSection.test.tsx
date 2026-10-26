@@ -135,4 +135,23 @@ describe("PlayerStatsSection Contract & Logic Tests (T009 - US3)", () => {
     expect(onUpdateMock).toHaveBeenCalledWith(1, "seconds", "45");
     expect(props.playerStats[1].seconds).toBe(45);
   });
+
+  it("should enforce KeyboardAwareScrollView configuration with extra scroll height", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const fileContent = fs.readFileSync(
+      path.resolve(__dirname, "../../components/PlayerStatsSection.tsx"),
+      "utf-8"
+    );
+
+    expect(fileContent).toContain(
+      'import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";'
+    );
+    expect(fileContent).toContain("<KeyboardAwareScrollView");
+    expect(fileContent).toContain("enableOnAndroid={true}");
+    expect(fileContent).toContain("extraScrollHeight={100}");
+    expect(fileContent).toContain('keyboardShouldPersistTaps="handled"');
+    expect(fileContent).toContain("</KeyboardAwareScrollView>");
+  });
 });
+

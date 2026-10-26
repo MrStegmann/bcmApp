@@ -28,7 +28,7 @@ const PlayerCard: React.FC<{ playerInf: any }> = ({ playerInf }) => {
     t3Per: t3a === 0 && t3i === 0 ? 0 : (t3a / Math.max(1, t3i)) * 100,
   };
 
-  const pts = t1a + t2a * 2 + t3i * 3;
+  const pts = t1a + t2a * 2 + t3a * 3;
   const oreb = Number(playerInf.total_oreb || playerInf.oreb || 0);
   const dreb = Number(playerInf.total_dreb || playerInf.dreb || 0);
   const asis = Number(playerInf.total_asis || playerInf.asis || 0);
@@ -147,7 +147,7 @@ const PlayerDetail: React.FC<PlayerDetailProps> = ({ data }) => {
         setSelectedMatch(fullGame);
         return;
       }
-    } catch {}
+    } catch { }
 
     setSelectedMatch({
       id: matchItem.gameId,

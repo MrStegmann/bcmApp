@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Switch } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Switch } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Feather from "@expo/vector-icons/Feather";
 import { PeriodKey, PeriodScoreInput, PeriodScoresSectionProps } from "../types";
 
@@ -130,10 +131,13 @@ export const PeriodScoresSection: React.FC<PeriodScoresSectionProps> = ({
   };
 
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
       className="flex-1 w-full px-4"
+      enableOnAndroid={true}
+      extraScrollHeight={100}
+      keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={true}
-      contentContainerStyle={{ paddingBottom: 32, paddingTop: 8 }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 30, paddingTop: 8 }}
     >
       {/* Live Total Score Header Banner */}
       <View className="mb-4 p-4 rounded-2xl bg-slate-card border border-primary/40 shadow-lg flex-row items-center justify-between">
@@ -174,7 +178,7 @@ export const PeriodScoresSection: React.FC<PeriodScoresSectionProps> = ({
 
       {/* Render Active Periods */}
       {activePeriods.map(renderPeriodCard)}
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 

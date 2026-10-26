@@ -4,10 +4,11 @@ import {
   Text,
   Modal,
   TouchableOpacity,
-  ScrollView,
   TextInput,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Feather from "@expo/vector-icons/Feather";
 import {
   MatchEditModalProps,
@@ -173,13 +174,12 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
   return (
     <Modal
       visible={visible}
-      transparent
+      transparent={false}
       animationType="slide"
       onRequestClose={onCancel}
     >
-      <View className="flex-1 bg-black/85 justify-end">
-        <View className="w-full bg-surface-container rounded-t-3xl border-t border-slate-border max-h-[90%] overflow-hidden">
-          {/* Header */}
+      <SafeAreaView className="flex-1 bg-surface-container">
+        {/* Header */}
           <View className="flex-row items-center justify-between px-5 pt-4 pb-3 bg-slate-card border-b border-slate-border">
             <View>
               <Text className="text-white font-extrabold text-base">
@@ -240,9 +240,12 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
           </View>
 
           {/* Body Content */}
-          <ScrollView
-            className="p-4"
-            contentContainerStyle={{ paddingBottom: 24 }}
+          <KeyboardAwareScrollView
+            className="p-4 flex-1"
+            enableOnAndroid={true}
+            extraScrollHeight={120}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
             {activeTab === "periods" ? (
@@ -593,7 +596,7 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
                 })}
               </View>
             )}
-          </ScrollView>
+          </KeyboardAwareScrollView>
 
           {/* Footer Actions */}
           <View className="flex-row items-center justify-between p-4 bg-slate-card border-t border-slate-border">
@@ -623,9 +626,8 @@ export const MatchEditModal: React.FC<MatchEditModalProps> = ({
               )}
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
-    </Modal>
+        </SafeAreaView>
+      </Modal>
   );
 };
 
