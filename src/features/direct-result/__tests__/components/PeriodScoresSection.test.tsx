@@ -97,4 +97,23 @@ describe("PeriodScoresSection Contract & Logic Tests (T007 - US2)", () => {
     expect(getActivePeriods(false)).toEqual(["q1", "q2", "q3", "q4"]);
     expect(getActivePeriods(true)).toEqual(["q1", "q2", "q3", "q4", "extra"]);
   });
+
+  it("should enforce KeyboardAwareScrollView configuration with extra scroll height", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const fileContent = fs.readFileSync(
+      path.resolve(__dirname, "../../components/PeriodScoresSection.tsx"),
+      "utf-8"
+    );
+
+    expect(fileContent).toContain(
+      'import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";'
+    );
+    expect(fileContent).toContain("<KeyboardAwareScrollView");
+    expect(fileContent).toContain("enableOnAndroid={true}");
+    expect(fileContent).toContain("extraScrollHeight={100}");
+    expect(fileContent).toContain('keyboardShouldPersistTaps="handled"');
+    expect(fileContent).toContain("</KeyboardAwareScrollView>");
+  });
 });
+

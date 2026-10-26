@@ -168,4 +168,41 @@ describe("MatchEditModal Component Contract (T029 - US4)", () => {
     expect(onSaveMock).toHaveBeenCalledWith(updatedBuffer);
     expect(updatedBuffer.players[1].seconds).toBe(45);
   });
+
+  it("should enforce KeyboardAwareScrollView configuration with Android support and extra scroll height", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const fileContent = fs.readFileSync(
+      path.resolve(__dirname, "../../components/MatchEditModal.tsx"),
+      "utf-8"
+    );
+
+    expect(fileContent).toContain(
+      'import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";'
+    );
+    expect(fileContent).toContain("<KeyboardAwareScrollView");
+    expect(fileContent).toContain("enableOnAndroid={true}");
+    expect(fileContent).toContain("extraScrollHeight={120}");
+    expect(fileContent).toContain('keyboardShouldPersistTaps="handled"');
+    expect(fileContent).toContain("</KeyboardAwareScrollView>");
+  });
+
+  it("should configure full-screen SafeAreaView layout without collapsed bottom sheet constraints", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const fileContent = fs.readFileSync(
+      path.resolve(__dirname, "../../components/MatchEditModal.tsx"),
+      "utf-8"
+    );
+
+    // Full screen safe area view
+    expect(fileContent).toContain('import { SafeAreaView } from "react-native-safe-area-context";');
+    expect(fileContent).toContain('<SafeAreaView className="flex-1 bg-surface-container">');
+    expect(fileContent).toContain("transparent={false}");
+
+    // Should NOT have collapsed bottom sheet classes
+    expect(fileContent).not.toContain("max-h-[90%]");
+    expect(fileContent).not.toContain("justify-end");
+  });
 });
+

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Feather from "@expo/vector-icons/Feather";
 import { Player } from "../../../types/database";
 import { PlayerStatsSectionProps, PlayerStatInput } from "../types";
@@ -64,10 +65,13 @@ export const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({
   };
 
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
       className="flex-1 w-full px-4"
+      enableOnAndroid={true}
+      extraScrollHeight={100}
+      keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={true}
-      contentContainerStyle={{ paddingBottom: 32, paddingTop: 8 }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: 30, paddingTop: 8 }}
     >
       {players.map((player) => {
         const stats: PlayerStatInput = playerStats[player.id] || {
@@ -306,7 +310,7 @@ export const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({
           </View>
         );
       })}
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 
