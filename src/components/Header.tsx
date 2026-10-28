@@ -88,34 +88,52 @@ const Header: React.FC<HeaderProps> = ({ title, children }) => {
             className="flex-1 items-center justify-center px-1"
             testID="global-match-score-header"
           >
-            <View className="flex-row items-center justify-center w-full">
-              {/* Local Team: Wraps without truncation, right-aligned next to score */}
-              <View className="flex-1 items-end pr-1.5 justify-center">
+            {matchHeaderInfo.scoreOnly ? (
+              <View className="flex-row items-center justify-center">
                 <Text
-                  className="text-court-orange font-extrabold text-xs text-right leading-tight"
-                  testID="header-local-team-name"
+                  className="text-court-orange font-black text-2xl font-mono tracking-wider"
+                  testID="header-score-local"
                 >
-                  {matchHeaderInfo.teamName}
+                  {matchHeaderInfo.teamScore}
+                </Text>
+                <Text className="text-slate-400 font-black text-xl mx-2 font-mono">-</Text>
+                <Text
+                  className="text-tactical-blue-light font-black text-2xl font-mono tracking-wider"
+                  testID="header-score-rival"
+                >
+                  {matchHeaderInfo.rivalScore}
                 </Text>
               </View>
+            ) : (
+              <View className="flex-row items-center justify-center w-full">
+                {/* Local Team: Wraps without truncation, right-aligned next to score */}
+                <View className="flex-1 items-end pr-1.5 justify-center">
+                  <Text
+                    className="text-court-orange font-extrabold text-xs text-right leading-tight"
+                    testID="header-local-team-name"
+                  >
+                    {matchHeaderInfo.teamName}
+                  </Text>
+                </View>
 
-              {/* Center Score Badge */}
-              <View className="flex-row items-center bg-slate-dark px-2.5 py-1 rounded-lg border border-slate-border">
-                <Text className="text-white font-black text-sm">{matchHeaderInfo.teamScore}</Text>
-                <Text className="text-slate-400 font-black text-xs mx-1">-</Text>
-                <Text className="text-tactical-blue-light font-black text-sm">{matchHeaderInfo.rivalScore}</Text>
-              </View>
+                {/* Center Score Badge */}
+                <View className="flex-row items-center bg-slate-dark px-2.5 py-1 rounded-lg border border-slate-border">
+                  <Text className="text-white font-black text-sm">{matchHeaderInfo.teamScore}</Text>
+                  <Text className="text-slate-400 font-black text-xs mx-1">-</Text>
+                  <Text className="text-tactical-blue-light font-black text-sm">{matchHeaderInfo.rivalScore}</Text>
+                </View>
 
-              {/* Rival Team: Wraps without truncation, left-aligned next to score */}
-              <View className="flex-1 items-start pl-1.5 justify-center">
-                <Text
-                  className="text-tactical-blue font-extrabold text-xs text-left leading-tight"
-                  testID="header-rival-team-name"
-                >
-                  {matchHeaderInfo.rivalName}
-                </Text>
+                {/* Rival Team: Wraps without truncation, left-aligned next to score */}
+                <View className="flex-1 items-start pl-1.5 justify-center">
+                  <Text
+                    className="text-tactical-blue font-extrabold text-xs text-left leading-tight"
+                    testID="header-rival-team-name"
+                  >
+                    {matchHeaderInfo.rivalName}
+                  </Text>
+                </View>
               </View>
-            </View>
+            )}
           </View>
         ) : headerCustomComponent ? (
           <View className="flex-1 items-center justify-center px-1" testID="header-custom-content">

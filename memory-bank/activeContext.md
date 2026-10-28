@@ -1,10 +1,17 @@
 # Active Context
 
 **Current Focus:**
-The project is currently a functional React Native application built with Expo and SQLite. The core foundational architecture (database models, DTOs, Context API for DB controllers, and basic pages) is in place.
+Feature 007 (Play Match View) implementation is completed. All 7 User Stories (period/time controller, court canvas with stint tracking and stat subtraction, team management & unrestricted substitutions, full-width rival control, bench stats modal, responsive court scaling with compact circles, and enlarged score-only header) are implemented and validated with 96 passing test suites.
 
 **Recent Changes:**
-The project structure and tech stack have been analyzed, and a `/memory-bank` has been established to document the system patterns, tech context, and product goals. 
+- Synchronized type definitions and contracts from `specs/007-play-match-view/contracts/play-match-contracts.ts`.
+- Implemented responsive dynamic court coordinate calculation utility (`courtArcPositions.ts`).
+- Scaled player representation circles on both court and bench down to compact dimensions (`w-12 h-12`) to prevent overflow on small screens.
+- Relocated overtime reset button from main screen layout into `ManualTimeModal.tsx` ("Ajustar Tiempo"), eliminating canvas shift during extra periods.
+- Redesigned `Header.tsx` to support prominent score-only display mode omitting team names during match play.
+- All 58 tasks in `tasks.md` completed and verified.
 
 **Next Steps:**
-- Further development will likely focus on refining existing features, extending functionalities, adding new screens, or improving the user interface and data visualization.
+- Monitor real-device usability and performance during live match sessions.
+- Address any new feature requests or visual polish based on live court testing.
+

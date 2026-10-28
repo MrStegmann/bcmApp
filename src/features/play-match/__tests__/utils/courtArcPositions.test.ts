@@ -116,4 +116,44 @@ describe("courtArcPositions utility", () => {
     expect(calculateEuclideanDistance({ xOffset: -10, y: 20 }, { xOffset: -10, y: 50 })).toBe(30);
     expect(calculateEuclideanDistance({ xOffset: 10, y: 5 }, { xOffset: 20, y: 5 })).toBe(10);
   });
+
+  describe("Dynamic Court Coordinate Scaling (T043 - US6)", () => {
+    const {
+      getScaledCourtPositions,
+      calculateResponsiveCourtLayout,
+    } = require("../../utils/courtArcPositions");
+
+    it("should return base positions when canvas dimensions match base dimensions (360x320)", () => {
+      const positions = getScaledCourtPositions(360, 320);
+      expect(positions).toHaveLength(5);
+      expect(positions[0].xOffset).toBe(0);
+      expect(positions[0].y).toBe(224);
+      expect(positions[3].xOffset).toBe(-128);
+      expect(positions[3].y).toBe(96);
+    });
+
+    it("should scale down coordinates proportionally for smaller phone viewports (e.g. 270x240)", () => {
+      // 0.75 scale factor
+      const positions = getScaledCourtPositions(270, 240);
+      expect(positions[0].xOffset).toBe(0);
+      expect(positions[0].y).toBe(Math.round(224 * 0.75));
+      expect(positions[3].xOffset).toBe(Math.round(-128 * 0.75));
+      expect(positions[3].y).toBe(Math.round(96 * 0.75));
+
+      // Preserves bilateral symmetry after scaling
+      const leftWing = positions.find((p: any) => p.index === 1)!;
+      const rightWing = positions.find((p: any) => p.index === 2)!;
+      expect(leftWing.xOffset).toBe(-rightWing.xOffset);
+      expect(leftWing.y).toBe(rightWing.y);
+    });
+
+    it("should generate ResponsiveCourtLayout object with scaleFactor and positions", () => {
+      const layout = calculateResponsiveCourtLayout(300, 260);
+      expect(layout.width).toBe(300);
+      expect(layout.height).toBe(260);
+      expect(layout.scaleFactor).toBeCloseTo(Math.min(300 / 360, 260 / 320), 2);
+      expect(layout.positions).toHaveLength(5);
+      expect(layout.positions[0].index).toBe(0);
+    });
+  });
 });

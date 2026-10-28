@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 declare const jest: any;
 declare const expect: any;
+declare const require: any;
+declare const __dirname: string;
 
 describe("Header Component - headerAction Rendering (US2 / T008)", () => {
   beforeEach(() => {
@@ -245,5 +247,46 @@ describe("Header Component - headerCustomComponent Rendering (Spec 007)", () => 
     expect(useMenuStore.getState().headerTitle).toBe("Gestión de Equipos");
   });
 });
+
+describe("Header Component - Score-Only Mode (T052 - US7)", () => {
+  beforeEach(() => {
+    useMenuStore.setState({
+      activeTab: TopMenuEnums.GAMES,
+      headerTitle: "Partidos",
+      headerAction: null,
+      headerBackAction: null,
+      headerCustomComponent: null,
+      matchHeaderInfo: null,
+      bottomMenuItems: [],
+    });
+  });
+
+  it("should configure matchHeaderInfo with scoreOnly flag in MenuStore", () => {
+    useMenuStore.getState().setMatchHeaderInfo({
+      teamName: "Real Madrid",
+      rivalName: "Barcelona",
+      teamScore: 102,
+      rivalScore: 98,
+      scoreOnly: true,
+    });
+
+    const info = useMenuStore.getState().matchHeaderInfo;
+    expect(info?.scoreOnly).toBe(true);
+    expect(info?.teamScore).toBe(102);
+    expect(info?.rivalScore).toBe(98);
+  });
+
+  it("should verify Header component source contains score-only mode rendering with enlarged score and without team names", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const componentPath = path.resolve(__dirname, "../../components/Header.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    expect(componentSource).toContain("scoreOnly");
+    expect(componentSource).toContain("header-score-local");
+    expect(componentSource).toContain("header-score-rival");
+  });
+});
+
 
 

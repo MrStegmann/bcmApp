@@ -38,6 +38,7 @@ export interface MatchHeaderInfo {
   teamScore: number;
   rivalScore: number;
   rivalName: string;
+  scoreOnly?: boolean;
 }
 
 export interface MenuStoreState {

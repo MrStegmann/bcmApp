@@ -155,23 +155,23 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
                 activeOpacity={0.8}
                 onPress={() => onSelectBenchPlayer(player)}
                 testID={`bench-player-${player.id}`}
-                className={`items-center justify-center w-20 h-20 rounded-full shadow-md mr-3 p-1 relative ${isSelected
-                  ? "border-4 border-court-orange bg-court-orange/20"
+                className={`items-center justify-center w-12 h-12 rounded-full shadow-md mr-2 p-0.5 relative ${isSelected
+                  ? "border-2 border-court-orange bg-court-orange/20"
                   : isSwapMode
-                    ? "border-2 border-tactical-blue/60 bg-tactical-blue/10"
+                    ? "border border-tactical-blue/60 bg-tactical-blue/10"
                     : "border border-slate-border bg-surface-elevated"
                   }`}
               >
                 {isSelected && (
-                  <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-court-orange items-center justify-center border border-slate-950 z-20">
-                    <Text className="text-slate-950 font-black text-[9px]">✓</Text>
+                  <View className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-court-orange items-center justify-center border border-slate-950 z-20">
+                    <Text className="text-slate-950 font-black text-[8px]">✓</Text>
                   </View>
                 )}
 
-                <View className="items-center justify-center w-full px-1">
+                <View className="items-center justify-center w-full px-0.5">
                   {/* Top Line: Jersey Number */}
                   <Text
-                    className="text-court-orange font-black text-sm leading-tight text-center"
+                    className="text-court-orange font-black text-xs leading-none text-center"
                     numberOfLines={1}
                   >
                     {player.number ? (String(player.number).startsWith("#") ? player.number : `#${player.number}`) : "#-"}
@@ -179,17 +179,17 @@ export const TeamManagementPanel: React.FC<TeamManagementPanelProps> = ({
 
                   {/* Second Line: Jersey Name or Fallback "F. Lastname" */}
                   <Text
-                    className="text-white font-semibold text-[10px] leading-tight text-center"
+                    className="text-white font-semibold text-[8px] leading-tight text-center mt-0.5"
                     numberOfLines={1}
                   >
                     {identifier}
                   </Text>
 
                   {/* Divisor line */}
-                  <View className="w-10 h-px bg-slate-border my-0.5" />
+                  <View className="w-7 h-px bg-slate-border my-0.5" />
 
                   {/* Cumulative Minutes / Points */}
-                  <Text className="text-emerald-400 font-mono font-bold text-[10px] leading-tight text-center">
+                  <Text className="text-emerald-400 font-mono font-bold text-[8px] leading-none text-center">
                     {min}min
                   </Text>
                 </View>

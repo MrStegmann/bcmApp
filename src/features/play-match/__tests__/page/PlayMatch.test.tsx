@@ -101,7 +101,7 @@ describe("PlayMatch Integration Tests (T037 - Phase 7)", () => {
     expect(headerAction.iconName).toBe("save");
   });
 
-  it("should update matchHeaderInfo and headerTitle in menu store with live scores and team names", () => {
+  it("should update matchHeaderInfo with scoreOnly mode and live scores in menu store (T053 - US7)", () => {
     const { useMenuStore } = require("../../../../store/MenuStore");
     const teamName = "Canasta Real BCM";
     const teamScore = 18;
@@ -113,8 +113,9 @@ describe("PlayMatch Integration Tests (T037 - Phase 7)", () => {
       teamScore,
       rivalScore,
       rivalName,
+      scoreOnly: true,
     });
-    useMenuStore.getState().setHeaderTitle(`${teamName} ${teamScore} - ${rivalScore} ${rivalName}`);
+    useMenuStore.getState().setHeaderTitle(`${teamScore} - ${rivalScore}`);
 
     const menuState = useMenuStore.getState();
     expect(menuState.matchHeaderInfo).toEqual({
@@ -122,8 +123,9 @@ describe("PlayMatch Integration Tests (T037 - Phase 7)", () => {
       teamScore: 18,
       rivalScore: 14,
       rivalName: "Valencia Basket",
+      scoreOnly: true,
     });
-    expect(menuState.headerTitle).toBe("Canasta Real BCM 18 - 14 Valencia Basket");
+    expect(menuState.matchHeaderInfo?.scoreOnly).toBe(true);
 
     // Test unmount cleanup
     useMenuStore.getState().setMatchHeaderInfo(null);
