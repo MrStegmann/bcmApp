@@ -7,7 +7,7 @@ const PERIOD_LIST: { key: PeriodKey; label: string; desc: string }[] = [
   { key: "q2", label: "Q2", desc: "Segundo Cuarto (10:00)" },
   { key: "q3", label: "Q3", desc: "Tercer Cuarto (10:00)" },
   { key: "q4", label: "Q4", desc: "Cuarto Cuarto (10:00)" },
-  { key: "extra", label: "EXTRA", desc: "Tiempo Extra / Prórroga (05:00)" },
+  { key: "extra", label: "Extra", desc: "Tiempo Extra / Prórroga (05:00)" },
 ];
 
 export const PeriodSelectModal: React.FC<PeriodSelectModalProps> = ({
@@ -42,26 +42,12 @@ export const PeriodSelectModal: React.FC<PeriodSelectModalProps> = ({
                     onSelectPeriod(item.key);
                     onClose();
                   }}
-                  className={`flex-row items-center justify-between p-3 min-h-[48px] rounded-xl border mb-2 ${
-                    isActive
-                      ? "bg-court-orange/20 border-court-orange"
-                      : "bg-surface-elevated/80 border-slate-border active:bg-surface-elevated"
-                  }`}
+                  className={`flex-row items-center justify-between p-3 min-h-[48px] rounded-xl border mb-2 ${isActive
+                    ? "bg-court-orange/20 border-court-orange"
+                    : "bg-surface-elevated/80 border-slate-border active:bg-surface-elevated"
+                    }`}
                 >
                   <View className="flex-row items-center space-x-3">
-                    <View
-                      className={`w-10 h-10 rounded-lg items-center justify-center font-bold ${
-                        isActive ? "bg-court-orange" : "bg-slate-border"
-                      }`}
-                    >
-                      <Text
-                        className={`font-extrabold text-sm ${
-                          isActive ? "text-slate-950" : "text-white"
-                        }`}
-                      >
-                        {item.label}
-                      </Text>
-                    </View>
                     <View>
                       <Text className="text-white font-semibold text-base">{item.label}</Text>
                       <Text className="text-slate-400 text-xs">{item.desc}</Text>
