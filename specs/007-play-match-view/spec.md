@@ -4,15 +4,16 @@
 
 **Created**: 2026-10-02
 
-**Last Updated**: 2026-10-25
+**Last Updated**: 2026-10-28
 
-**Status**: Draft
+**Status**: IMPLEMENTED
 
 **Input**:
 - Original: "The task is to create an organic game panel control and stats separated into three components with global state management for score, time, and team foul control. Component 1 (Time, Score, and Fouls): controls periods (q1, q2, q3, q4, extra) with single tap to swap to next period and 3-second hold to show period list modal; total score calculated from period scores, isolated score/time/team fouls per period; crono with single tap start/stop and 3-second hold to set manually; 10min per regular period, 5min for extra time with reset crono to 5min without wiping score/fouls. Component 2 (Team Management): half basketball court canvas with 5 position buttons representing active quintet; tapping opens stats modal (t1a, t1i, t2a, t2i, t3a, t3i with assist teammate prompt including 'non assistant' option on t2a/t3a; offensive & defensive rebounds both present; fouls adding to period team fouls; assists, ball lost, ball recuperation); active players auto-accumulate minutes when crono runs; team panel with Swap button activating balanced substitution mode (N in = N out); players represented by circles showing jerseyNumber, name, minutos, and pts; horizontal bench list; timeout control buttons (increase/decrease) in same row as Swap button (2 timeouts for q1-q2, 3 for q3-q4, 1 for extra time, +1 on extra crono reset). Component 3 (Rival Panel Control): rival score adjustments (+1, +2, +3, -1) and rival period team fouls (+1, -1)."
 - Update (2026-10-24 - Player Identification): "The task is to update the player identification showed in the view. It must show always the Jersey Number if has; if not, use the first letter of the Player Name following the lastName (e.g.: A. Arias, A. Delgado, P. Stegmann, etc.). Includes jersey number priority check, fallback name formatting utility, edge case handling, and unit test assertions."
 - Update (2026-10-24 - Stint Tracking, Rival Layout, Long-Press Stat Subtraction, Unrestricted Substitutions): "The task is to update the quintet that are over the court (playing). Actually, the quintet have the total of minuts and points. We need to change the minuts showed for: count only the minuts the player have played since he enter to play. That means, if the player was in the bench and enter to play, the minuts showed start from 0 and increase all the time he's playing. When the player go to the bench and return to playing, the time reset to 0. In addition, the rival control section has the total points that the rival has, this part shall be removed (it is not necesary) and extends the rival panel control to use the full width. We also need substract stats from the players by holding over the player by 2 seconds (only players that are playing). If a player that has scored 2 or 3 points and have assistant from other, the assist will be automaticaly substract too. For changin players, it must be able whenever the time is running or not."
 - Update (2026-10-25 - Bench Player Statistics Modal): "The task is to add a stats information modal for the players that are in the bench. This modals can be open by clicking over a player in the bench and can be closed clicking over a cross button or clicking outside the modal. The modal MUST show every stat with the minuts and points ontop and must visible than others. Also must show every throd made (1, 2, 3) with succeed / attempt and porcentage (s/a (#%) format expected). Includes player click handler on bench items, modal shell with cross button & backdrop click-outside dismissal, header layout prominently displaying minutes and points at the top, throw statistics formatter for 1pt, 2pt, 3pt in s/a (#%) format, and visual layering for high prominence."
+- Update (2026-10-28 - Design Refactorization: Responsive Layout, Scaled Player Circles, Overtime Reset Relocation & Prominent Total Score Header): "The actual Play Match View Page has serious layout size problems. For Phones that are small, the players over the court is push down behind the bench panel control and the scale of the court canvas is no responsive. The Players are extremely big. In addition, the reset time in extra push down the canvas. The App header with the total result of the match is too small. What we need: We need a responsive design for the Play Match View; We need smallest players (the five over the court & the ones in the bench); The reset button for the time in extra period must be removed and putted inside the crono configuration (3second tapped in the 'Ajustar Tiempo' modal view as a option in the modal; The App Header only must show the total score (without the team names) and biggest."
 
 ## Clarifications
 
@@ -38,26 +39,33 @@
 - Q: How can the modal be dismissed? → A: By tapping the cross (`✕`) button in the modal header, or by tapping anywhere on the backdrop overlay outside the modal container.
 - Q: What statistics are included in the modal? → A: Top header: player identification, total cumulative minutes, and points scored (with highest visual prominence). Body: throw statistics for 1-point, 2-point, and 3-point categories in `s/a (#%)` format (`succeed / attempt (#%)`), plus rebounds (offensive, defensive, total), assists, steals/recoveries, turnovers/lost balls, personal fouls, and valuation.
 
+### Session 2026-10-28 (Design Refactorization: Responsive Layout, Scaled Player Circles, Overtime Reset Relocation & Prominent Total Score Header)
+- Q: How should the App Header display the match score? → A: The App Header displays exclusively the total match score (e.g., `102 - 98`), completely omitting local and rival team names, rendered in significantly larger and high-contrast typography to maximize readability at a glance.
+- Q: Where is the extra-time reset button located after refactoring? → A: The standalone reset button is completely removed from the main screen layout (crono / period bar). The extra-time reset action is relocated inside the "Ajustar Tiempo" (Time Adjustment) modal view (accessible via a 3-second hold on the chronometer), available as an explicit option when adjusting extra time.
+- Q: How does the court canvas adapt to compact or small phone screens? → A: The half-court canvas and surrounding layout scale fluidly and responsively to the available viewport height and width, preventing vertical overflow, canvas distortion, or court players from being pushed down behind or obscured by the bench panel.
+- Q: How are player circles (on court and on bench) sized after refactoring? → A: All player circle representations (the 5 active on-court players and players in the horizontal bench list) are scaled down to a noticeably smaller, compact diameter, fitting cleanly within the viewport without colliding with other elements while preserving clear legibility of player identifiers and key metrics.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Game Clock, Period Control & Isolated Period Scoring (Priority: P1)
 
-As a coach or scorekeeper, I want a dedicated controller for game periods (`q1`, `q2`, `q3`, `q4`, `extra`), chronometer, period scores, and team fouls so that time and scoring are accurately tracked and isolated per period with total score computed automatically.
+As a coach or scorekeeper, I want a dedicated controller for game periods (`q1`, `q2`, `q3`, `q4`, `extra`), chronometer, period scores, and team fouls so that time and scoring are accurately tracked and isolated per period with total score computed automatically, without interface clutter or layout distortion during extra time.
 
 **Why this priority**: Precise period and clock management is the central driver for live match recording, player minute accumulation, and quarter-by-quarter score isolation.
 
-**Independent Test**: Can be tested independently by starting/stopping the timer via single tap, manually setting the timer via 3-second hold, advancing periods via single tap, selecting arbitrary periods via 3-second hold modal, logging period points/fouls, and resetting extra time to 5:00 while verifying scores and team fouls remain preserved.
+**Independent Test**: Can be tested independently by starting/stopping the timer via single tap, manually setting the timer via 3-second hold, advancing periods via single tap, selecting arbitrary periods via 3-second hold modal, logging period points/fouls, verifying the main screen layout remains free of standalone reset buttons during extra time, and resetting extra time to 5:00 from within the "Ajustar Tiempo" modal while verifying scores and team fouls remain preserved.
 
 **Acceptance Scenarios**:
 
 1. **Given** the chronometer is paused, **When** the user taps the crono widget once, **Then** the timer starts running and active on-court players accumulate both cumulative minutes and current stint minutes.
 2. **Given** the chronometer is running, **When** the user taps the crono widget once, **Then** the timer pauses and player minute accumulation halts.
-3. **Given** the crono widget, **When** the user presses and holds the widget for 3 seconds, **Then** a manual time input modal opens allowing the user to configure the remaining period time.
+3. **Given** the crono widget, **When** the user presses and holds the widget for 3 seconds, **Then** the "Ajustar Tiempo" modal opens allowing the user to configure remaining time.
 4. **Given** the active period indicator, **When** the user taps it once, **Then** the game advances to the next period in sequence (`q1` -> `q2` -> `q3` -> `q4` -> `extra`).
 5. **Given** the active period indicator, **When** the user presses and holds it for 3 seconds, **Then** a modal opens listing all available periods (`q1`, `q2`, `q3`, `q4`, `extra`) allowing direct period selection.
 6. **Given** periods `q1` through `q4`, **When** initialized, **Then** each period clock defaults to 10:00 (10 minutes) with isolated period scores and period team fouls.
-7. **Given** the game is in `extra` time (initialized to 5:00), **When** the user triggers the crono reset action, **Then** the timer resets to 5:00, all current period scores and team fouls remain intact, and 1 additional timeout is granted.
-8. **Given** scores recorded in individual periods, **When** viewing the scoreboard, **Then** the total score dynamically reflects the sum of all period scores.
+7. **Given** the game is in `extra` time, **When** viewed on the main screen, **Then** no standalone extra-time reset button is displayed in the main interface layout (preventing layout expansion or canvas displacement).
+8. **Given** the game is in `extra` time, **When** the user opens the "Ajustar Tiempo" modal (via 3-second hold on the chronometer) and triggers the extra-time reset option, **Then** the timer resets to 5:00, all current period scores and team fouls remain intact, and 1 additional timeout is granted.
+9. **Given** scores recorded in individual periods, **When** viewing the scoreboard, **Then** the total score dynamically reflects the sum of all period scores.
 
 ---
 
@@ -118,7 +126,7 @@ As a coach, I want a team management panel beneath the court canvas with a horiz
 
 As a coach or scorekeeper, I want a full-width rival control panel to adjust rival period score (+1, +2, +3, -1) and rival period team fouls (+1, -1) without a redundant total points counter, so that the control interface is spacious, uncluttered, and easy to operate.
 
-**Why this priority**: Total rival points are already prominently displayed in the global match header scoreboard. Removing the duplicate total points counter from the bottom control component frees horizontal real estate and creates an accessible, full-width touch layout for rival score and foul adjustments.
+**Why this priority**: Total rival points are prominently displayed in the global match header scoreboard. Removing duplicate total points from the bottom control component frees horizontal real estate and creates an accessible, full-width touch layout for rival score and foul adjustments.
 
 **Independent Test**: Can be tested by verifying that the rival control panel spans 100% of the container width, contains no total points counter element, updates active period rival scores (+1, +2, +3, -1), updates active period rival fouls (+1, -1), and pauses running clock on foul increment.
 
@@ -157,6 +165,40 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 
 ---
 
+### User Story 6 - Responsive Viewport Adaptation & Compact Player Circle Scaling (Priority: P1)
+
+As a coach using a compact or small phone, I want the Play Match view, half-court canvas, and player circles (both court and bench) to scale responsively to my screen size without elements overlapping or pushing off-screen, so that all controls and court players remain visible and fully interactive.
+
+**Why this priority**: Coaches operate the app on devices of varying dimensions. Large player circles and fixed-height court containers cause layout overflow, pushing active court players behind the bench panel on smaller screens and disrupting match coaching.
+
+**Independent Test**: Can be tested on small mobile viewports (e.g., 360x640, 375x667) by rendering the Play Match view, verifying all 5 on-court positions and the horizontal bench list are visible simultaneously without vertical scrolling or overlap with control panels, and verifying player circles are scaled down to compact dimensions while preserving legible text.
+
+**Acceptance Scenarios**:
+
+1. **Given** a small mobile viewport, **When** the Play Match screen is rendered, **Then** the half-court canvas scales fluidly to fit the available vertical and horizontal space between the top controller and bottom bench panel.
+2. **Given** the 5 on-court player slots, **When** rendered on any phone screen size, **Then** no player circles are hidden, pushed down behind, or occluded by the bench panel controls.
+3. **Given** player circles on both the half-court canvas and the horizontal bench list, **When** displayed, **Then** they render at a compact scale, noticeably smaller than previous dimensions, fitting comfortably within the layout bounds.
+4. **Given** the compact player circles, **When** inspected, **Then** the player identification (jersey number or initial/last name), divisor line, and stint/match minutes and points remain clearly legible and tap-interactive.
+
+---
+
+### User Story 7 - Enlarged Score-Only Application Header (Priority: P2)
+
+As a coach or spectator, I want the App Header to display only the total match score in large, prominent typography without team names, so that I can immediately check the match score at a glance from any distance.
+
+**Why this priority**: During fast-paced matches, glancing at the score quickly is paramount. Team names take up valuable horizontal real estate and shrink the score digits; displaying only the total score in larger format maximizes legibility and simplifies the top header bar.
+
+**Independent Test**: Can be tested by loading a live match, verifying the App Header renders only the total score (e.g. `102 - 98`) in enlarged typography, verifying team names are completely omitted from the header, and verifying back/exit and save/finish actions remain functional.
+
+**Acceptance Scenarios**:
+
+1. **Given** an active match in the Play Match view, **When** viewing the App Header, **Then** the header displays exclusively the total match score (e.g., `84 - 79`).
+2. **Given** the App Header, **When** inspected, **Then** no local team name or rival team name text is rendered within the header area.
+3. **Given** the total match score in the App Header, **When** rendered, **Then** the score numbers are displayed in significantly larger, high-contrast typography compared to standard headers.
+4. **Given** the App Header, **When** viewed, **Then** the back/exit button and save/finish button remain fully visible, accessible, and aligned alongside the enlarged score.
+
+---
+
 ### Edge Cases
 
 - **Starting Match with No Initial Lineup**: If a match is opened and fewer than 5 players are assigned to the quintet, the court canvas indicates empty positions. Tapping an empty position opens a quick player selector modal to assign an available bench player directly with stint timer initialized to 0.
@@ -171,7 +213,10 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 - **Multiple Assists by Teammate**: Cascading assist subtraction decrements the specific assist linked to the decremented basket event; other previously credited assists for that teammate remain unaffected.
 - **Stat Underflow Prevention**: Subtraction of points, rebounds, fouls, assists, turnovers, or steals cannot drop any stat value below 0.
 - **Clock Reaching 00:00 in Regular Quarters (`q1`-`q4`)**: Chronometer stops automatically at 00:00; stint minute accumulation stops; user can advance to the next period.
-- **Clock Reaching 00:00 in Extra Time (`extra`)**: The user can reset the crono to 5:00, which preserves all accumulated scores, team fouls, and player statistics while adding +1 timeout.
+- **Clock Reaching 00:00 in Extra Time (`extra`)**: The user can reset the crono to 5:00 via the "Ajustar Tiempo" modal, which preserves all accumulated scores, team fouls, and player statistics while adding +1 timeout.
+- **Small Phone Viewport (Short Screen Heights)**: When running on screens with compact heights (e.g. under 700px), the court canvas adjusts its height dynamically so that on-court players never collide with or get obscured by the bench panel.
+- **Extra-Time Reset Relocation**: The extra-time reset action inside the "Ajustar Tiempo" modal is only enabled or presented when the active period is `extra`. Triggering it restores the timer to 05:00 and grants +1 timeout while keeping scores and fouls intact.
+- **Header Score Scaling with High Scores**: If scores reach triple digits (e.g., `112 - 108`), the enlarged score typography fits cleanly between the back button and action icons without truncating or wrapping.
 - **Player Disqualification on 5 Personal Fouls**: When a player reaches 5 personal fouls, a visual warning alerts the coach to substitute the player out.
 - **Player Lacks Jersey Number**: When a player object has no jersey number (`null`, `undefined`, or empty/whitespace string `""`), the identification area triggers the fallback format `[First Initial]. [Last Name]`.
 - **Player Missing First Name or Last Name in Fallback**: If a player has no jersey number and lacks a first name, the fallback displays `[Last Name]`; if the player lacks a last name, it displays `[First Name]`; if both are missing or empty, a neutral fallback (`"Jugador"`) is rendered safely without throwing runtime errors or breaking the circle layout.
@@ -185,16 +230,17 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 - **FR-001**: System MUST manage 5 game periods: `q1`, `q2`, `q3`, `q4`, and `extra`.
 - **FR-002**: Tapping the period indicator once MUST advance to the next period in sequence (`q1` -> `q2` -> `q3` -> `q4` -> `extra`).
 - **FR-003**: Pressing and holding the period indicator for 3 seconds MUST open a period selection modal displaying all available periods for direct selection.
-- **FR-005**: Application Header MUST display the live match score formatted as `${teamName} ${teamTotalScore} - ${rivalTotalScore} ${rivalName}` without text truncation (wrapping team names over new lines as needed), integrated with a "go back arrow" icon button to exit and a "save" icon button to finalize/save the match, replacing any internal duplicate view header.
+- **FR-005**: Application Header MUST display EXCLUSIVELY the live total match score formatted as `${teamTotalScore} - ${rivalTotalScore}` (completely omitting local and rival team names) rendered in significantly enlarged and high-contrast typography, integrated with the return/back icon button to exit and the save icon button to finalize/save the match.
 - **FR-005b**: Component 1 (Time, Score, and Fouls Controller) MUST render ONLY the current period score and current period team fouls for both teams.
 - **FR-006**: Regular periods (`q1` through `q4`) MUST initialize with a duration of 10 minutes (10:00), and `extra` time MUST initialize with a duration of 5 minutes (05:00).
 - **FR-007**: Tapping the crono widget once MUST toggle between starting and pausing the timer.
-- **FR-008**: Pressing and holding the crono widget for 3 seconds MUST open a manual time entry modal to adjust remaining minutes and seconds.
-- **FR-009**: In `extra` time, the crono reset action MUST be rendered strictly as an Icon and MUST only be enabled when the extra time crono is at 00:00 (restores timer to 5:00 without wiping score/fouls).
+- **FR-008**: Pressing and holding the crono widget for 3 seconds MUST open the "Ajustar Tiempo" (Time Adjustment) modal to adjust remaining minutes and seconds.
+- **FR-009**: The extra-time reset button MUST be completely removed from the main screen layout (crono/period control bar).
+- **FR-009a**: The extra-time reset action MUST be relocated inside the "Ajustar Tiempo" (Time Adjustment) modal view, accessible as an option when editing time during `extra` period, restoring the clock to 05:00 without wiping score/fouls and granting +1 additional timeout.
 - **FR-010**: Resetting the extra time crono MUST grant +1 additional timeout to the user's available timeout count.
 
 #### Component 2: Team Management, Court Canvas & Player Stint / Stats
-- **FR-011**: System MUST render an interactive half basketball court canvas with 5 position buttons representing the active on-court quintet (showing empty states if unassigned; tapping an empty slot opens a quick player selector modal to assign a bench player).
+- **FR-011**: System MUST render an interactive half basketball court canvas that scales fluidly and responsively across various mobile device screen sizes (especially small phones), ensuring that the court canvas and all 5 active on-court player slots remain fully visible within the viewport without layout overflow, vertical clipping, or collapsing behind the bottom bench management panel.
 - **FR-012**: Tapping any active on-court player button MUST open the player statistics modal.
 - **FR-013**: The player statistics modal MUST provide options for:
   - `t1a` (1-point made) and `t1i` (1-point missed)
@@ -211,7 +257,7 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 - **FR-017**: All 5 on-court quintet players MUST automatically accumulate current stint duration (`stintSeconds`) and cumulative match time (`secondsPlayed`) in real time while the chronometer is running.
 - **FR-017a**: Active on-court player circles MUST display the player's current continuous stint duration (`stintMinutes` / time played since entering the court) starting at `0` upon court entry.
 - **FR-017b**: When a player is substituted to the bench and subsequently returns to the court, their displayed stint duration MUST reset to `0` for the new stint.
-- **FR-018**: Each player circle (on court and on bench) MUST visually format player identification and match stats:
+- **FR-018**: Each player circle (both the 5 active on-court positions and the horizontal bench list) MUST be rendered at a reduced, compact size that prevents visual collision or occlusion by control panels across small mobile viewports, while preserving legible player identification and stint/minute metrics:
   1. **Player Identification**:
      - When a player has an assigned Jersey Number, the view MUST exclusively display the Jersey Number (e.g., `#23` or `23`) as the primary identifier.
      - When a player does NOT have an assigned Jersey Number (absent, null, undefined, or empty/whitespace string), the view MUST display the player's name in `[First Initial]. [Last Name]` format (e.g., `A. Arias`, `A. Delgado`, `P. Stegmann`).
@@ -268,7 +314,7 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 - **SC-003**: 100% of recorded personal fouls and rival fouls increment period team fouls and immediately halt the running chronometer.
 - **SC-004**: Assist prompt appears for 100% of made 2pt and 3pt shots and allows selecting either an active on-court teammate or "non assistant".
 - **SC-005**: Swap Mode strictly prevents 100% of unbalanced substitutions, guaranteeing exactly 5 active players on the court at all times.
-- **SC-006**: Extra time crono reset restores the clock to 5:00 and grants +1 timeout while maintaining 100% data integrity for all existing period scores, team fouls, and player stats.
+- **SC-006**: Extra-time reset triggered from within the "Ajustar Tiempo" modal restores the clock to 5:00 and grants +1 timeout while maintaining 100% data integrity for all existing period scores, team fouls, and player stats.
 - **SC-007**: Timeout allocations strictly enforce 2 for `q1`-`q2`, 3 for `q3`-`q4`, and 1 for `extra` (plus resets).
 - **SC-008**: 100% of active on-court players display stint minutes starting at `0` upon court entry, incrementing continuously while playing, and resetting to `0` whenever returning from the bench to a new stint.
 - **SC-009**: 100% of player circles (court and bench) display exclusively the Jersey Number when an assigned jersey number is present.
@@ -281,6 +327,10 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 - **SC-016**: 100% of dismissals via the cross button or backdrop click-outside immediately close the modal and return control to the match view.
 - **SC-017**: 100% of throw statistics across 1-point, 2-point, and 3-point categories adhere strictly to the `s/a (#%)` format without division-by-zero errors when total attempts equal 0.
 - **SC-018**: While Swap Mode is active, 0% of bench player taps trigger the stats modal, strictly preserving substitution selection workflow.
+- **SC-019**: On small phone viewports (tested down to compact mobile dimensions ~360x640 / 375x667), 100% of the 5 on-court positions, court lines, and bench panel controls are fully visible within the viewport without overlapping, occlusion behind the bench panel, or vertical scrolling off-screen.
+- **SC-020**: 100% of player circles on the half-court canvas and the bench list are rendered in compact, scaled-down dimensions while preserving legibility of jersey number / name and stint/match minutes and points.
+- **SC-021**: The App Header displays 0 team name strings, rendering exclusively the total match score in prominent, enlarged typography.
+- **SC-022**: The main match view layout contains 0 standalone extra-time reset buttons, eliminating extra-time related layout shift or canvas displacement.
 
 ## Assumptions
 
@@ -296,4 +346,5 @@ As a coach or assistant, I want to tap any player sitting on the bench to open a
 - Fallback name abbreviation adheres to standard format `[First Initial]. [Last Name]` (e.g., `A. Arias`), trimming surrounding whitespace and capitalizing the initial.
 - Bench player statistics modal is strictly an informational view; stat recording and decrementing actions are not available from the bench modal.
 - Success percentage in `s/a (#%)` format is rounded to the nearest integer (e.g., 2/3 is `2/3 (67%)`), and 0 attempts is rendered as `0/0 (0%)`.
-
+- Court canvas layout responsively calculates dimension constraints based on available screen space or flex boundaries rather than using hardcoded fixed heights that overflow on compact screens.
+- App header title/score display is streamlined across all match view header integrations to prioritize immediate score visibility over team labels.

@@ -212,16 +212,17 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
     });
   }, [onReturn, handleFinishMatch, setHeaderBackAction, setHeaderAction]);
 
-  // Update Application Header Live Match Score & Teams
+  // Update Application Header Live Match Score & Teams (Score-Only Prominent Header per US7)
   useEffect(() => {
     setMatchHeaderInfo({
       teamName,
       teamScore: teamTotalScore,
       rivalScore: rivalTotalScore,
       rivalName,
+      scoreOnly: true,
     });
-    setHeaderTitle(formattedMatchTitle);
-  }, [teamName, rivalName, teamTotalScore, rivalTotalScore, formattedMatchTitle, setMatchHeaderInfo, setHeaderTitle]);
+    setHeaderTitle(`${teamTotalScore} - ${rivalTotalScore}`);
+  }, [teamName, rivalName, teamTotalScore, rivalTotalScore, setMatchHeaderInfo, setHeaderTitle]);
 
   // Clean up header state only on component unmount
   useEffect(() => {
@@ -419,7 +420,6 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
         onOpenPeriodSelectModal={() => setIsPeriodSelectModalOpen(true)}
         onToggleTimer={toggleTimer}
         onOpenManualTimeModal={() => setIsManualTimeModalOpen(true)}
-        onResetExtraTimeCrono={resetExtraTimeCrono}
       />
 
       {/* Component 2: Team Management & Court Canvas */}
@@ -470,6 +470,7 @@ export const PlayMatch: React.FC<PlayMatchProps> = ({
         periodKey={activePeriod}
         onSaveTime={(secs) => setPeriodTime(activePeriod, secs)}
         onClose={() => setIsManualTimeModalOpen(false)}
+        onResetExtraTimeCrono={resetExtraTimeCrono}
       />
 
       <QuickAssignPlayerModal

@@ -1,6 +1,6 @@
 # Data Model: Play Match View
 
-**Feature**: `007-play-match-view` | **Date**: 2026-10-25 (Updated with Bench Player Statistics Modal)
+**Feature**: `007-play-match-view` | **Date**: 2026-10-28 (Updated with Design Refactorization: Responsive Layout, Scaled Player Circles, Overtime Reset Relocation & Score-Only Header)
 
 ## 1. Domain Entities & Database Schema Mapping
 
@@ -138,6 +138,13 @@ export interface ThrowStatBreakdown {
   formatted: string; // e.g. "4/5 (80%)" or "0/0 (0%)"
 }
 
+export interface ResponsiveCourtLayout {
+  width: number;
+  height: number;
+  scaleFactor: number;
+  positions: { index: number; x: number; y: number }[];
+}
+
 export interface PlayMatchState {
   matchId: number;
   activePeriod: PeriodKey;
@@ -172,8 +179,10 @@ stateDiagram-v2
         ClockPaused --> ClockRunning: 1-Tap Crono (Start)
         ClockRunning --> ClockPaused: 1-Tap Crono (Pause)
         ClockRunning --> ClockPaused: Personal Foul or Rival Foul committed
+        
         ClockPaused --> ManualTimeModal: 3-Second Hold Crono
         ManualTimeModal --> ClockPaused: Save / Cancel Time
+        ManualTimeModal --> ClockPaused: Trigger Reset Extra Time (Sets 05:00, +1 Timeout, preserves stats)
         
         ClockPaused --> SwapModeActive: Tap "Swap" Button
         ClockRunning --> SwapModeActive: Tap "Swap" Button (Unrestricted Swap)
@@ -188,9 +197,6 @@ stateDiagram-v2
         
         ClockPaused --> NextPeriod: 1-Tap Period Switcher
         ClockRunning --> NextPeriod: 1-Tap Period Switcher
-        
-        ClockPaused --> OvertimeReset: In Extra Time & tap Reset Crono
-        OvertimeReset --> ClockPaused: Clock set to 5:00 (+1 Timeout awarded)
 
         ClockPaused --> PlayerStatsModal: 1-Tap On-Court Player
         ClockRunning --> PlayerStatsModal: 1-Tap On-Court Player
@@ -221,30 +227,40 @@ stateDiagram-v2
    - When a player leaves the court to the bench, their `stintSeconds` stops.
    - When a benched player re-enters the court, `stintSeconds` resets to `0` for the new stint.
    - Cumulative `secondsPlayed` never resets during a match and continues accumulating in parallel for database records.
-4. **Player Circle Identification Invariant**:
-   - If `player.number` is present and non-empty after trimming, the player circle MUST exclusively display `#${player.number.trim()}`.
+4. **Player Circle Representation & Identification Invariant**:
+   - If `player.number` is present and non-empty after trimming, the player circle MUST exclusively display `#${player.number.trim()}` (omitting name).
    - If `player.number` is absent, null, undefined, or empty/whitespace, the identifier MUST display `[First Initial]. [Last Name]` (e.g., `A. Arias`), falling back gracefully to single name or `"Jugador"` without runtime errors or layout overflow.
-   - On-court circles display stint time: `${stintMin}min / ${pts}pts`.
-   - Bench circles display cumulative match time: `${min}min / ${pts}pts`.
-5. **Stat Subtraction & Cascading Assist Invariant**:
+   - Divisor line separates player identification from metrics below.
+   - On-court circles display stint time and personal points below divisor: `${stintMin}min / ${pts}pts`.
+   - Bench circles display cumulative match time and personal points below divisor: `${min}min / ${pts}pts`.
+   - All circles render at a compact scale (`w-11 h-11` or `w-12 h-12`), avoiding collisions across small viewports.
+5. **Responsive Half-Court Canvas Invariant**:
+   - The court canvas dynamically scales to fill available vertical and horizontal space without pushing active quintet players behind the bottom bench panel on small mobile devices.
+   - Player position coordinates scale proportionally to the rendered canvas dimensions.
+6. **Relocated Overtime Reset Invariant**:
+   - No standalone overtime reset button exists in the main scoreboard/crono row.
+   - The extra-time reset action is exclusively housed within `ManualTimeModal` ("Ajustar Tiempo"), accessible when `periodKey === "extra"`.
+   - Resetting extra-time restores `remainingSeconds` to `300` (05:00), awards +1 timeout to `extraTimeRemaining`, and preserves all accumulated scores, team fouls, and player statistics intact.
+7. **Score-Only Application Header Invariant**:
+   - The Application Header displays exclusively the total match score (e.g., `102 - 98`), completely omitting local and rival team names.
+   - Score numbers render in significantly enlarged, high-contrast typography.
+8. **Stat Subtraction & Cascading Assist Invariant**:
    - Only active on-court players can trigger stat subtraction via 2-second hold (`delayLongPress: 2000`). Bench players ignore long press.
    - Decrementing a made 2-point (`t2a`) or 3-point (`t3a`) shot automatically finds the corresponding `ScoreEventLink` and decrements the assist (`asis`) of the assisting teammate if one was linked.
    - No stat (`points`, `shots`, `rebounds`, `fouls`, `assists`, `steals`, `turnovers`, period scores, team fouls) can drop below 0.
-6. **Full-Width Rival Layout Invariant**:
+9. **Full-Width Rival Layout Invariant**:
    - The rival control panel spans 100% of the available container width (`w-full`).
    - The rival total points counter element is completely omitted from the rival control component.
-7. **Score Isolation & Aggregation Invariant**:
-   - Each period maintains isolated `teamScore` and `rivalScore`. Total scores equal the exact sum of all 5 period scores:
-     $$\text{Total Score} = \sum_{p \in \{q1, q2, q3, q4, extra\}} \text{PeriodScore}_p$$
-8. **Foul Auto-Stop Invariant**: Any increment to home personal fouls (`falt`) or rival fouls (+1 Foul) triggers `isTimerRunning = false`.
-9. **Timeout Budget Invariant**:
-   - `q1` and `q2` share a single pool of 2 timeouts (max 2 used across both periods).
-   - `q3` and `q4` share a single pool of 3 timeouts (max 3 used across both periods).
-   - `extra` has 1 timeout initially + 1 timeout per extra time crono reset.
-   - Available timeouts cannot drop below 0.
-10. **Player Points Invariant**:
-    $$\text{Player Pts} = (\text{t1a} \times 1) + (\text{t2a} \times 2) + (\text{t3a} \times 3)$$
-11. **Bench Player Statistics Modal Invariants**:
+10. **Score Isolation & Aggregation Invariant**:
+    - Each period maintains isolated `teamScore` and `rivalScore`. Total scores equal the exact sum of all 5 period scores:
+      $$\text{Total Score} = \sum_{p \in \{q1, q2, q3, q4, extra\}} \text{PeriodScore}_p$$
+11. **Foul Auto-Stop Invariant**: Any increment to home personal fouls (`falt`) or rival fouls (+1 Foul) triggers `isTimerRunning = false`.
+12. **Timeout Budget Invariant**:
+    - `q1` and `q2` share a single pool of 2 timeouts (max 2 used across both periods).
+    - `q3` and `q4` share a single pool of 3 timeouts (max 3 used across both periods).
+    - `extra` has 1 timeout initially + 1 timeout per extra time crono reset.
+    - Available timeouts cannot drop below 0.
+13. **Bench Player Statistics Modal Invariants**:
     - **Trigger**: Tapping any player on the bench while `isSwapMode === false` opens `BenchPlayerStatsModal` populated with that player's cumulative stats.
     - **Swap Mode Isolation**: While `isSwapMode === true`, tapping a bench player circle toggles substitution selection ($N\text{ in} = N\text{ out}$) and MUST NOT open `BenchPlayerStatsModal`.
     - **Read-Only Invariant**: `BenchPlayerStatsModal` provides strictly an informational overview. No stat mutation actions or assist linkages are accessible.

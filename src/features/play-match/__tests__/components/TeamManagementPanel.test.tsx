@@ -182,5 +182,15 @@ describe("TeamManagementPanel (T028 - US3)", () => {
       expect(playMatchSource).toContain("BenchPlayerStatsModal");
       expect(playMatchSource).toContain("handleSelectBenchPlayer");
     });
+
+    it("should assert compact bench player circle dimensions (w-11 h-11 or w-12 h-12) and absence of oversized w-20 (T045 - US6)", () => {
+      const componentPath = path.resolve(__dirname, "../../components/TeamManagementPanel.tsx");
+      const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+      const hasCompactDimensions =
+        componentSource.includes("w-12 h-12") || componentSource.includes("w-11 h-11");
+      expect(hasCompactDimensions).toBe(true);
+      expect(componentSource).not.toContain("w-20 h-20");
+    });
   });
 });

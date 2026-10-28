@@ -2,6 +2,8 @@ import React from "react";
 import { ManualTimeModalProps } from "../../types";
 
 declare const jest: any;
+declare const require: any;
+declare const __dirname: string;
 
 describe("ManualTimeModal (T008 - US1)", () => {
   it("should conform to ManualTimeModalProps contract", () => {
@@ -35,5 +37,34 @@ describe("ManualTimeModal (T008 - US1)", () => {
 
     expect(minutes).toBe(7);
     expect(seconds).toBe(30);
+  });
+
+  it("should support onResetExtraTimeCrono handler when in extra period", () => {
+    const onResetMock = jest.fn();
+    const onCloseMock = jest.fn();
+    const props: ManualTimeModalProps = {
+      visible: true,
+      currentSeconds: 0,
+      periodKey: "extra",
+      onSaveTime: jest.fn(),
+      onClose: onCloseMock,
+      onResetExtraTimeCrono: onResetMock,
+    };
+
+    expect(props.periodKey).toBe("extra");
+    expect(props.onResetExtraTimeCrono).toBeDefined();
+
+    props.onResetExtraTimeCrono!();
+    expect(onResetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("should verify presence of modal-reset-extra-crono-button in component source for extra period", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const componentPath = path.resolve(__dirname, "../../components/ManualTimeModal.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    expect(componentSource).toContain("modal-reset-extra-crono-button");
+    expect(componentSource).toContain("onResetExtraTimeCrono");
   });
 });

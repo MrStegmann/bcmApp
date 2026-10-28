@@ -8,6 +8,7 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
   periodKey,
   onSaveTime,
   onClose,
+  onResetExtraTimeCrono,
 }) => {
   const [mins, setMins] = useState<number>(Math.floor(currentSeconds / 60));
   const [secs, setSecs] = useState<number>(currentSeconds % 60);
@@ -134,6 +135,23 @@ export const ManualTimeModal: React.FC<ManualTimeModalProps> = ({
               <Text className="text-slate-300 font-semibold text-xs">00:00</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Overtime Reset Option (Relocated from main view) */}
+          {periodKey === "extra" && onResetExtraTimeCrono && (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              testID="modal-reset-extra-crono-button"
+              onPress={() => {
+                onResetExtraTimeCrono();
+                onClose();
+              }}
+              className="py-3 min-h-[48px] rounded-xl bg-surface-elevated border border-court-orange items-center justify-center mb-3 active:bg-court-orange/20"
+            >
+              <Text className="text-court-orange font-bold text-sm">
+                Reiniciar Tiempo Extra (05:00)
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Actions */}
           <TouchableOpacity
