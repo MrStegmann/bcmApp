@@ -61,3 +61,46 @@ export const calculateEuclideanDistance = (
   const dy = p1.y - p2.y;
   return Math.sqrt(dx * dx + dy * dy);
 };
+
+export const BASE_CANVAS_WIDTH = 360;
+export const BASE_CANVAS_HEIGHT = 320;
+
+export function getScaledCourtPositions(
+  canvasWidth: number,
+  canvasHeight: number,
+  baseWidth: number = BASE_CANVAS_WIDTH,
+  baseHeight: number = BASE_CANVAS_HEIGHT
+): CourtArcPosition[] {
+  const scaleX = canvasWidth > 0 ? canvasWidth / baseWidth : 1;
+  const scaleY = canvasHeight > 0 ? canvasHeight / baseHeight : 1;
+  const scale = Math.min(scaleX, scaleY);
+
+  return COURT_ARC_POSITIONS.map((pos) => ({
+    ...pos,
+    xOffset: Math.round(pos.xOffset * scale),
+    y: Math.round(pos.y * scale),
+  }));
+}
+
+export function calculateResponsiveCourtLayout(
+  width: number,
+  height: number,
+  baseWidth: number = BASE_CANVAS_WIDTH,
+  baseHeight: number = BASE_CANVAS_HEIGHT
+) {
+  const scaleFactor =
+    width > 0 && height > 0 ? Math.min(width / baseWidth, height / baseHeight) : 1;
+  const scaled = getScaledCourtPositions(width, height, baseWidth, baseHeight);
+
+  return {
+    width,
+    height,
+    scaleFactor,
+    positions: scaled.map((p) => ({
+      index: p.index,
+      x: p.xOffset,
+      y: p.y,
+    })),
+  };
+}
+

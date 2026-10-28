@@ -19,12 +19,11 @@ describe("TimeScoreFoulsController (T009 - US1 Component 1)", () => {
     isCompleted: false,
   };
 
-  it("should conform to TimeScoreFoulsControllerProps contract", () => {
+  it("should conform to TimeScoreFoulsControllerProps contract without standalone extra-time reset button", () => {
     const onNextPeriodMock = jest.fn();
     const onOpenPeriodSelectMock = jest.fn();
     const onToggleTimerMock = jest.fn();
     const onOpenManualTimeMock = jest.fn();
-    const onResetExtraTimeMock = jest.fn();
 
     const props: TimeScoreFoulsControllerProps = {
       activePeriod: "q1",
@@ -36,7 +35,6 @@ describe("TimeScoreFoulsController (T009 - US1 Component 1)", () => {
       onOpenPeriodSelectModal: onOpenPeriodSelectMock,
       onToggleTimer: onToggleTimerMock,
       onOpenManualTimeModal: onOpenManualTimeMock,
-      onResetExtraTimeCrono: onResetExtraTimeMock,
     };
 
     expect(props.activePeriod).toBe("q1");
@@ -57,9 +55,15 @@ describe("TimeScoreFoulsController (T009 - US1 Component 1)", () => {
 
     props.onOpenManualTimeModal();
     expect(onOpenManualTimeMock).toHaveBeenCalledTimes(1);
+  });
 
-    props.onResetExtraTimeCrono();
-    expect(onResetExtraTimeMock).toHaveBeenCalledTimes(1);
+  it("should verify complete absence of standalone extra-time reset button in component source", () => {
+    const componentPath = path.resolve(__dirname, "../../components/TimeScoreFoulsController.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    // Standalone reset button must be completely removed from TimeScoreFoulsController
+    expect(componentSource).not.toContain("reset-extra-crono-button");
+    expect(componentSource).not.toContain("onResetExtraTimeCrono");
   });
 
   it("should format remaining seconds as MM:SS", () => {
@@ -73,18 +77,6 @@ describe("TimeScoreFoulsController (T009 - US1 Component 1)", () => {
     expect(formatTime(450)).toBe("07:30");
     expect(formatTime(300)).toBe("05:00");
     expect(formatTime(5)).toBe("00:05");
-  });
-
-  it("should evaluate extra time reset button enabled only when chrono is 00:00", () => {
-    const isResetEnabled = (period: string, remainingSeconds: number) => {
-      return period === "extra" && remainingSeconds === 0;
-    };
-
-    expect(isResetEnabled("q1", 0)).toBe(false);
-    expect(isResetEnabled("extra", 300)).toBe(false);
-    expect(isResetEnabled("extra", 120)).toBe(false);
-    expect(isResetEnabled("extra", 1)).toBe(false);
-    expect(isResetEnabled("extra", 0)).toBe(true);
   });
 
   it("should use Pressable and static styling without dynamic animation or shadow classes to prevent NativeWind freeze", () => {

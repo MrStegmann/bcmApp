@@ -96,7 +96,6 @@ export interface TimeScoreFoulsControllerProps {
   onOpenPeriodSelectModal: () => void;
   onToggleTimer: () => void;
   onOpenManualTimeModal: () => void;
-  onResetExtraTimeCrono: () => void;
 }
 
 // ==========================================
@@ -112,6 +111,36 @@ export interface TeamManagementCanvasProps {
   availableTimeouts: number;
   onSelectCourtPosition: (positionIndex: number, player: InGamePlayer | null) => void;
   onLongPressCourtPosition?: (positionIndex: number, player: InGamePlayer) => void; // 2-second hold listener for stat subtraction
+  onSelectBenchPlayer: (player: InGamePlayer) => void;
+  onToggleSwapMode: () => void;
+  onConfirmSwap: () => void;
+  onCancelSwap: () => void;
+  onIncreaseTimeout: () => void;
+  onDecreaseTimeout: () => void;
+}
+
+export interface ResponsiveCourtLayout {
+  width: number;
+  height: number;
+  scaleFactor: number;
+  positions: { index: number; x: number; y: number }[];
+}
+
+export interface HalfCourtCanvasProps {
+  courtPlayers: (InGamePlayer | null)[];
+  isSwapMode: boolean;
+  selectedCourtPlayerIds: number[];
+  onSelectCourtPosition: (positionIndex: number, player: InGamePlayer | null) => void;
+  onLongPressCourtPosition?: (positionIndex: number, player: InGamePlayer) => void;
+  layout?: ResponsiveCourtLayout;
+}
+
+export interface TeamManagementPanelProps {
+  benchPlayers: InGamePlayer[];
+  isSwapMode: boolean;
+  selectedCourtCount: number;
+  selectedBenchPlayerIds: number[];
+  availableTimeouts: number;
   onSelectBenchPlayer: (player: InGamePlayer) => void;
   onToggleSwapMode: () => void;
   onConfirmSwap: () => void;
@@ -172,12 +201,13 @@ export interface ManualTimeModalProps {
   periodKey: PeriodKey;
   onSaveTime: (newSeconds: number) => void;
   onClose: () => void;
+  onResetExtraTimeCrono?: () => void; // Relocated extra-time reset action
 }
 
 export interface QuickAssignPlayerModalProps {
   visible: boolean;
-  targetPositionIndex: number | null;
-  benchPlayers: InGamePlayer[];
+  positionIndex: number;
+  availableBenchPlayers: InGamePlayer[];
   onAssignPlayer: (playerId: number, positionIndex: number) => void;
   onClose: () => void;
 }

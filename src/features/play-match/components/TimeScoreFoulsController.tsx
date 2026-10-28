@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Pressable } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { TimeScoreFoulsControllerProps } from "../types";
 
 export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> = ({
@@ -11,16 +10,12 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
   onOpenPeriodSelectModal,
   onToggleTimer,
   onOpenManualTimeModal,
-  onResetExtraTimeCrono,
 }) => {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
-
-  const isExtraPeriod = activePeriod === "extra";
-  const canResetExtra = isExtraPeriod && periodData.remainingSeconds === 0;
 
   return (
     <View className="bg-surface-container border-b border-slate-border p-3 shadow-md">
@@ -53,7 +48,7 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
             </View>
           </TouchableOpacity>
 
-          <Text className="text-slate-600 font-black text-xl">VS</Text>
+          <Text className="text-slate-600 font-black text-xl mb-1">VS</Text>
           <Pressable
             onPress={onToggleTimer}
             onLongPress={onOpenManualTimeModal}
@@ -93,25 +88,6 @@ export const TimeScoreFoulsController: React.FC<TimeScoreFoulsControllerProps> =
               </Text>
             </View>
           </Pressable>
-          {isExtraPeriod && (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              disabled={!canResetExtra}
-              onPress={onResetExtraTimeCrono}
-              testID="reset-extra-crono-button"
-              className={`w-10 h-10 rounded-xl items-center justify-center border mt-1 ${canResetExtra
-                ? "bg-court-orange border-court-orange active:bg-court-orange-dark"
-                : "bg-surface-elevated border-slate-border opacity-50"
-                }`}
-              accessibilityLabel="Reiniciar tiempo extra"
-            >
-              <MaterialIcons
-                name="refresh"
-                size={22}
-                color={canResetExtra ? "#0B1326" : "#64748b"}
-              />
-            </TouchableOpacity>
-          )}
         </View>
 
         {/* Rival Team Period Score & Fouls */}

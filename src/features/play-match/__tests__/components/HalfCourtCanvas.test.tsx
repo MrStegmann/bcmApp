@@ -243,4 +243,14 @@ describe("HalfCourtCanvas (T017 - US2)", () => {
     expect(componentSource).toContain("renderPlayerSlot(4");
     expect(componentSource).toContain("COURT_ARC_POSITIONS");
   });
+
+  it("should assert scaled-down compact player circle dimensions (w-11 h-11 or w-12 h-12) and absence of oversized w-20 (T044 - US6)", () => {
+    const componentPath = path.resolve(__dirname, "../../components/HalfCourtCanvas.tsx");
+    const componentSource = fs.readFileSync(componentPath, "utf-8");
+
+    const hasCompactDimensions =
+      componentSource.includes("w-12 h-12") || componentSource.includes("w-11 h-11");
+    expect(hasCompactDimensions).toBe(true);
+    expect(componentSource).not.toContain("w-20 h-20");
+  });
 });

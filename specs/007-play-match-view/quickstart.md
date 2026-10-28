@@ -1,6 +1,6 @@
 # Quickstart & Validation Guide: Play Match View
 
-**Feature**: `007-play-match-view` | **Date**: 2026-10-25 (Updated with Bench Player Statistics Modal)
+**Feature**: `007-play-match-view` | **Date**: 2026-10-28 (Updated with Design Refactorization: Responsive Layout, Scaled Player Circles, Overtime Reset Relocation & Score-Only Header)
 
 ## Prerequisites & Setup
 
@@ -12,40 +12,49 @@
 
 ## Validation Scenarios
 
-### Scenario 1: Component 1 - Period Switching & 3-Second Hold Modal
+### Scenario 1: Enlarged Score-Only Application Header
+- **Steps**:
+  1. Open an active match in `PlayMatch.tsx`.
+  2. Inspect the Application Header at the top of the screen.
+  3. Verify that the header displays **exclusively** the live total match score (e.g., `84 - 79` or `0 - 0`).
+  4. Verify that local team name and rival team name are completely absent from the header.
+  5. Verify that the score digits are rendered in noticeably larger, high-contrast typography.
+  6. Verify that the back/return button and save/finish buttons remain visible and responsive.
+- **Expected Outcome**: Clean, uncluttered header with prominent score readability from a distance.
+
+### Scenario 2: Component 1 - Period Switching & 3-Second Hold Modal
 - **Steps**:
   1. In `q1`, tap the period indicator once -> verify period advances to `q2`.
   2. Press and hold the period indicator for 3 seconds -> verify `PeriodSelectModal` opens with options: `Q1`, `Q2`, `Q3`, `Q4`, `EXTRA`.
   3. Select `EXTRA` -> verify active period switches to `extra` (timer initialized to `05:00`).
 - **Expected Outcome**: Instant 1-tap advance and modal direct selection after 3s hold.
 
-### Scenario 2: Component 1 - Crono 1-Tap Toggle & 3-Second Hold Manual Time
-- **Steps**:
-  1. Single-tap the crono display (`10:00`) -> verify timer starts running and active quintet players accumulate stint seconds and cumulative match seconds.
-  2. Single-tap again -> verify timer pauses.
-  3. Press and hold the crono display for 3 seconds -> verify `ManualTimeModal` opens.
-  4. Change time to `07:30` and save -> verify chronometer displays `07:30`.
-- **Expected Outcome**: 1-tap start/pause and 3s hold opens manual time configuration.
-
-### Scenario 3: Component 1 - Extra Time Crono Reset
+### Scenario 3: Component 1 - Overtime Crono Reset via "Ajustar Tiempo" Modal
 - **Steps**:
   1. Switch to `extra` time; log 4 points and 2 fouls.
-  2. Let clock run or manually set time to `00:00`.
-  3. Tap "Reset Crono" (icon button) -> verify time resets to `05:00`, current period score (4) and team fouls (2) remain unchanged, and available timeouts increase by +1.
-- **Expected Outcome**: Clock restores to 5:00 without wiping existing stats, and +1 timeout is awarded.
+  2. Inspect the main score and crono bar (`TimeScoreFoulsController`) -> verify **no standalone reset button** is rendered on the main screen.
+  3. Press and hold the chronometer for 3 seconds to open the "Ajustar Tiempo" modal (`ManualTimeModal`).
+  4. Verify the extra-time reset option/button is present inside the modal.
+  5. Tap the reset button -> verify:
+     - Chronometer resets to `05:00`.
+     - Current period score (4) and fouls (2) remain intact.
+     - Available timeouts increment by +1.
+     - Modal closes.
+- **Expected Outcome**: Main screen remains free of layout-distorting reset buttons, and extra-time reset executes cleanly from within the time adjustment modal.
 
-### Scenario 4: Component 2 - Half-Court Canvas & Player Representation Circles
+### Scenario 4: Component 2 - Responsive Half-Court Canvas & Compact Player Circles
 - **Steps**:
-  1. View the half basketball court canvas and bench list.
-  2. Verify 5 position buttons are rendered representing the active quintet (or dashed empty slot if unassigned).
-  3. Verify each circle displays:
+  1. View the half basketball court canvas and bench list across various screen sizes (including compact heights).
+  2. Verify that all 5 on-court positions are visible simultaneously without overflowing or clipping behind the bench panel.
+  3. Verify each player circle (court and bench) renders at a reduced, compact scale (`w-11 h-11` or `w-12 h-12`).
+  4. Verify each circle displays:
      - **Player Identification**:
        - When jersey number is present (e.g. `23`): displays **exclusively** `#23` with no redundant player name.
        - When jersey number is absent/empty: displays `[First Initial]. [Last Name]` (e.g., `A. Arias`).
      - Divisor line separating identifier from statistics.
-     - On-court circles: stint minutes and points formatted as `${stintMin}min / ${pts}pts`.
+     - On-court circles: stint minutes and points formatted as `${stintMin}min / ${pts}pts` (or `${stintTime} / ${pts}pts`).
      - Bench circles: cumulative match minutes and points formatted as `${min}min / ${pts}pts`.
-- **Expected Outcome**: Accurate player circle rendering with jersey number exclusivity and clean fallback abbreviation.
+- **Expected Outcome**: Compact, legible player representations and fluid court canvas scaling without visual overlap or occlusion.
 
 ### Scenario 5: Component 2 - Stats Modal, Made/Missed Shots & Assist Prompt
 - **Steps**:
@@ -135,19 +144,19 @@
 
 ### Scenario 12: Component 2 - Bench Player Statistics Modal & Throw Stat Formatting
 - **Steps**:
-  1. Ensure Swap Mode is inactive. Tap any player in the bench list (e.g., Player with 12 mins, 10 pts, 2/3 FT, 4/5 2PT, 0/0 3PT, 3 OREB, 4 DREB, 5 ASIS, 2 REC, 1 PER, 2 FALT, valuation 18).
+  1. Ensure Swap Mode is inactive. Tap any player in the bench list.
   2. Verify `BenchPlayerStatsModal` opens immediately (<100ms).
   3. Verify header displays player identification (via `formatPlayerIdentifier`), and total minutes (`12min`) and points (`10pts`) with high visual prominence at the top.
-  4. Verify throw statistics display:
-     - 1-Point Free Throws: `2/3 (67%)`
-     - 2-Point Field Goals: `4/5 (80%)`
-     - 3-Point Field Goals: `0/0 (0%)` (zero attempts handled safely with 0% and no NaN)
-  5. Verify complete secondary statline is displayed:
-     - Offensive Rebounds: `3`, Defensive Rebounds: `4`, Total Rebounds: `7`
-     - Assists: `5`, Steals: `2`, Turnovers: `1`, Personal Fouls: `2`
-     - Valuation: `18`
-  6. Tap inside the modal container body -> verify modal remains open.
-  7. Tap the backdrop overlay outside the modal container -> verify modal closes immediately.
-  8. Tap the bench player again to reopen -> tap the cross button (`✕`) in the header -> verify modal closes immediately.
-  9. Activate Swap Mode by tapping the "Swap" button. Tap a bench player -> verify bench player is selected for substitution ($N\text{ in} = N\text{ out}$) and `BenchPlayerStatsModal` does NOT open.
-- **Expected Outcome**: 100% test pass on `BenchPlayerStatsModal.test.tsx` and `formatThrowStat.test.ts` asserting prominence, formatting, backdrop/cross dismissals, and swap mode isolation.
+  4. Verify throw statistics display 1pt, 2pt, 3pt in `s/a (#%)` format (and `0/0 (0%)` when attempts = 0).
+  5. Tap outside on the backdrop -> verify modal closes.
+  6. Reopen -> tap cross (`✕`) button -> verify modal closes.
+  7. Enter Swap Mode -> tap bench player -> verify substitution is selected and modal does NOT open.
+- **Expected Outcome**: 100% test pass on `BenchPlayerStatsModal.test.tsx` and `formatThrowStat.test.ts`.
+
+### Scenario 13: Responsive Small Screen Viewport Adaptation
+- **Steps**:
+  1. Emulate a small screen device (e.g. 360x640 or compact height < 700dp).
+  2. Render the Play Match screen.
+  3. Verify that the court canvas height scales to the available area between Component 1 and Component 2.
+  4. Verify all 5 on-court player slots remain fully visible above the bench section without vertical overlap or scrolling required to access court positions.
+- **Expected Outcome**: Fluid responsive adaptation without clipped or obscured player circles.
