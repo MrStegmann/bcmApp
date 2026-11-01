@@ -7,7 +7,7 @@ import { initDatabase } from "./src/db";
 import { useNotificationLifecycle } from "./src/features/notifications/hooks/useNotificationLifecycle";
 
 // Ignore third-party library registration of deprecated React Native SafeAreaView (e.g. react-native-css-interop)
-LogBox.ignoreLogs(["SafeAreaView has been deprecated"]);
+LogBox.ignoreAllLogs(true);
 
 export default function App() {
   useNotificationLifecycle();
