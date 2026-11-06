@@ -7,6 +7,7 @@ import {
 import { calculatePeriodTotals } from "../../utils/directResultCalculations";
 
 declare const jest: any;
+declare const __dirname: string;
 
 describe("PeriodScoresSection Contract & Logic Tests (T007 - US2)", () => {
   const defaultPeriod = (): PeriodScoreInput => ({

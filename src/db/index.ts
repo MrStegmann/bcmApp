@@ -107,6 +107,19 @@ export function initDatabase(): void {
       version INTEGER NOT NULL DEFAULT 1,
       last_updated TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS auth_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      token TEXT NOT NULL,
+      token_type TEXT NOT NULL DEFAULT 'Bearer',
+      expires_in INTEGER NOT NULL,
+      expires_at TEXT NOT NULL,
+      user_id INTEGER NOT NULL,
+      username TEXT NOT NULL,
+      user_status TEXT NOT NULL,
+      user_created_at TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // Migrate existing tables if columns are missing

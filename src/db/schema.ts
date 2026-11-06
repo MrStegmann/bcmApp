@@ -125,3 +125,7 @@ export * from "../features/notifications/db/schema";
 // 6. PLAY MATCH CACHE SCHEMA
 export * from "../features/play-match/db/schema";
 
+
+
+// 7. AUTH SESSIONS SCHEMA
+export * from "../features/auth/db/schema";

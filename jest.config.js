@@ -11,6 +11,6 @@ module.exports = {
     "^expo-file-system/legacy$": "<rootDir>/src/__tests__/mocks/expo-file-system.js",
     "^expo-file-system$": "<rootDir>/src/__tests__/mocks/expo-file-system.js",
     "^expo-modules-core$": "<rootDir>/src/__tests__/mocks/expo-modules-core.js",
+    "^expo/virtual/env$": "<rootDir>/src/__tests__/mocks/expo-virtual-env.js",
   },
 };
-

@@ -39,7 +39,8 @@
           "photosPermission": "Permite a Basket Club Manager guardar imágenes de estadísticas en la galería.",
           "savePhotosPermission": "Permite a Basket Club Manager guardar imágenes de estadísticas en la galería."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

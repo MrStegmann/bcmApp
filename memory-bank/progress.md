@@ -14,8 +14,14 @@
   - Bench Player Statistics Information Modal with `s/a (#%)` throw formatting (User Story 5)
   - Responsive Viewport Scaling & Compact Player Circles (`w-12 h-12`) (User Story 6)
   - Enlarged Score-Only Match Header without Team Names (User Story 7)
-  - Comprehensive unit and integration test coverage (96 passing test suites, 575+ tests).
+- Feature 018 (Login View & Session Manager):
+  - Centralized Environment Configuration (`.env`, `.env.example`, `src/core/config/env.ts`)
+  - Local SQLite Session Persistence with Drizzle ORM (`auth_sessions`, `authSessionRepository`)
+  - Authenticated API client with timeouts and custom errors (`authService`)
+  - Predictable Auth State Management with Zustand (`useAuthStore`)
+  - Primary Entry Point Screen with NativeWind styling (`LoginView`)
+  - Automatic Cold Start Session Bypass & Stale/Corrupted Row Purging (`useAuthLifecycle`, `App.tsx`)
+- Comprehensive unit and integration test coverage (102 passing test suites, 609 total tests).
 
 **What's Left to Build:**
 - TBD based on future feature requests and user feedback.
-

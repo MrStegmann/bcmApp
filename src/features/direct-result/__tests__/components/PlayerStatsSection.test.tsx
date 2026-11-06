@@ -3,6 +3,7 @@ import { PlayerStatsSectionProps, PlayerStatInput } from "../../types";
 import { calculatePlayerPoints, calculateValuation } from "../../utils/directResultCalculations";
 
 declare const jest: any;
+declare const __dirname: string;
 
 describe("PlayerStatsSection Contract & Logic Tests (T009 - US3)", () => {
   const mockPlayers: Player[] = [

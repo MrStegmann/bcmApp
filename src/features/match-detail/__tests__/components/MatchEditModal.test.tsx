@@ -2,6 +2,7 @@ import { MatchEditModalProps, MatchEditBuffer, PlayerRosterItem } from "../../ty
 import { Game } from "../../../../types/database";
 
 declare const jest: any;
+declare const __dirname: string;
 
 describe("MatchEditModal Component Contract (T029 - US4)", () => {
   const mockMatch: Game = {

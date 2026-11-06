@@ -183,7 +183,7 @@ describe("Team Deletion & Confirmation Unit Tests (US3 / T012)", () => {
       const newTeam: Team = {
         id: 99,
         name: data.name,
-        category: data.category,
+        category: data.category ?? null,
         createdAt: "2026-01-01T00:00:00.000Z",
       };
       useClubStore.setState({
