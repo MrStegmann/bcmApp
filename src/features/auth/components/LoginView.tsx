@@ -16,12 +16,17 @@ export const LoginView: React.FC = () => {
   const {
     usernameInput,
     passwordInput,
+    rememberMe,
+    isBiometricAvailable,
     isSubmitting,
     validationError,
     apiError,
     setUsernameInput,
     setPasswordInput,
+    setRememberMe,
+    clearErrors,
     login,
+    loginWithBiometrics,
   } = useAuthStore();
 
   const handleLoginPress = () => {
@@ -58,16 +63,26 @@ export const LoginView: React.FC = () => {
           {/* API Error Alert Banner */}
           {apiError ? (
             <View
-              className="mb-6 p-4 rounded-xl bg-error-container/40 border border-error/50 flex-row items-center"
+              className="mb-6 p-4 rounded-xl bg-error-container/40 border border-error/50 flex-row items-center justify-between"
               testID="login-api-error-banner"
             >
-              <Feather name="alert-circle" size={20} color="#FFB4AB" />
-              <Text
-                className="text-error text-xs font-medium ml-3 flex-1"
-                testID="login-api-error-text"
+              <View className="flex-row items-center flex-1 mr-2">
+                <Feather name="alert-circle" size={20} color="#FFB4AB" />
+                <Text
+                  className="text-error text-xs font-medium ml-3 flex-1"
+                  testID="login-api-error-text"
+                >
+                  {apiError}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={clearErrors}
+                testID="login-api-error-dismiss"
+                accessibilityLabel="Cerrar error"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                {apiError}
-              </Text>
+                <Feather name="x" size={18} color="#FFB4AB" />
+              </TouchableOpacity>
             </View>
           ) : null}
 
@@ -138,6 +153,28 @@ export const LoginView: React.FC = () => {
               ) : null}
             </View>
 
+            {/* Remember Me Option */}
+            <TouchableOpacity
+              onPress={() => setRememberMe(!rememberMe)}
+              disabled={isSubmitting}
+              className="flex-row items-center mb-6 py-1"
+              testID="login-remember-me-toggle"
+              activeOpacity={0.7}
+            >
+              <View
+                className={`w-5 h-5 rounded-md border items-center justify-center mr-3 ${
+                  rememberMe
+                    ? "bg-court-orange border-court-orange"
+                    : "bg-surface-container-high border-slate-border"
+                }`}
+              >
+                {rememberMe && <Feather name="check" size={14} color="#ffffff" />}
+              </View>
+              <Text className="text-slate-300 text-sm font-medium">
+                Recordar credenciales
+              </Text>
+            </TouchableOpacity>
+
             {/* Submit Button */}
             <TouchableOpacity
               onPress={handleLoginPress}
@@ -160,6 +197,25 @@ export const LoginView: React.FC = () => {
                 Iniciar Sesión
               </Text>
             </TouchableOpacity>
+
+            {/* Biometric Fast-Login Button */}
+            {isBiometricAvailable ? (
+              <TouchableOpacity
+                onPress={() => {
+                  if (!isSubmitting) {
+                    loginWithBiometrics();
+                  }
+                }}
+                disabled={isSubmitting}
+                className="w-full mt-3 py-3.5 rounded-xl border border-court-orange/40 bg-surface-container-high active:bg-slate-dark flex-row items-center justify-center"
+                testID="login-biometric-button"
+              >
+                <Feather name="shield" size={18} color="#F97316" />
+                <Text className="text-court-orange font-bold text-sm ml-2">
+                  Iniciar con biometría
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         </View>
       </ScrollView>

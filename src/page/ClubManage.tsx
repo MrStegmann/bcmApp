@@ -11,6 +11,7 @@ import Alerts from "../components/Alerts";
 
 import { useClubStore } from "../store/ClubStore";
 import { useMenuStore, BottomMenuItem } from "../store/MenuStore";
+import { useAuthStore } from "../features/auth/store/useAuthStore";
 import { TopMenuEnums } from "../types/enums";
 import useDB from "../hooks/useDB";
 import { Team } from "../types/database";
@@ -30,6 +31,7 @@ const ClubManage: React.FC = () => {
   const setHeaderTitle = useMenuStore((state) => state.setHeaderTitle);
   const setBottomMenu = useMenuStore((state) => state.setBottomMenu);
   const setActiveTab = useMenuStore((state) => state.setActiveTab);
+  const setHeaderBackAction = useMenuStore((state) => state.setHeaderBackAction);
 
   const [createMode, setCreateMode] = useState<boolean>(false);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
@@ -46,12 +48,30 @@ const ClubManage: React.FC = () => {
     loadData();
   }, []);
 
+  const handleReturnClubManage = useCallback(() => {
+    setClub(null);
+  }, [setClub]);
+
   useEffect(() => {
-    if (club) return;
+    if (club) {
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "arrow-left",
+        iconFamily: "Feather",
+        onPress: handleReturnClubManage,
+      });
+      return;
+    }
 
     if (createMode) {
       setHeaderTitle("Crear Nuevo Equipo");
       setActiveTab(TopMenuEnums.ADD_NEW_TEAM);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "arrow-left",
+        iconFamily: "Feather",
+        onPress: () => setCreateMode(false),
+      });
       const items: BottomMenuItem[] = [
         {
           id: TopMenuEnums.GO_BACK,
@@ -65,6 +85,12 @@ const ClubManage: React.FC = () => {
     } else if (editingTeam) {
       setHeaderTitle("Editar Equipo");
       setActiveTab(TopMenuEnums.EDIT_TEAM);
+      setHeaderBackAction({
+        label: "Volver",
+        iconName: "arrow-left",
+        iconFamily: "Feather",
+        onPress: () => setEditingTeam(null),
+      });
       const items: BottomMenuItem[] = [
         {
           id: TopMenuEnums.GO_BACK,
@@ -78,6 +104,15 @@ const ClubManage: React.FC = () => {
     } else {
       setHeaderTitle("Gestión de Equipos");
       setActiveTab(TopMenuEnums.MAIN);
+      setHeaderBackAction({
+        testID: "header-logout-button",
+        label: "Cerrar sesión",
+        iconName: "power",
+        iconFamily: "Feather",
+        onPress: () => {
+          useAuthStore.getState().logout();
+        },
+      });
       const items: BottomMenuItem[] = [
         {
           id: TopMenuEnums.ADD_NEW_TEAM,
@@ -89,7 +124,7 @@ const ClubManage: React.FC = () => {
       ];
       setBottomMenu(items);
     }
-  }, [createMode, editingTeam, club, setHeaderTitle, setBottomMenu, setActiveTab]);
+  }, [createMode, editingTeam, club, setHeaderTitle, setBottomMenu, setActiveTab, setHeaderBackAction, handleReturnClubManage]);
 
   const handleAddClub = useCallback(async (data: { name: string; category?: string }) => {
     await createTeam({ name: data.name, category: data.category });
@@ -115,10 +150,6 @@ const ClubManage: React.FC = () => {
 
   const handleSelectTeam = useCallback((selected: Team) => {
     setClub(selected);
-  }, [setClub]);
-
-  const handleReturnClubManage = useCallback(() => {
-    setClub(null);
   }, [setClub]);
 
   const handleEditTeamTrigger = useCallback((selected: Team) => {

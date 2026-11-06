@@ -1,18 +1,23 @@
 # Active Context
 
 **Current Focus:**
-Feature 018 (Login View & Session Manager) implementation is completed. The application features a secure `LoginView` entry point, client-side input validation, API authentication with timeout and error handling, local SQLite session caching with Drizzle ORM (`auth_sessions`), automatic session bypass on cold start, stale/corrupted cache recovery, and centralized runtime configuration (`src/core/config/env.ts`).
+Feature 018 (Login View, Session Manager, Logout & Biometric Fast-Login) implementation is fully completed. The application provides:
+1. Secure `LoginView` entry point with client-side credential validation, instant input feedback, masked passwords, and centralized environment endpoint resolution (`src/core/config/env.ts`).
+2. Local SQLite session caching using Drizzle ORM (`auth_sessions`), automatic session bypass on cold start (< 1.5s), and automatic stale/corrupt session purging.
+3. User-initiated logout button with a power icon (`Feather` name `power`) placed on the left side of the `ClubList` / `ClubManage` header, purging the SQLite session cache and in-memory state and immediately redirecting to `LoginView` (< 500ms) with back-navigation blocked.
+4. "Remember Me" credential persistence strictly inside hardware-backed encrypted device storage (`expo-secure-store`), with automatic cleanup upon unchecking.
+5. Biometric fast-login (`expo-local-authentication`) for one-touch login with remembered credentials, featuring robust fallback to manual form entry on failure or cancellation without crash or user lockout.
 
 **Recent Changes:**
-- Created `.env` and `.env.example` templates and centralized environment configuration module `src/core/config/env.ts` (resolves `EXPO_PUBLIC_API_URI` and `API_URI` with trailing-slash sanitization).
-- Implemented `auth_sessions` Drizzle ORM schema and SQLite DDL table initialization in `src/db/index.ts` and `src/db/schema.ts`.
-- Implemented `authSessionRepository` with Drizzle ORM to save, fetch, validate, clear, and recover from corrupt/stale session rows.
-- Implemented `authService` for POST `${env.API_URI}/auth/login` with 10s request timeout, `calculateExpiresAt`, and specific error classes (`AuthApiError`, `NetworkTimeoutError`).
-- Implemented `useAuthStore` managing credentials, inline field validation, atomic submission state, API error alerts, and SQLite cache persistence.
-- Implemented `LoginView` with masked password inputs, NativeWind styling, inline error text, and loading spinners.
-- Implemented `useAuthLifecycle` and wired conditional routing into root `App.tsx` (bypasses login for valid sessions, shows `LoginView` for unauthenticated/expired users).
-- 102 Jest test suites (609 tests) and TypeScript type checks passing with 100% success.
+- Configured Jest mocks and mappings for `expo-secure-store` and `expo-local-authentication` in `jest.config.js`.
+- Implemented `src/core/config/env.ts` with sanitized endpoints and safe default development fallback (`http://localhost:3000`).
+- Implemented `secureStorageService` (`src/features/auth/services/secureStorageService.ts`) for encrypted credential persistence and status tracking.
+- Implemented `biometricService` (`src/features/auth/services/biometricService.ts`) wrapping `expo-local-authentication` for sensor detection and biometric prompts.
+- Updated `useAuthStore` with `rememberMe`, `isBiometricAvailable`, `setRememberMe`, `loginWithBiometrics`, `initBiometricsAndRememberedUser`, and robust `logout()`.
+- Updated `LoginView` with "Recordar credenciales" toggle, "Iniciar con biometría" fast-login button, and dismissable error alert banners.
+- Updated `src/page/ClubManage.tsx` to set `headerBackAction` with `testID: "header-logout-button"`, Feather `power` icon, and logout handler on the main team list view.
+- 115 Jest test suites (645 tests) and strict TypeScript checks (`npx tsc --noEmit`) passing with 100% success.
 
 **Next Steps:**
 - Validate on live mobile devices / Expo Go against backend auth endpoints.
-- Proceed to future feature specifications.
+- Ready for production build or subsequent feature specifications.

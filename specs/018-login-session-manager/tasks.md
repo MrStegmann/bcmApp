@@ -27,12 +27,12 @@
 
 **Purpose**: Project initialization, dependency verification, and shared configuration infrastructure
 
-- [ ] T001 Verify `expo-secure-store` and `expo-local-authentication` installations in `package.json`
-- [ ] T002 [P] Configure environment template in `.env.example` and local `.env`
-- [ ] T003 [P] Configure Jest mock mapping for `expo-secure-store` in `jest.config.js` and implement mock in `src/__tests__/mocks/expo-secure-store.js`
-- [ ] T004 [P] Configure Jest mock mapping for `expo-local-authentication` in `jest.config.js` and implement mock in `src/__tests__/mocks/expo-local-authentication.js`
-- [ ] T005 [P] Implement centralized typed environment configuration module in `src/core/config/env.ts` and verify unit tests in `src/core/config/__tests__/env.test.ts`
-- [ ] T006 [P] Update domain and contract types for authentication, remembered credentials, and biometrics in `src/features/auth/types.ts`
+- [X] T001 Verify `expo-secure-store` and `expo-local-authentication` installations in `package.json`
+- [X] T002 [P] Configure environment template in `.env.example` and local `.env`
+- [X] T003 [P] Configure Jest mock mapping for `expo-secure-store` in `jest.config.js` and implement mock in `src/__tests__/mocks/expo-secure-store.js`
+- [X] T004 [P] Configure Jest mock mapping for `expo-local-authentication` in `jest.config.js` and implement mock in `src/__tests__/mocks/expo-local-authentication.js`
+- [X] T005 [P] Implement centralized typed environment configuration module in `src/core/config/env.ts` and verify unit tests in `src/core/config/__tests__/env.test.ts`
+- [X] T006 [P] Update domain and contract types for authentication, remembered credentials, and biometrics in `src/features/auth/types.ts`
 
 ---
 
@@ -42,12 +42,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Define Drizzle ORM schema for `auth_sessions` table in `src/features/auth/db/schema.ts`
-- [ ] T008 Register `auth_sessions` table DDL migration in `src/db/index.ts` and re-export schema in `src/db/schema.ts`
-- [ ] T009 [P] Unit tests for `authSessionRepository` (CRUD, session validity, clear) in `src/features/auth/__tests__/db/authSessionRepository.test.ts`
-- [ ] T010 Implement `authSessionRepository` (`saveSession`, `getActiveSession`, `isSessionValid`, `clearSession`) in `src/features/auth/db/authSessionRepository.ts`
-- [ ] T011 [P] Define base `useAuthStore` Zustand store and initial state in `src/features/auth/store/useAuthStore.ts`
-- [ ] T012 Define public barrel exports for auth feature in `src/features/auth/index.ts`
+- [X] T007 [P] Define Drizzle ORM schema for `auth_sessions` table in `src/features/auth/db/schema.ts`
+- [X] T008 Register `auth_sessions` table DDL migration in `src/db/index.ts` and re-export schema in `src/db/schema.ts`
+- [X] T009 [P] Unit tests for `authSessionRepository` (CRUD, session validity, clear) in `src/features/auth/__tests__/db/authSessionRepository.test.ts`
+- [X] T010 Implement `authSessionRepository` (`saveSession`, `getActiveSession`, `isSessionValid`, `clearSession`) in `src/features/auth/db/authSessionRepository.ts`
+- [X] T011 [P] Define base `useAuthStore` Zustand store and initial state in `src/features/auth/store/useAuthStore.ts`
+- [X] T012 Define public barrel exports for auth feature in `src/features/auth/index.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,16 +63,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T013 [P] [US1] Unit test for authentication API client in `src/features/auth/__tests__/services/authService.test.ts`
-- [ ] T014 [P] [US1] Unit test for `useAuthStore` login action and session caching in `src/features/auth/__tests__/store/useAuthStore.test.ts`
-- [ ] T015 [P] [US1] Component test for `LoginView` entry and form submission in `src/features/auth/__tests__/components/LoginView.test.tsx`
+- [X] T013 [P] [US1] Unit test for authentication API client in `src/features/auth/__tests__/services/authService.test.ts`
+- [X] T014 [P] [US1] Unit test for `useAuthStore` login action and session caching in `src/features/auth/__tests__/store/useAuthStore.test.ts`
+- [X] T015 [P] [US1] Component test for `LoginView` entry and form submission in `src/features/auth/__tests__/components/LoginView.test.tsx`
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `authService` API client calling `${env.API_URI}/auth/login` in `src/features/auth/services/authService.ts`
-- [ ] T017 [US1] Implement `login` action in `src/features/auth/store/useAuthStore.ts`
-- [ ] T018 [US1] Implement `LoginView` form UI with username, masked password, and submit trigger in `src/features/auth/components/LoginView.tsx`
-- [ ] T019 [US1] Wire entry-point routing in `./App.tsx` to conditionally render `LoginView` when unauthenticated and `ClubManage` when authenticated
+- [X] T016 [US1] Implement `authService` API client calling `${env.API_URI}/auth/login` in `src/features/auth/services/authService.ts`
+- [X] T017 [US1] Implement `login` action in `src/features/auth/store/useAuthStore.ts`
+- [X] T018 [US1] Implement `LoginView` form UI with username, masked password, and submit trigger in `src/features/auth/components/LoginView.tsx`
+- [X] T019 [US1] Wire entry-point routing in `./App.tsx` to conditionally render `LoginView` when unauthenticated and `ClubManage` when authenticated
 
 **Checkpoint**: At this point, User Story 1 is fully functional and testable independently (MVP ready)
 
@@ -88,14 +88,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T020 [P] [US2] Unit test for session check and state restoration in `src/features/auth/__tests__/store/useAuthStore.sessionCheck.test.ts`
-- [ ] T021 [P] [US2] Integration test for cold launch session restoration in `src/features/auth/__tests__/hooks/useAuthLifecycle.test.ts`
+- [X] T020 [P] [US2] Unit test for session check and state restoration in `src/features/auth/__tests__/store/useAuthStore.sessionCheck.test.ts`
+- [X] T021 [P] [US2] Integration test for cold launch session restoration in `src/features/auth/__tests__/hooks/useAuthLifecycle.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `checkSession` action in `src/features/auth/store/useAuthStore.ts`
-- [ ] T023 [US2] Implement `useAuthLifecycle` hook in `src/features/auth/hooks/useAuthLifecycle.ts`
-- [ ] T024 [US2] Wire `useAuthLifecycle` into `./App.tsx` to restore session state after database initialization
+- [X] T022 [US2] Implement `checkSession` action in `src/features/auth/store/useAuthStore.ts`
+- [X] T023 [US2] Implement `useAuthLifecycle` hook in `src/features/auth/hooks/useAuthLifecycle.ts`
+- [X] T024 [US2] Wire `useAuthLifecycle` into `./App.tsx` to restore session state after database initialization
 
 **Checkpoint**: At this point, User Story 2 automatically bypasses login when an active unexpired session is present
 
@@ -111,13 +111,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T025 [P] [US6] Unit test for `logout` action in `src/features/auth/__tests__/store/useAuthStore.logout.test.ts`
-- [ ] T026 [P] [US6] Component integration test for ClubList header logout button in `src/__tests__/components/ClubManage.logout.test.tsx`
+- [X] T025 [P] [US6] Unit test for `logout` action in `src/features/auth/__tests__/store/useAuthStore.logout.test.ts`
+- [X] T026 [P] [US6] Component integration test for ClubList header logout button in `src/__tests__/components/ClubManage.logout.test.tsx`
 
 ### Implementation for User Story 6
 
-- [ ] T027 [US6] Implement `logout` action in `src/features/auth/store/useAuthStore.ts` to purge SQLite session cache via `authSessionRepository.clearSession()` and reset store state
-- [ ] T028 [US6] Wire left-side power icon action in `src/page/ClubManage.tsx` using `useMenuStore.setHeaderBackAction` to trigger `useAuthStore.getState().logout()`
+- [X] T027 [US6] Implement `logout` action in `src/features/auth/store/useAuthStore.ts` to purge SQLite session cache via `authSessionRepository.clearSession()` and reset store state
+- [X] T028 [US6] Wire left-side power icon action in `src/page/ClubManage.tsx` using `useMenuStore.setHeaderBackAction` to trigger `useAuthStore.getState().logout()`
 
 **Checkpoint**: At this point, User Stories 1, 2, and 6 work together with full session lifecycle and secure teardown
 
@@ -133,13 +133,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T029 [P] [US3] Unit test for credential validation logic in `src/features/auth/__tests__/services/validation.test.ts`
-- [ ] T030 [P] [US3] Component test for inline validation feedback and error clearing in `src/features/auth/__tests__/components/LoginView.validation.test.tsx`
+- [X] T029 [P] [US3] Unit test for credential validation logic in `src/features/auth/__tests__/services/validation.test.ts`
+- [X] T030 [P] [US3] Component test for inline validation feedback and error clearing in `src/features/auth/__tests__/components/LoginView.validation.test.tsx`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `validateForm` and input change handlers in `src/features/auth/store/useAuthStore.ts`
-- [ ] T032 [US3] Render validation error indicators and clear-on-change behavior in `src/features/auth/components/LoginView.tsx`
+- [X] T031 [US3] Implement `validateForm` and input change handlers in `src/features/auth/store/useAuthStore.ts`
+- [X] T032 [US3] Render validation error indicators and clear-on-change behavior in `src/features/auth/components/LoginView.tsx`
 
 **Checkpoint**: User Story 3 prevents unnecessary network calls and provides instant user feedback
 
@@ -155,12 +155,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T033 [P] [US4] Unit test for expired session purge and corrupt record handling in `src/features/auth/__tests__/db/authSessionRepository.expiry.test.ts`
-- [ ] T034 [P] [US4] Integration test for launch with expired cache in `src/features/auth/__tests__/hooks/useAuthLifecycle.expiry.test.ts`
+- [X] T033 [P] [US4] Unit test for expired session purge and corrupt record handling in `src/features/auth/__tests__/db/authSessionRepository.expiry.test.ts`
+- [X] T034 [P] [US4] Integration test for launch with expired cache in `src/features/auth/__tests__/hooks/useAuthLifecycle.expiry.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T035 [US4] Update `checkSession` in `src/features/auth/store/useAuthStore.ts` and `authSessionRepository.ts` to automatically purge expired records and transition to unauthenticated
+- [X] T035 [US4] Update `checkSession` in `src/features/auth/store/useAuthStore.ts` and `authSessionRepository.ts` to automatically purge expired records and transition to unauthenticated
 
 **Checkpoint**: User Story 4 guarantees safe session invalidation when lifespan expires
 
@@ -176,18 +176,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T036 [P] [US7] Unit test for encrypted credential persistence in `src/features/auth/__tests__/services/secureStorageService.test.ts`
-- [ ] T037 [P] [US7] Unit test for biometric capability detection and prompt handling in `src/features/auth/__tests__/services/biometricService.test.ts`
-- [ ] T038 [P] [US7] Component test for "Remember me" toggle and Biometric trigger button in `src/features/auth/__tests__/components/LoginView.biometrics.test.tsx`
-- [ ] T039 [P] [US7] Integration test for biometric fast-login and fallback in `src/features/auth/__tests__/hooks/useAuthLifecycle.biometrics.test.ts`
+- [X] T036 [P] [US7] Unit test for encrypted credential persistence in `src/features/auth/__tests__/services/secureStorageService.test.ts`
+- [X] T037 [P] [US7] Unit test for biometric capability detection and prompt handling in `src/features/auth/__tests__/services/biometricService.test.ts`
+- [X] T038 [P] [US7] Component test for "Remember me" toggle and Biometric trigger button in `src/features/auth/__tests__/components/LoginView.biometrics.test.tsx`
+- [X] T039 [P] [US7] Integration test for biometric fast-login and fallback in `src/features/auth/__tests__/hooks/useAuthLifecycle.biometrics.test.ts`
 
 ### Implementation for User Story 7
 
-- [ ] T040 [US7] Implement `secureStorageService` using `expo-secure-store` in `src/features/auth/services/secureStorageService.ts`
-- [ ] T041 [US7] Implement `biometricService` using `expo-local-authentication` in `src/features/auth/services/biometricService.ts`
-- [ ] T042 [US7] Implement `setRememberMe`, `loginWithBiometrics`, and `initBiometricsAndRememberedUser` actions in `src/features/auth/store/useAuthStore.ts`
-- [ ] T043 [US7] Add "Remember me" switch/checkbox and Biometric fast-login trigger button to `src/features/auth/components/LoginView.tsx`
-- [ ] T044 [US7] Integrate biometric initialization and fast-login prompt in `src/features/auth/hooks/useAuthLifecycle.ts`
+- [X] T040 [US7] Implement `secureStorageService` using `expo-secure-store` in `src/features/auth/services/secureStorageService.ts`
+- [X] T041 [US7] Implement `biometricService` using `expo-local-authentication` in `src/features/auth/services/biometricService.ts`
+- [X] T042 [US7] Implement `setRememberMe`, `loginWithBiometrics`, and `initBiometricsAndRememberedUser` actions in `src/features/auth/store/useAuthStore.ts`
+- [X] T043 [US7] Add "Remember me" switch/checkbox and Biometric fast-login trigger button to `src/features/auth/components/LoginView.tsx`
+- [X] T044 [US7] Integrate biometric initialization and fast-login prompt in `src/features/auth/hooks/useAuthLifecycle.ts`
 
 **Checkpoint**: User Story 7 delivers encrypted hardware persistence and biometric fast-login with zero crash or lockout risk
 
@@ -203,13 +203,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation (Principle I: TDD)**
 
-- [ ] T045 [P] [US5] Unit test for API error mapping (401, 500, network offline) in `src/features/auth/__tests__/services/authService.errors.test.ts`
-- [ ] T046 [P] [US5] Component test for error message display and retry behavior in `src/features/auth/__tests__/components/LoginView.errors.test.tsx`
+- [X] T045 [P] [US5] Unit test for API error mapping (401, 500, network offline) in `src/features/auth/__tests__/services/authService.errors.test.ts`
+- [X] T046 [P] [US5] Component test for error message display and retry behavior in `src/features/auth/__tests__/components/LoginView.errors.test.tsx`
 
 ### Implementation for User Story 5
 
-- [ ] T047 [US5] Enhance error classification and user-friendly messages in `src/features/auth/services/authService.ts`
-- [ ] T048 [US5] Implement dismissable error banners and retry states in `src/features/auth/components/LoginView.tsx`
+- [X] T047 [US5] Enhance error classification and user-friendly messages in `src/features/auth/services/authService.ts`
+- [X] T048 [US5] Implement dismissable error banners and retry states in `src/features/auth/components/LoginView.tsx`
 
 **Checkpoint**: User Story 5 ensures resilience against network blips and bad credentials with clear user messages
 
@@ -219,10 +219,10 @@
 
 **Purpose**: Documentation updates, quality assurance, and end-to-end scenario validation
 
-- [ ] T049 [P] Update documentation in `memory-bank/activeContext.md` and `memory-bank/progress.md`
-- [ ] T050 [P] Code cleanup, strict TypeScript verification (`npx tsc --noEmit`), and linting across `src/features/auth/`
-- [ ] T051 Execute full test suite (`npm test`) and verify 100% passing tests across all test suites
-- [ ] T052 Run and validate all scenarios from `specs/018-login-session-manager/quickstart.md`
+- [X] T049 [P] Update documentation in `memory-bank/activeContext.md` and `memory-bank/progress.md`
+- [X] T050 [P] Code cleanup, strict TypeScript verification (`npx tsc --noEmit`), and linting across `src/features/auth/`
+- [X] T051 Execute full test suite (`npm test`) and verify 100% passing tests across all test suites
+- [X] T052 Run and validate all scenarios from `specs/018-login-session-manager/quickstart.md`
 
 ---
 

@@ -42,6 +42,25 @@ export interface AuthValidationError {
   password?: string;
 }
 
+export interface RememberedCredentials {
+  username: string;
+  password?: string;
+  savedAt: string;
+}
+
+export type BiometricType = "FINGERPRINT" | "FACIAL_RECOGNITION" | "NONE";
+
+export interface BiometricAuthResult {
+  success: boolean;
+  error?: string;
+}
+
+export interface BiometricState {
+  hasHardware: boolean;
+  isEnrolled: boolean;
+  supportedType: BiometricType;
+}
+
 export interface AuthState {
   status: AuthStatus;
   token: string | null;
@@ -49,6 +68,8 @@ export interface AuthState {
   expiresAt: string | null;
   usernameInput: string;
   passwordInput: string;
+  rememberMe: boolean;
+  isBiometricAvailable: boolean;
   isSubmitting: boolean;
   validationError: AuthValidationError | null;
   apiError: string | null;
@@ -57,13 +78,15 @@ export interface AuthState {
 export interface AuthActions {
   setUsernameInput: (username: string) => void;
   setPasswordInput: (password: string) => void;
+  setRememberMe: (enabled: boolean) => void;
   clearErrors: () => void;
   validateForm: () => boolean;
   login: () => Promise<boolean>;
   logout: () => Promise<void>;
   checkSession: () => Promise<boolean>;
+  loginWithBiometrics: () => Promise<boolean>;
+  initBiometricsAndRememberedUser: () => Promise<void>;
   resetForm: () => void;
 }
 
 export type AuthStore = AuthState & AuthActions;
-

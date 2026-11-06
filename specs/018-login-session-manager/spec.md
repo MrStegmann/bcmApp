@@ -5,7 +5,7 @@
 **Created**: 2026-11-02  
 **Updated**: 2026-11-06  
 
-**Status**: Draft
+**Status**: IMPLEMENTED
 
 **Input**: User description:
 > The task is to create a new feature that will be the new entry point of the app. This entrypoint will be the `Login` view page. This page MUST be always the first page of the application.

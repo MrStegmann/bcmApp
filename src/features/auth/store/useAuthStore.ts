@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { AuthStore, AuthState, AuthValidationError } from "../types";
 import { authService, AuthApiError } from "../services/authService";
 import { authSessionRepository } from "../db/authSessionRepository";
+import { secureStorageService } from "../services/secureStorageService";
+import { biometricService } from "../services/biometricService";
 
 const initialAuthState: AuthState = {
   status: "idle",
@@ -10,6 +12,8 @@ const initialAuthState: AuthState = {
   expiresAt: null,
   usernameInput: "",
   passwordInput: "",
+  rememberMe: false,
+  isBiometricAvailable: false,
   isSubmitting: false,
   validationError: null,
   apiError: null,
@@ -17,6 +21,10 @@ const initialAuthState: AuthState = {
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   ...initialAuthState,
+
+  setRememberMe: (enabled: boolean) => {
+    set({ rememberMe: enabled });
+  },
 
   setUsernameInput: (username: string) => {
     set((state) => ({
@@ -92,6 +100,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         expiresAt,
         user: response.user,
       });
+
+      if (get().rememberMe) {
+        await secureStorageService.saveCredentials({
+          username: usernameInput.trim(),
+          password: passwordInput,
+          savedAt: new Date().toISOString(),
+        });
+      } else {
+        await secureStorageService.clearCredentials();
+      }
 
       set({
         status: "authenticated",
@@ -178,6 +196,45 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         expiresAt: null,
       });
       return false;
+    }
+  },
+
+  loginWithBiometrics: async () => {
+    try {
+      const creds = await secureStorageService.getCredentials();
+      if (!creds || !creds.username || !creds.password) {
+        return false;
+      }
+
+      const bioResult = await biometricService.authenticateUser();
+      if (!bioResult.success) {
+        return false;
+      }
+
+      set({
+        usernameInput: creds.username,
+        passwordInput: creds.password,
+      });
+
+      return await get().login();
+    } catch {
+      return false;
+    }
+  },
+
+  initBiometricsAndRememberedUser: async () => {
+    try {
+      const isBio = await biometricService.isBiometricAvailable();
+      const rememberEnabled = await secureStorageService.isRememberMeEnabled();
+      const creds = await secureStorageService.getCredentials();
+
+      set({
+        isBiometricAvailable: isBio,
+        rememberMe: rememberEnabled,
+        usernameInput: creds?.username || get().usernameInput,
+      });
+    } catch (error) {
+      console.warn("initBiometricsAndRememberedUser error:", error);
     }
   },
 

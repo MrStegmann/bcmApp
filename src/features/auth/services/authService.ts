@@ -33,7 +33,6 @@ export const authService: IAuthApiService = {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const targetUrl = `${env.API_URI}/auth/login`;
-    console.log(targetUrl)
 
     try {
       const response = await fetch(targetUrl, {
@@ -71,7 +70,6 @@ export const authService: IAuthApiService = {
       const data = (await response.json()) as LoginSuccessResponse;
       return data;
     } catch (error: any) {
-      console.log(error);
       if (error instanceof AuthApiError) {
         throw error;
       }

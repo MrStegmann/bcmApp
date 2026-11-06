@@ -3,7 +3,7 @@ export interface EnvConfig {
   isProduction: boolean;
 }
 
-const DEFAULT_API_URI = "http://10.0.2.2:8080/api/v1";
+const DEFAULT_API_URI = "http://localhost:3000";
 
 function sanitizeUrl(url?: string): string {
   if (!url || typeof url !== "string") {
